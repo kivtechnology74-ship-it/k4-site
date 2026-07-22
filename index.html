@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>K4 Group / KIV-Technology — Gas-to-Power Engineering</title>
+<meta name="description" content="We design, build and operate gas engine power plants from 0.4 to 10+ MW where grid power is expensive, unreliable or absent. EPC, O&M, parts, genset audit, energy-to-compute.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F4F5F4;
+  --ink:#12181F;
+  --steel:#525E68;
+  --flame:#1265C4;
+  --flame-dark:#0C4A93;
+  --line:#D3D9DC;
+  --max:880px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{
+  background:var(--paper);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter",system-ui,sans-serif;
+  font-size:17px;line-height:1.6;letter-spacing:-0.011em;-webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+h1,h2{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter",system-ui,sans-serif;letter-spacing:-0.022em;line-height:1.1}
+h1{font-weight:700;font-size:clamp(2.4rem,6.5vw,4.2rem);letter-spacing:-0.03em}
+h2{font-weight:700;font-size:clamp(1.7rem,4vw,2.6rem);margin-bottom:1.4rem;max-width:22ch}
+h3{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter",system-ui,sans-serif;font-weight:600;font-size:1.1rem;margin-bottom:.4rem}
+p{max-width:62ch}
+p+p{margin-top:1em}
+a{color:var(--flame)}
+a:hover{color:var(--flame-dark)}
+a:focus-visible{outline:3px solid var(--flame);outline-offset:2px}
+.mono{font-family:ui-monospace,"SF Mono","Menlo","Cascadia Mono","Roboto Mono",monospace}
+.muted{color:var(--steel)}
+strong{font-weight:600}
+
+/* Nav */
+header{position:sticky;top:0;z-index:50;background:rgba(244,245,244,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.nav{display:flex;align-items:baseline;gap:22px;flex-wrap:wrap;padding:16px 24px;max-width:var(--max);margin:0 auto}
+.brand{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter",system-ui,sans-serif;font-weight:700;font-size:1rem;color:var(--ink);text-decoration:none;letter-spacing:.02em;margin-right:auto}
+.brand span{color:var(--flame)}
+.nav a.item{color:var(--steel);text-decoration:none;font-size:.88rem}
+.nav a.item:hover{color:var(--flame)}
+
+/* Sections */
+section{padding:110px 0}
+section+section{border-top:1px solid var(--line)}
+.kicker{font-family:ui-monospace,"SF Mono","Menlo","Cascadia Mono","Roboto Mono",monospace;font-size:.75rem;letter-spacing:.16em;text-transform:uppercase;color:var(--flame);display:block;margin-bottom:1.2rem}
+
+/* Hero */
+#top{padding:130px 0 110px}
+#top .lead{font-size:1.25rem;color:var(--steel);margin-top:1.6rem;max-width:56ch}
+.email-cta{display:inline-block;margin-top:2.2rem;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter",system-ui,sans-serif;font-weight:600;font-size:clamp(1.1rem,2.5vw,1.5rem);color:var(--flame);text-decoration:none;border-bottom:3px solid var(--flame);padding-bottom:2px}
+.email-cta:hover{color:var(--flame-dark);border-color:var(--flame-dark)}
+
+/* Data plate */
+.plate{margin-top:3.2rem;border:1px solid var(--line);border-radius:16px;background:#fff;box-shadow:0 8px 28px rgba(18,24,31,.07);overflow:hidden}
+.plate-title{padding:12px 22px;border-bottom:1px solid var(--line);font-family:ui-monospace,"SF Mono","Menlo","Cascadia Mono","Roboto Mono",monospace;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--steel);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.plate-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.cell{padding:22px 20px;border-top:1px solid var(--line)}
+.cell+.cell{border-left:1px solid var(--line)}
+.cell .val{font-family:ui-monospace,"SF Mono","Menlo","Cascadia Mono","Roboto Mono",monospace;font-size:1.65rem;font-weight:600}
+.cell .val em{font-style:normal;color:var(--flame)}
+.cell .lbl{font-family:ui-monospace,"SF Mono","Menlo","Cascadia Mono","Roboto Mono",monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--steel);margin-top:8px;line-height:1.5}
+@media (max-width:680px){.cell+.cell{border-left:none}}
+
+/* People */
+.person{display:flex;gap:22px;align-items:center;margin-top:2.4rem;flex-wrap:wrap}
+.avatar{width:96px;height:96px;border-radius:50%;border:1.5px solid var(--ink);background:#fff;display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter",system-ui,sans-serif;font-weight:600;font-size:1.6rem;flex-shrink:0}
+.person p{max-width:52ch}
+
+/* Cards / lists */
+.trio{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:2px;background:var(--line);border:1px solid var(--line);margin-top:2.4rem}
+.trio>div{background:var(--paper);padding:26px 24px}
+.trio h3{font-size:1rem}
+.trio p{font-size:.95rem;color:var(--steel)}
+
+ol.method{list-style:none;counter-reset:m;margin-top:2rem}
+ol.method li{counter-increment:m;padding:16px 0 16px 60px;position:relative;border-top:1px solid var(--line);max-width:66ch}
+ol.method li:last-child{border-bottom:1px solid var(--line)}
+ol.method li::before{content:counter(m,decimal-leading-zero);position:absolute;left:0;top:16px;font-family:ui-monospace,"SF Mono","Menlo","Cascadia Mono","Roboto Mono",monospace;color:var(--flame);font-weight:600}
+ol.method strong{display:block}
+
+ul.beliefs{list-style:none;margin-top:2rem}
+ul.beliefs li{padding:16px 0;border-top:1px solid var(--line);max-width:66ch}
+ul.beliefs li:last-child{border-bottom:1px solid var(--line)}
+
+.note{border-left:4px solid var(--flame);padding:4px 0 4px 22px;margin-top:2rem;max-width:66ch}
+.note p{color:var(--steel);font-size:.98rem}
+
+/* Contact */
+#contact .big-mail{display:block;margin-top:2rem;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter",system-ui,sans-serif;font-weight:700;letter-spacing:-0.02em;font-size:clamp(1.6rem,5vw,3rem);color:var(--flame);text-decoration:none;word-break:break-all;letter-spacing:-0.01em}
+#contact .big-mail:hover{color:var(--flame-dark)}
+
+footer{padding:50px 0 70px;border-top:1px solid var(--line);color:var(--steel);font-size:.82rem}
+footer p{max-width:none}
+footer .legal{margin-top:1.2rem;font-size:.76rem;line-height:1.6}
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="nav" aria-label="Main">
+    <a class="brand" href="#top">K4<span>.</span>ENERGY</a>
+    <a class="item" href="#group">Group</a>
+    <a class="item" href="#work">What we do</a>
+    <a class="item" href="#audit">Audit</a>
+    <a class="item" href="#compute">Energy-to-Compute</a>
+    <a class="item" href="#contact">Contact</a>
+  </nav>
+</header>
+
+<main>
+
+<section id="top">
+  <div class="wrap">
+    <span class="kicker">KIV-Technology · K4 engineering group</span>
+    <h1>Gas-to-Power Engineering. Full Cycle. Proven in Hard Conditions.</h1>
+    <p class="lead">We design, build and operate gas engine power plants from 0.4 to 10+ MW — for industrial sites, oilfields and remote facilities where grid power is expensive, unreliable or simply absent.</p>
+    <a class="email-cta" href="mailto:office@kiv-technology.rs">office@kiv-technology.rs</a>
+
+    <div class="plate">
+      <div class="plate-title"><span>Group data plate</span><span>Rev. 07-2026</span></div>
+      <div class="plate-grid">
+        <div class="cell">
+          <div class="val">16 <em>/</em> ~25 MW</div>
+          <div class="lbl">Power plants delivered · CIS region</div>
+        </div>
+        <div class="cell">
+          <div class="val">24/7 <em>→</em> 2030</div>
+          <div class="lbl">O&amp;M contract · Jenbacher J320 ×3 · monthly KTG reporting</div>
+        </div>
+        <div class="cell">
+          <div class="val">High-H₂S</div>
+          <div class="lbl">Sour field gas · fuel treatment &amp; operation</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="group">
+  <div class="wrap">
+    <span class="kicker">About the group</span>
+    <h2>One Group. Two Alphabets. One Engineering Standard.</h2>
+    <p>KIV-Technology d.o.o. (Belgrade, Serbia) is the international contracting entity of the K4 engineering group. The group's track record — 16 gas engine power plants totaling approximately 25 MW — has been delivered across the CIS region: brownfield integrations, containerized turnkey CHP plants, installations running on complex field gas.</p>
+    <p>We are an independent engineering and service company. We are not a dealer or distributor of INNIO Jenbacher or any other engine manufacturer. Our Jenbacher expertise comes from years of hands-on installation, commissioning, maintenance and overhaul work, a proprietary cross-reference database for spare parts, and live service contracts with monthly availability reporting.</p>
+
+    <div class="person">
+      <div class="avatar" aria-hidden="true">IS</div>
+      <div>
+        <h3>Igor Shibanov — Managing Partner</h3>
+        <p class="muted">16 plants delivered. Deal-making and project leadership across gas-to-power: from field gas analysis to signed O&amp;M contracts.</p>
+      </div>
+    </div>
+
+    <ul class="beliefs">
+      <li><strong>Availability is a contract term, not a feeling.</strong> We commit to KTG/availability factors and prove them monthly.</li>
+      <li><strong>Lifecycle cost beats purchase price.</strong> An engine is bought once and maintained for 80,000 hours.</li>
+      <li><strong>Honest arithmetic.</strong> Estimates are labeled as estimates; capital recovery and overhaul reserves are always in the model.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="work">
+  <div class="wrap">
+    <span class="kicker">What we do</span>
+    <h2>From Gas Analysis to Grid Synchronization — and Every Hour After.</h2>
+    <p>An engine plant is not a purchase, it is a 80,000-hour commitment. We cover the whole arc:</p>
+    <div class="trio">
+      <div>
+        <h3>EPC</h3>
+        <p>Fuel study (gas composition, methane number per AVL 3.10), design, permitting, procurement — Jenbacher-class or Chinese OEM (Weichai, VMAN) depending on budget and sanctions exposure — construction, commissioning, CHP integration.</p>
+      </div>
+      <div>
+        <h3>Operations &amp; Maintenance</h3>
+        <p>Scheduled maintenance by operating hours, 24/7 monitoring, fixed fee + per-kWh structure, monthly reporting pack: availability, maintenance, efficiency. Overhaul reserves planned — no surprise CAPEX.</p>
+      </div>
+      <div>
+        <h3>Spare Parts</h3>
+        <p>OEM and verified alternative part numbers from a proprietary cross-reference database. Both options quoted with lead times and our warranty on fitment. Quote within 48 hours.</p>
+      </div>
+    </div>
+    <div class="note">
+      <p><strong>Reference configurations:</strong> 4×400 kW in-building CHP in an existing boiler house · 2.5 MW containerized turnkey module (40 t, 10.5 kV output) · 2–10 MW multi-unit autonomous plants for oilfield, off-grid and compute loads. Fuel treatment engineered for associated gas including high-H₂S cases.</p>
+    </div>
+  </div>
+</section>
+
+<section id="audit">
+  <div class="wrap">
+    <span class="kicker">Flagship service · pre-owned genset audit</span>
+    <h2>Know What You're Buying Before You Wire the Money.</h2>
+    <p>The secondary market for gas gensets is opaque. Hour meters get rolled back. "After overhaul" means anything from a full rebuild to a fresh coat of paint. Lessors repossess units with no idea of their residual value. We provide the missing piece: an independent engineering audit.</p>
+    <ol class="method">
+      <li><strong>Borescope inspection</strong> Cylinder condition without disassembly</li>
+      <li><strong>Operating-hours verification</strong> Indirect wear evidence vs. meter readings and documentation</li>
+      <li><strong>Oil and coolant analysis</strong> Wear metals, contamination, coolant chemistry</li>
+      <li><strong>Residual life assessment</strong> Hours to next minor/major overhaul per OEM schedule</li>
+      <li><strong>Restoration budget</strong> Itemized parts and labor to serviceable condition</li>
+      <li><strong>Fair market value opinion</strong> What the asset is actually worth in its verified condition</li>
+    </ol>
+    <p style="margin-top:2rem"><strong>Deliverable:</strong> a written report with photo and video evidence — suitable for credit committees, insurance and dispute resolution. Ordered by buyers before payment, by leasing companies and banks for collateral, by insurers before coverage, by sellers to defend the price.</p>
+  </div>
+</section>
+
+<section id="compute">
+  <div class="wrap">
+    <span class="kicker">Energy-to-Compute</span>
+    <h2>Stranded Gas → Lowest-Cost Power → Compute.</h2>
+    <p>Flared and stranded gas is the cheapest energy on the planet — and the hardest to use. Our answer: autonomous containerized gas engine plants (2–10 MW) built next to the source, powering compute loads that tolerate remote sites.</p>
+    <p><strong>Phase 1 — Mining.</strong> Interruption-tolerant, satellite-uplink-friendly, fast cash flow. Infrastructure is built AI-ready from day one: power density margin, liquid-cooling provisions.</p>
+    <p><strong>Phase 2 — AI inference.</strong> Where fiber reaches the site, capacity converts to GPU inference workloads with softer SLA than training clusters.</p>
+    <div class="note">
+      <p><strong>The honest math.</strong> In mining, electricity is 70–80% of operating cost — cheap gas is the whole edge. In AI compute, electricity is 10–15% of GPU-hour cost — cheap power alone doesn't win; site rights, uptime engineering and operations do. That is why the durable asset is energy rights plus an operated site, and why we sequence mining before AI. All economics on request, marked indicative.</p>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="wrap">
+    <span class="kicker">Contact</span>
+    <h2>The best way to get in touch with us is to send us an email:</h2>
+    <a class="big-mail" href="mailto:office@kiv-technology.rs?subject=K4.ENERGY%20site">office@kiv-technology.rs</a>
+    <p class="muted" style="margin-top:2rem">Send what you have: a unit model and claimed hours, a gas analysis, a parts list, a site and a load. We answer parts inquiries within 48 hours.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><strong>KIV-Technology d.o.o.</strong> · Belgrade, Serbia · PIB 113538693</p>
+    <p class="legal">KIV-Technology is an independent engineering and service company. We are not a dealer, distributor or affiliate of INNIO Jenbacher or any other engine manufacturer. All trademarks belong to their respective owners. All financial figures on this site are indicative estimates. © 2026 KIV-Technology d.o.o.</p>
+  </div>
+</footer>
+
+</body>
+</html>
