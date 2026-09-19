@@ -1,245 +1,1054 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>K4 Group / KIV-Technology — Gas-to-Power Engineering</title>
-<meta name="description" content="We design, build and operate gas engine power plants from 0.4 to 10+ MW where grid power is expensive, unreliable or absent. EPC, O&M, parts, genset audit, energy-to-compute.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-:root{
-  --paper:#F4F5F4;
-  --ink:#12181F;
-  --steel:#525E68;
-  --flame:#1265C4;
-  --flame-dark:#0C4A93;
-  --line:#D3D9DC;
-  --max:880px;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-body{
-  background:var(--paper);color:var(--ink);
-  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter",system-ui,sans-serif;
-  font-size:17px;line-height:1.6;letter-spacing:-0.011em;-webkit-font-smoothing:antialiased;
-}
-.wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
-h1,h2{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter",system-ui,sans-serif;letter-spacing:-0.022em;line-height:1.1}
-h1{font-weight:700;font-size:clamp(2.4rem,6.5vw,4.2rem);letter-spacing:-0.03em}
-h2{font-weight:700;font-size:clamp(1.7rem,4vw,2.6rem);margin-bottom:1.4rem;max-width:22ch}
-h3{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter",system-ui,sans-serif;font-weight:600;font-size:1.1rem;margin-bottom:.4rem}
-p{max-width:62ch}
-p+p{margin-top:1em}
-a{color:var(--flame)}
-a:hover{color:var(--flame-dark)}
-a:focus-visible{outline:3px solid var(--flame);outline-offset:2px}
-.mono{font-family:ui-monospace,"SF Mono","Menlo","Cascadia Mono","Roboto Mono",monospace}
-.muted{color:var(--steel)}
-strong{font-weight:600}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>K4-Technology | Evidence-Based Gas-to-Power Advisory</title>
+  <meta name="description" content="Evidence-based gas-to-power advisory for owners, investors and lenders: feasibility, CAPEX/OPEX modelling, equipment due diligence and owner's engineering.">
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <meta name="theme-color" content="#070b10">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="/favicon.png" type="image/png">
+  <link rel="canonical" href="https://k4-technology.com/">
+  <link rel="alternate" hreflang="en" href="https://k4-technology.com/">
+  <link rel="alternate" hreflang="ru" href="https://k4-technology.com/ru/">
+  <link rel="alternate" hreflang="zh-CN" href="https://k4-technology.com/zh/">
+  <link rel="alternate" hreflang="es" href="https://k4-technology.com/es/">
+  <link rel="alternate" hreflang="pt-BR" href="https://k4-technology.com/pt-br/">
+  <link rel="alternate" hreflang="x-default" href="https://k4-technology.com/">
+  <link rel="alternate" type="text/plain" href="https://k4-technology.com/llms.txt" title="K4-Technology company overview for AI systems">
 
-/* Nav */
-header{position:sticky;top:0;z-index:50;background:rgba(244,245,244,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-.nav{display:flex;align-items:baseline;gap:22px;flex-wrap:wrap;padding:16px 24px;max-width:var(--max);margin:0 auto}
-.brand{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter",system-ui,sans-serif;font-weight:700;font-size:1rem;color:var(--ink);text-decoration:none;letter-spacing:.02em;margin-right:auto}
-.brand span{color:var(--flame)}
-.nav a.item{color:var(--steel);text-decoration:none;font-size:.88rem}
-.nav a.item:hover{color:var(--flame)}
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:locale:alternate" content="ru_RU">
+  <meta property="og:locale:alternate" content="zh_CN">
+  <meta property="og:locale:alternate" content="es_419">
+  <meta property="og:locale:alternate" content="pt_BR">
+  <meta property="og:site_name" content="K4-Technology">
+  <meta property="og:url" content="https://k4-technology.com/">
+  <meta property="og:title" content="Evidence-based intelligence for gas-to-power decisions.">
+  <meta property="og:description" content="Feasibility, CAPEX/OPEX modelling, equipment due diligence and client-side technical control.">
+  <meta property="og:image" content="https://k4-technology.com/og-advisory.png">
+  <meta property="og:image:width" content="1734">
+  <meta property="og:image:height" content="907">
+  <meta property="og:image:alt" content="K4-Technology — Decide before you commit capital.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="K4-Technology — Evidence-Based Gas-to-Power Advisory">
+  <meta name="twitter:description" content="Decide what to build, what to buy and what to reject before capital is committed.">
+  <meta name="twitter:image" content="https://k4-technology.com/og-advisory.png">
 
-/* Sections */
-section{padding:110px 0}
-section+section{border-top:1px solid var(--line)}
-.kicker{font-family:ui-monospace,"SF Mono","Menlo","Cascadia Mono","Roboto Mono",monospace;font-size:.75rem;letter-spacing:.16em;text-transform:uppercase;color:var(--flame);display:block;margin-bottom:1.2rem}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://k4-technology.com/#organization",
+        "name": "K4-Technology",
+        "legalName": "KIV-Technology d.o.o.",
+        "alternateName": ["KIV-Technology d.o.o.", "K4 Engineering Group", "K4 Group"],
+        "url": "https://k4-technology.com/",
+        "logo": "https://k4-technology.com/favicon.png",
+        "email": "ceo@k4-technology.com",
+        "sameAs": ["https://www.youtube.com/@K4TechnologyGlobal", "https://rutube.ru/channel/16732014/"],
+        "taxID": "113538693",
+        "description": "Evidence-based gas-to-power advisory company helping owners, investors and lenders evaluate projects, equipment and delivery risks before capital is committed.",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Belgrade",
+          "addressCountry": "RS"
+        },
+        "knowsAbout": [
+          "Gas engine power plants",
+          "Combined heat and power",
+          "Gas-to-power feasibility studies",
+          "Power plant CAPEX and OPEX modelling",
+          "Owner's engineering",
+          "Power plant technical due diligence",
+          "Gas genset inspection",
+          "Associated petroleum gas",
+          "High-H2S fuel treatment",
+          "Contractor evaluation"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://k4-technology.com/#website",
+        "url": "https://k4-technology.com/",
+        "name": "K4-Technology",
+        "publisher": {"@id": "https://k4-technology.com/#organization"},
+        "inLanguage": "en"
+      },
+      {
+        "@type": "ProfessionalService",
+        "@id": "https://k4-technology.com/#services",
+        "name": "K4-Technology Gas-to-Power Advisory",
+        "url": "https://k4-technology.com/#services",
+        "provider": {"@id": "https://k4-technology.com/#organization"},
+        "serviceType": [
+          "Gas-to-power feasibility and techno-economic modelling",
+          "Equipment offer review",
+          "Pre-owned gas genset due diligence",
+          "Owner's engineering and contractor evaluation",
+          "Lender technical review"
+        ],
+        "areaServed": "International"
+      },
+      {
+        "@type": "Person",
+        "@id": "https://k4-technology.com/#igor-shibanov",
+        "name": "Igor Shibanov",
+        "jobTitle": "Managing Partner",
+        "image": "https://k4-technology.com/igor-shibanov-wide.jpg",
+        "worksFor": {"@id": "https://k4-technology.com/#organization"},
+        "description": "Across his career with different companies, Igor Shibanov has participated in delivering about 40 MW of gas-engine generation; about 25 MW was delivered through his own company."
+      },
+      {
+        "@type": "VideoObject",
+        "@id": "https://k4-technology.com/#video-kl6ObG_N-P0",
+        "name": "2 × Jenbacher J320 | 2 MW Gas-to-Power Project Overview & Start-Up",
+        "description": "Field footage of a gas-to-power project with 2 × Jenbacher J320 generating sets, approximately 1,000 kW each and 2,000 kW total installed electrical capacity.",
+        "thumbnailUrl": ["https://i.ytimg.com/vi/kl6ObG_N-P0/maxresdefault.jpg"],
+        "uploadDate": "2026-09-13",
+        "duration": "PT40S",
+        "embedUrl": "https://www.youtube.com/embed/kl6ObG_N-P0",
+        "contentUrl": "https://www.youtube.com/watch?v=kl6ObG_N-P0",
+        "publisher": {"@id": "https://k4-technology.com/#organization"}
+      },
+      {
+        "@type": "ItemList",
+        "@id": "https://k4-technology.com/#realized-project-videos",
+        "name": "Realized gas-to-power projects",
+        "url": "https://www.youtube.com/playlist?list=PLSHrRquTk9NA",
+        "numberOfItems": 1,
+        "itemListElement": [{"@type": "ListItem", "position": 1, "item": {"@id": "https://k4-technology.com/#video-kl6ObG_N-P0"}}]
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://k4-technology.com/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What decisions can K4-Technology support?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "K4-Technology helps owners, investors and lenders decide whether to build, what equipment to buy, how to compare supplier offers and which local contractor should execute the project."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does K4-Technology act as the EPC contractor?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The default model is client-side advisory: the client contracts a qualified local execution contractor directly, while K4-Technology defines requirements, evaluates bids and verifies delivery. Any broader scope is agreed separately."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What inputs are needed for a rapid project screen?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Useful starting inputs are a gas analysis, site and load data, utility constraints, supplier quotations and any available equipment or project documents."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What does pre-owned genset due diligence deliver?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "A written engineering report with photo and video evidence, condition findings, residual-life assessment, restoration budget and a fair-market-value opinion."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
 
-/* Hero */
-#top{padding:130px 0 110px}
-#top .lead{font-size:1.25rem;color:var(--steel);margin-top:1.6rem;max-width:56ch}
-.email-cta{display:inline-block;margin-top:2.2rem;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter",system-ui,sans-serif;font-weight:600;font-size:clamp(1.1rem,2.5vw,1.5rem);color:var(--flame);text-decoration:none;border-bottom:3px solid var(--flame);padding-bottom:2px}
-.email-cta:hover{color:var(--flame-dark);border-color:var(--flame-dark)}
+  <style>
+    :root {
+      --graphite-950: #070b10;
+      --graphite-900: #0b1118;
+      --graphite-850: #101821;
+      --navy-900: #071a2e;
+      --navy-800: #0a2747;
+      --blue-500: #2f7df4;
+      --blue-400: #5a99ff;
+      --white: #f7f9fb;
+      --paper: #eef2f5;
+      --steel-300: #cbd3dc;
+      --steel-400: #98a4b3;
+      --steel-500: #596878;
+      --ink: #0a1119;
+      --line-dark: rgba(255,255,255,.12);
+      --line-light: rgba(10,17,25,.14);
+      --max: 1180px;
+      --display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI Variable Display", "Segoe UI Variable Text", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+      --mono: "SFMono-Regular", "SF Mono", "Roboto Mono", "Cascadia Mono", Menlo, monospace;
+    }
 
-/* Data plate */
-.plate{margin-top:3.2rem;border:1px solid var(--line);border-radius:16px;background:#fff;box-shadow:0 8px 28px rgba(18,24,31,.07);overflow:hidden}
-.plate-title{padding:12px 22px;border-bottom:1px solid var(--line);font-family:ui-monospace,"SF Mono","Menlo","Cascadia Mono","Roboto Mono",monospace;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--steel);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
-.plate-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
-.cell{padding:22px 20px;border-top:1px solid var(--line)}
-.cell+.cell{border-left:1px solid var(--line)}
-.cell .val{font-family:ui-monospace,"SF Mono","Menlo","Cascadia Mono","Roboto Mono",monospace;font-size:1.65rem;font-weight:600}
-.cell .val em{font-style:normal;color:var(--flame)}
-.cell .lbl{font-family:ui-monospace,"SF Mono","Menlo","Cascadia Mono","Roboto Mono",monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--steel);margin-top:8px;line-height:1.5}
-@media (max-width:680px){.cell+.cell{border-left:none}}
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; background: var(--graphite-950); }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--white);
+      font-family: var(--display);
+      font-size: 17px;
+      line-height: 1.55;
+      letter-spacing: -.012em;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      font-synthesis: none;
+      font-kerning: normal;
+      -webkit-text-size-adjust: 100%;
+    }
+    body.menu-open { overflow: hidden; }
+    a { color: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    img { max-width: 100%; }
+    p, h1, h2, h3, ul, ol { margin-top: 0; }
+    p:last-child { margin-bottom: 0; }
+    ::selection { background: var(--blue-500); color: #fff; }
 
-/* People */
-.person{display:flex;gap:22px;align-items:center;margin-top:2.4rem;flex-wrap:wrap}
-.avatar{width:96px;height:96px;border-radius:50%;border:1.5px solid var(--ink);background:#fff;display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter",system-ui,sans-serif;font-weight:600;font-size:1.6rem;flex-shrink:0}
-.person p{max-width:52ch}
+    .skip-link {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 100;
+      transform: translateY(-150%);
+      padding: 10px 14px;
+      color: #fff;
+      background: var(--blue-500);
+      text-decoration: none;
+      border-radius: 4px;
+    }
+    .skip-link:focus { transform: translateY(0); }
 
-/* Cards / lists */
-.trio{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:2px;background:var(--line);border:1px solid var(--line);margin-top:2.4rem}
-.trio>div{background:var(--paper);padding:26px 24px}
-.trio h3{font-size:1rem}
-.trio p{font-size:.95rem;color:var(--steel)}
+    .shell { width: min(calc(100% - 48px), var(--max)); margin-inline: auto; }
+    .section { padding: clamp(88px, 11vw, 152px) 0; }
+    .section[id], .hero[id] { scroll-margin-top: 72px; }
+    .section-dark { color: var(--white); background: var(--graphite-950); }
+    .section-navy { color: var(--white); background: var(--navy-900); }
+    .section-paper { background: var(--paper); }
 
-ol.method{list-style:none;counter-reset:m;margin-top:2rem}
-ol.method li{counter-increment:m;padding:16px 0 16px 60px;position:relative;border-top:1px solid var(--line);max-width:66ch}
-ol.method li:last-child{border-bottom:1px solid var(--line)}
-ol.method li::before{content:counter(m,decimal-leading-zero);position:absolute;left:0;top:16px;font-family:ui-monospace,"SF Mono","Menlo","Cascadia Mono","Roboto Mono",monospace;color:var(--flame);font-weight:600}
-ol.method strong{display:block}
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px;
+      color: var(--blue-500);
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1;
+      font-weight: 600;
+      letter-spacing: .17em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before { width: 28px; height: 1px; background: currentColor; content: ""; }
+    .section-dark .eyebrow, .section-navy .eyebrow { color: var(--blue-400); }
 
-ul.beliefs{list-style:none;margin-top:2rem}
-ul.beliefs li{padding:16px 0;border-top:1px solid var(--line);max-width:66ch}
-ul.beliefs li:last-child{border-bottom:1px solid var(--line)}
+    .section-heading {
+      max-width: 790px;
+      margin-bottom: 28px;
+      font-size: clamp(2.3rem, 5vw, 4.25rem);
+      line-height: 1.03;
+      font-weight: 600;
+      letter-spacing: -.035em;
+      text-wrap: balance;
+    }
+    .section-intro {
+      max-width: 720px;
+      margin-bottom: 58px;
+      color: var(--steel-500);
+      font-size: clamp(1.04rem, 1.7vw, 1.28rem);
+      line-height: 1.55;
+    }
+    .section-dark .section-intro, .section-navy .section-intro { color: var(--steel-400); }
 
-.note{border-left:4px solid var(--flame);padding:4px 0 4px 22px;margin-top:2rem;max-width:66ch}
-.note p{color:var(--steel);font-size:.98rem}
+    header {
+      position: fixed;
+      inset: 0 0 auto;
+      z-index: 50;
+      border-bottom: 1px solid rgba(255,255,255,.09);
+      background: rgba(7,11,16,.76);
+      backdrop-filter: blur(18px) saturate(140%);
+    }
+    .nav {
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-right: auto;
+      color: #fff;
+      text-decoration: none;
+    }
+    .brand-mark { font-size: 18px; line-height: 1; font-weight: 700; letter-spacing: -.03em; }
+    .brand-divider { color: var(--blue-500); }
+    .brand-name {
+      color: var(--steel-400);
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+    .nav-links { display: flex; align-items: center; gap: 24px; }
+    .nav-links a {
+      color: var(--steel-300);
+      font-size: 13px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: color .2s ease;
+    }
+    .nav-links a:hover, .nav-links a:focus-visible { color: #fff; }
+    .nav-links a[aria-current="location"] { color: #fff; }
+    .language-menu { position: relative; color: var(--steel-300); font-family: var(--mono); font-size: 11px; }
+    .language-menu summary { min-width: 48px; padding: 8px 10px; border: 1px solid rgba(255,255,255,.18); border-radius: 100px; color: var(--blue-400); cursor: pointer; list-style: none; font-weight: 700; letter-spacing: .1em; text-align: center; }
+    .language-menu summary::-webkit-details-marker { display: none; }
+    .language-menu summary::after { margin-left: 5px; content: "⌄"; }
+    .language-options { position: absolute; top: calc(100% + 12px); right: 0; min-width: 174px; padding: 8px; border: 1px solid rgba(255,255,255,.14); border-radius: 12px; background: rgba(7,11,16,.98); box-shadow: 0 18px 50px rgba(0,0,0,.35); }
+    .language-options a { min-height: 38px; display: flex; align-items: center; padding: 0 10px; border-radius: 7px; white-space: nowrap; }
+    .language-options a[aria-current="page"] { color: #fff; background: rgba(47,125,244,.18); }
+    .nav-cta {
+      padding: 9px 15px;
+      color: #fff !important;
+      border: 1px solid rgba(255,255,255,.24);
+      border-radius: 100px;
+    }
+    .menu-toggle {
+      width: 44px;
+      height: 44px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 6px;
+      padding: 0;
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 50%;
+      color: #fff;
+      background: rgba(255,255,255,.04);
+      cursor: pointer;
+    }
+    .menu-toggle span {
+      width: 17px;
+      height: 1px;
+      background: currentColor;
+      transition: transform .2s ease;
+    }
+    .menu-toggle[aria-expanded="true"] span:first-child { transform: translateY(3.5px) rotate(45deg); }
+    .menu-toggle[aria-expanded="true"] span:last-child { transform: translateY(-3.5px) rotate(-45deg); }
 
-/* Contact */
-#contact .big-mail{display:block;margin-top:2rem;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Inter",system-ui,sans-serif;font-weight:700;letter-spacing:-0.02em;font-size:clamp(1.6rem,5vw,3rem);color:var(--flame);text-decoration:none;word-break:break-all;letter-spacing:-0.01em}
-#contact .big-mail:hover{color:var(--flame-dark)}
+    .hero {
+      position: relative;
+      isolation: isolate;
+      min-height: 100svh;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      padding: 132px 0 80px;
+      color: var(--white);
+      background:
+        radial-gradient(circle at 78% 42%, rgba(47,125,244,.22), transparent 28%),
+        linear-gradient(120deg, var(--graphite-950) 0 58%, #081525 100%);
+    }
+    .hero::before {
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      opacity: .24;
+      background-image:
+        linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px);
+      background-size: 64px 64px;
+      mask-image: linear-gradient(to right, transparent 12%, #000 55%, #000 100%);
+      content: "";
+    }
+    .hero::after {
+      position: absolute;
+      z-index: -1;
+      right: -160px;
+      bottom: 14%;
+      width: min(58vw, 780px);
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--blue-400) 48%, rgba(255,255,255,.55));
+      box-shadow: 0 0 24px rgba(47,125,244,.55);
+      content: "";
+    }
+    .hero-copy { max-width: 980px; }
+    .hero .eyebrow { margin-bottom: 34px; }
+    h1 {
+      max-width: 1040px;
+      margin-bottom: 30px;
+      font-size: clamp(3.8rem, 8.6vw, 7.7rem);
+      line-height: .94;
+      font-weight: 600;
+      letter-spacing: -.05em;
+      text-wrap: balance;
+    }
+    h1 span { display: block; color: var(--steel-400); }
+    .hero-lead {
+      max-width: 720px;
+      margin-bottom: 38px;
+      color: var(--steel-300);
+      font-size: clamp(1.12rem, 2vw, 1.42rem);
+      line-height: 1.48;
+    }
+    .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+    .entity-note { max-width: 720px; margin: 20px 0 0; color: var(--steel-400); font-size: .86rem; }
+    .button {
+      display: inline-flex;
+      min-height: 52px;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 0 21px;
+      border: 1px solid transparent;
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: transform .2s ease, background .2s ease, border-color .2s ease;
+    }
+    .button:hover { transform: translateY(-2px); }
+    .button-primary { color: #fff; background: var(--blue-500); }
+    .button-primary:hover { background: #3b87ff; }
+    .button-secondary { color: #fff; border-color: rgba(255,255,255,.2); background: rgba(255,255,255,.04); }
+    .button-secondary:hover { border-color: rgba(255,255,255,.42); background: rgba(255,255,255,.08); }
+    .button-arrow { font-size: 18px; font-weight: 400; }
 
-footer{padding:50px 0 70px;border-top:1px solid var(--line);color:var(--steel);font-size:.82rem}
-footer p{max-width:none}
-footer .legal{margin-top:1.2rem;font-size:.76rem;line-height:1.6}
-</style>
+    .hero-status {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      margin-top: clamp(74px, 10vh, 118px);
+      border-top: 1px solid var(--line-dark);
+      border-bottom: 1px solid var(--line-dark);
+    }
+    .status-cell { min-height: 122px; padding: 25px 20px 22px 0; }
+    .status-cell + .status-cell { padding-left: 26px; border-left: 1px solid var(--line-dark); }
+    .status-value { margin-bottom: 7px; font-size: clamp(1.45rem, 2.7vw, 2.25rem); line-height: 1; font-weight: 600; letter-spacing: -.025em; }
+    .status-value span { color: var(--blue-400); }
+    .status-label { color: var(--steel-400); font-family: var(--mono); font-size: 10px; line-height: 1.5; letter-spacing: .1em; text-transform: uppercase; }
+
+    .proof-layout { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); gap: clamp(48px, 7vw, 96px); align-items: start; }
+    .proof-copy { position: sticky; top: 120px; }
+    .proof-copy .section-heading { max-width: 700px; font-size: clamp(2.25rem, 4.35vw, 4rem); }
+    .proof-list { border-top: 1px solid var(--line-light); }
+    .proof-item {
+      display: grid;
+      grid-template-columns: 74px 1fr;
+      gap: 20px;
+      padding: 34px 0;
+      border-bottom: 1px solid var(--line-light);
+    }
+    .proof-number { color: var(--blue-500); font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: .1em; }
+    .proof-item h3 { margin-bottom: 9px; font-size: 1.26rem; font-weight: 600; letter-spacing: -.025em; }
+    .proof-item p { color: var(--steel-500); }
+
+    .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .service-card {
+      min-height: 430px;
+      display: flex;
+      flex-direction: column;
+      padding: 34px;
+      border: 1px solid var(--line-light);
+      background: rgba(255,255,255,.62);
+      transition: transform .25s ease, border-color .25s ease, background .25s ease;
+    }
+    .service-card:hover { transform: translateY(-5px); border-color: rgba(47,125,244,.42); background: #fff; }
+    .service-code { margin-bottom: auto; color: var(--blue-500); font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: .14em; }
+    .service-card h3 { margin: 55px 0 16px; font-size: clamp(1.5rem, 2.5vw, 2.15rem); line-height: 1; font-weight: 600; letter-spacing: -.03em; }
+    .service-card p { color: var(--steel-500); font-size: .96rem; }
+    .service-meta { margin-top: 24px; padding-top: 18px; border-top: 1px solid var(--line-light); color: var(--ink); font-family: var(--mono); font-size: 10px; line-height: 1.6; letter-spacing: .09em; text-transform: uppercase; }
+
+    .audit-layout { display: grid; grid-template-columns: .95fr 1.05fr; gap: clamp(62px, 10vw, 150px); align-items: start; }
+    .audit-copy { position: sticky; top: 118px; }
+    .audit-copy .section-heading { max-width: 540px; }
+    .audit-steps { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line-dark); }
+    .audit-steps li { display: grid; grid-template-columns: 56px 1fr; gap: 20px; padding: 24px 0; border-bottom: 1px solid var(--line-dark); }
+    .audit-step-number { color: var(--blue-400); font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: .1em; }
+    .audit-steps strong { display: block; margin-bottom: 4px; font-weight: 600; }
+    .audit-steps span:last-child { color: var(--steel-400); font-size: .94rem; }
+    .deliverable {
+      grid-column: 1 / -1;
+      margin-top: 22px;
+      padding: 27px 28px;
+      border-left: 2px solid var(--blue-500);
+      background: rgba(255,255,255,.035);
+      color: var(--steel-300);
+    }
+    .deliverable strong { color: #fff; }
+
+    .compute-frame { border: 1px solid var(--line-light); background: #fff; }
+    .compute-header { display: flex; justify-content: space-between; gap: 28px; padding: 22px 26px; border-bottom: 1px solid var(--line-light); font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; }
+    .compute-header span:last-child { color: var(--blue-500); }
+    .compute-flow { display: grid; grid-template-columns: repeat(3, 1fr); }
+    .compute-stage { position: relative; min-height: 300px; padding: 38px 30px; }
+    .compute-stage + .compute-stage { border-left: 1px solid var(--line-light); }
+    .compute-stage::after {
+      position: absolute;
+      top: 52px;
+      right: -7px;
+      z-index: 2;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: var(--blue-500);
+      box-shadow: 0 0 0 7px rgba(47,125,244,.12);
+      content: "";
+    }
+    .compute-stage:last-child::after { display: none; }
+    .stage-label { margin-bottom: 65px; color: var(--blue-500); font-family: var(--mono); font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
+    .compute-stage h3 { margin-bottom: 11px; font-size: 1.55rem; line-height: 1.05; font-weight: 600; letter-spacing: -.025em; }
+    .compute-stage p { color: var(--steel-500); font-size: .93rem; }
+    .compute-note { display: grid; grid-template-columns: 160px 1fr; gap: 24px; padding: 27px 30px; border-top: 1px solid var(--line-light); background: var(--graphite-950); color: var(--steel-300); }
+    .compute-note strong { color: #fff; font-family: var(--mono); font-size: 11px; letter-spacing: .11em; text-transform: uppercase; }
+
+    .principles { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 66px; border-top: 1px solid var(--line-dark); border-bottom: 1px solid var(--line-dark); }
+    .principle { min-height: 250px; padding: 30px 28px 30px 0; }
+    .principle + .principle { padding-left: 30px; border-left: 1px solid var(--line-dark); }
+    .principle .index { display: block; margin-bottom: 70px; color: var(--blue-400); font-family: var(--mono); font-size: 11px; }
+    .principle h3 { margin-bottom: 12px; font-size: 1.2rem; font-weight: 600; }
+    .principle p { color: var(--steel-400); font-size: .93rem; }
+
+    .company-layout { display: grid; grid-template-columns: 1fr .78fr; gap: clamp(70px, 11vw, 160px); align-items: end; }
+    .company-text { max-width: 720px; }
+    .company-text p { color: var(--steel-500); }
+    .company-text p + p { margin-top: 18px; }
+    .person-card { padding: 32px; color: #fff; background: var(--graphite-900); }
+    .person-monogram {
+      width: 74px;
+      height: 74px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 55px;
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 50%;
+      color: var(--blue-400);
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    .person-photo {
+      width: calc(100% + 64px);
+      height: auto;
+      max-width: none;
+      display: block;
+      margin: -32px -32px 28px;
+      aspect-ratio: 3 / 4;
+      object-fit: cover;
+      background: var(--graphite-950);
+    }
+    .person-card h3 { margin-bottom: 4px; font-size: 1.35rem; font-weight: 600; letter-spacing: -.025em; }
+    .person-role { margin-bottom: 22px; color: var(--blue-400); font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+    .person-card p { color: var(--steel-400); font-size: .93rem; }
+
+    .faq-list { max-width: 920px; margin-top: 62px; border-top: 1px solid var(--line-light); }
+    .faq-list details { border-bottom: 1px solid var(--line-light); }
+    .faq-list summary {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 25px 46px 25px 0;
+      cursor: pointer;
+      list-style: none;
+      font-weight: 600;
+    }
+    .faq-list summary::-webkit-details-marker { display: none; }
+    .faq-list summary::after { position: absolute; top: 21px; right: 2px; color: var(--blue-500); font-size: 22px; font-weight: 400; content: "+"; }
+    .faq-list details[open] summary::after { content: "−"; }
+    .faq-list details p { max-width: 740px; padding: 0 40px 26px 0; color: var(--steel-500); }
+
+    .insights-grid { display: grid; grid-template-columns: repeat(2, 1fr); margin-top: 58px; border-top: 1px solid var(--line-light); }
+    .insight {
+      display: grid;
+      grid-template-columns: 78px 1fr;
+      gap: 20px;
+      min-height: 156px;
+      padding: 28px 34px 28px 0;
+      border-bottom: 1px solid var(--line-light);
+    }
+    .insight:nth-child(even) { padding-right: 0; padding-left: 34px; border-left: 1px solid var(--line-light); }
+    .insight-index { color: var(--blue-500); font-family: var(--mono); font-size: 11px; line-height: 1.45; letter-spacing: .12em; overflow-wrap: anywhere; }
+    .insight h3 { max-width: 500px; font-size: 1.08rem; line-height: 1.35; font-weight: 600; letter-spacing: -.02em; }
+    .insight p { margin-top: 10px; color: var(--steel-500); font-size: .9rem; }
+
+    .contact {
+      position: relative;
+      overflow: hidden;
+      color: #fff;
+      background:
+        radial-gradient(circle at 86% 30%, rgba(47,125,244,.25), transparent 30%),
+        var(--navy-900);
+    }
+    .contact::after {
+      position: absolute;
+      top: 0;
+      right: 13%;
+      width: 1px;
+      height: 100%;
+      background: linear-gradient(transparent, rgba(255,255,255,.2), transparent);
+      content: "";
+    }
+    .contact-heading { max-width: 980px; margin-bottom: 42px; font-size: clamp(3.2rem, 7.5vw, 6.8rem); line-height: .98; font-weight: 600; letter-spacing: -.045em; text-wrap: balance; }
+    .contact-email {
+      position: relative;
+      z-index: 2;
+      display: inline-block;
+      padding-bottom: 5px;
+      border-bottom: 1px solid var(--blue-400);
+      color: var(--blue-400);
+      font-size: clamp(1.22rem, 3vw, 2.1rem);
+      font-weight: 600;
+      text-decoration: none;
+      word-break: break-word;
+    }
+    .contact-email:hover { color: #fff; border-color: #fff; }
+    .contact-messengers { position: relative; z-index: 2; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; margin-top: 24px; }
+    .contact-chip { display: inline-flex; min-height: 42px; align-items: center; padding: 0 16px; border: 1px solid rgba(255,255,255,.2); border-radius: 100px; color: #fff; font-size: 13px; font-weight: 600; text-decoration: none; }
+    .contact-chip:hover { border-color: var(--blue-400); background: rgba(47,125,244,.12); }
+    .contact-message-note { color: var(--steel-400); font-family: var(--mono); font-size: 10px; letter-spacing: .09em; text-transform: uppercase; }
+    .contact-help { max-width: 650px; margin-top: 28px; color: var(--steel-400); }
+
+    footer { padding: 45px 0 60px; color: var(--steel-400); background: var(--graphite-950); font-size: 12px; }
+    .footer-top { display: flex; justify-content: space-between; gap: 28px; padding-bottom: 28px; border-bottom: 1px solid var(--line-dark); }
+    .footer-brand { color: #fff; font-weight: 600; }
+    .footer-links { display: flex; flex-wrap: wrap; gap: 20px; }
+    .footer-links a { text-decoration: none; }
+    .footer-links a:hover { color: #fff; }
+    .legal { max-width: 940px; margin: 28px 0 0; font-size: 12px; line-height: 1.65; }
+
+    :focus-visible { outline: 2px solid var(--blue-400); outline-offset: 4px; }
+
+    @media (max-width: 1100px) {
+      .proof-layout { grid-template-columns: 1fr; }
+      .proof-copy { position: static; }
+      .proof-copy .section-heading { max-width: 830px; }
+    }
+
+    @media (max-width: 940px) {
+      .hero-status, .compute-flow, .principles { grid-template-columns: repeat(2, 1fr); }
+      .services-grid { grid-template-columns: 1fr; }
+      .service-card { min-height: 360px; }
+      .status-cell:nth-child(3) { border-left: 0; border-top: 1px solid var(--line-dark); }
+      .status-cell:nth-child(4) { border-top: 1px solid var(--line-dark); }
+      .proof-layout, .audit-layout, .company-layout { grid-template-columns: 1fr; }
+      .proof-copy, .audit-copy { position: static; }
+      .audit-copy .section-intro { margin-bottom: 12px; }
+      .compute-stage:nth-child(3) { grid-column: 1 / -1; border-top: 1px solid var(--line-light); border-left: 0; }
+      .compute-stage:nth-child(2)::after { display: none; }
+      .principle:nth-child(3) { grid-column: 1 / -1; border-top: 1px solid var(--line-dark); border-left: 0; padding-left: 0; }
+      .person-card { max-width: 560px; }
+    }
+
+    @media (max-width: 720px) {
+      .shell { width: min(calc(100% - 32px), var(--max)); }
+      .section { padding: 76px 0; }
+      .nav { min-height: 64px; }
+      .brand-name { display: inline; }
+      .menu-toggle { display: flex; }
+      .nav-links {
+        position: absolute;
+        inset: 64px 0 auto;
+        display: flex;
+        align-items: stretch;
+        flex-direction: column;
+        gap: 0;
+        padding: 12px 16px 20px;
+        border-bottom: 1px solid rgba(255,255,255,.12);
+        background: rgba(7,11,16,.98);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-8px);
+        pointer-events: none;
+        transition: opacity .2s ease, visibility .2s ease, transform .2s ease;
+      }
+      .nav-links.is-open { opacity: 1; visibility: visible; transform: translateY(0); pointer-events: auto; }
+      .nav-links a {
+        min-height: 48px;
+        display: flex;
+        align-items: center;
+        padding: 0 2px;
+        border-bottom: 1px solid rgba(255,255,255,.09);
+        font-size: 16px;
+      }
+      .language-menu { width: 100%; border-bottom: 1px solid rgba(255,255,255,.09); }
+      .language-menu summary { min-height: 48px; display: flex; align-items: center; border: 0; border-radius: 0; text-align: left; }
+      .language-options { position: static; display: grid; grid-template-columns: repeat(2, 1fr); min-width: 0; margin-bottom: 10px; box-shadow: none; }
+      .nav-links .nav-cta { min-height: 48px; justify-content: center; margin-top: 12px; padding: 0 18px; border-bottom: 1px solid rgba(255,255,255,.24); font-size: 14px !important; }
+      .hero { min-height: auto; padding: 124px 0 72px; }
+      h1 { font-size: clamp(3.05rem, 14.5vw, 4.35rem); line-height: .9; }
+      .hero-actions { align-items: stretch; flex-direction: column; }
+      .hero-actions .button { width: 100%; }
+      .entity-note { margin-top: 18px; }
+      .hero-status { grid-template-columns: 1fr 1fr; }
+      .status-cell { min-height: 110px; }
+      .status-cell:nth-child(odd) { padding-left: 0; border-left: 0; }
+      .status-cell:nth-child(even) { padding-left: 18px; }
+      .services-grid, .compute-flow, .principles { grid-template-columns: 1fr; }
+      .service-card { min-height: 320px; padding: 28px; }
+      .compute-stage + .compute-stage { border-top: 1px solid var(--line-light); border-left: 0; }
+      .compute-stage { min-height: 250px; }
+      .compute-stage::after { display: none; }
+      .compute-stage:nth-child(3) { grid-column: auto; }
+      .compute-note { grid-template-columns: 1fr; }
+      .principle { min-height: auto; padding: 26px 0; }
+      .principle + .principle, .principle:nth-child(3) { grid-column: auto; padding-left: 0; border-top: 1px solid var(--line-dark); border-left: 0; }
+      .principle .index { margin-bottom: 36px; }
+      .insights-grid { grid-template-columns: 1fr; }
+      .insight, .insight:nth-child(even) { min-height: auto; padding: 24px 0; border-left: 0; }
+      .contact-heading { font-size: clamp(2.9rem, 14vw, 4.2rem); }
+      .footer-top { flex-direction: column; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+    }
+
+    .publication-link{color:inherit;text-decoration:none}.publication-link:hover{color:var(--blue-500)}
+    .publication-badge{display:inline-flex;align-items:center;gap:7px;margin-bottom:12px;padding:5px 8px;border:1px solid currentColor;border-radius:999px;color:var(--blue-500);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+    .publication-actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}.publication-actions a{color:var(--blue-500);text-decoration:none}.publication-actions a:hover{text-decoration:underline}
+    .section-projects{position:relative;overflow:hidden;color:#fff;background:radial-gradient(circle at 82% 12%,rgba(47,125,244,.2),transparent 32%),linear-gradient(135deg,var(--graphite-950),var(--navy-900))}.section-projects::before{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:64px 64px;mask-image:linear-gradient(to bottom,black,transparent 92%);pointer-events:none;content:""}.projects-layout{position:relative;display:grid;grid-template-columns:minmax(0,.78fr) minmax(0,1.22fr);gap:clamp(44px,7vw,96px);align-items:center}.projects-copy{max-width:520px}.projects-copy .section-intro{color:var(--steel-300)}.projects-player{position:relative;overflow:hidden;aspect-ratio:16/9;border:1px solid rgba(255,255,255,.18);border-radius:4px;background:#020408;box-shadow:0 28px 80px rgba(0,0,0,.34)}.projects-player::after{position:absolute;inset:0;border:1px solid rgba(90,153,255,.22);pointer-events:none;content:""}.projects-player iframe{display:block;width:100%;height:100%;border:0}.projects-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}.projects-link{display:inline-flex;min-height:46px;align-items:center;justify-content:center;padding:0 18px;border:1px solid rgba(255,255,255,.23);border-radius:100px;color:#fff;font-size:13px;font-weight:650;text-decoration:none;transition:border-color .2s ease,background .2s ease}.projects-link:hover,.projects-link:focus-visible{border-color:var(--blue-400);background:rgba(47,125,244,.13)}.projects-link-primary{border-color:var(--blue-500);background:var(--blue-500)}.projects-link-primary:hover,.projects-link-primary:focus-visible{background:#246bd6}.projects-meta{margin-top:18px;color:var(--steel-400);font-family:var(--mono);font-size:11px;letter-spacing:.07em;text-transform:uppercase}
+    @media(max-width:940px){.projects-layout{grid-template-columns:1fr}.projects-copy{max-width:760px}}
+    @media(max-width:720px){.projects-actions{align-items:stretch;flex-direction:column}.projects-link{width:100%}}
+
+  .projects-poster{position:relative;display:block;width:100%;height:100%;overflow:hidden;color:#fff;text-decoration:none}.projects-poster img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .35s ease,filter .35s ease}.projects-poster::after{position:absolute;inset:0;background:linear-gradient(180deg,transparent 48%,rgba(2,8,16,.7));content:""}.projects-play{position:absolute;z-index:1;top:50%;left:50%;display:grid;width:72px;height:72px;place-items:center;border:1px solid rgba(255,255,255,.5);border-radius:50%;background:rgba(31,111,235,.94);box-shadow:0 14px 44px rgba(0,0,0,.35);font-size:25px;line-height:1;transform:translate(-50%,-50%);transition:transform .2s ease,background .2s ease}.projects-watch{position:absolute;z-index:1;right:18px;bottom:16px;padding:9px 13px;border:1px solid rgba(255,255,255,.3);border-radius:100px;background:rgba(3,11,21,.75);backdrop-filter:blur(8px);font-size:12px;font-weight:700;letter-spacing:.02em}.projects-poster:hover img,.projects-poster:focus-visible img{transform:scale(1.018);filter:brightness(.9)}.projects-poster:hover .projects-play,.projects-poster:focus-visible .projects-play{background:#2f7df4;transform:translate(-50%,-50%) scale(1.07)}@media(max-width:640px){.projects-play{width:58px;height:58px;font-size:20px}.projects-watch{right:12px;bottom:10px;padding:7px 10px;font-size:10px}}
+  </style>
 </head>
+
 <body>
+  <a class="skip-link" href="#main">Skip to content</a>
 
-<header>
-  <nav class="nav" aria-label="Main">
-    <a class="brand" href="#top">K4<span>.</span>ENERGY</a>
-    <a class="item" href="#group">Group</a>
-    <a class="item" href="#work">What we do</a>
-    <a class="item" href="#audit">Audit</a>
-    <a class="item" href="#compute">Energy-to-Compute</a>
-    <a class="item" href="#contact">Contact</a>
-  </nav>
-</header>
+  <header>
+    <nav class="nav shell" aria-label="Primary navigation">
+      <a class="brand" href="#top" aria-label="K4-Technology home">
+        <span class="brand-mark">K4</span>
+        <span class="brand-divider">/</span>
+        <span class="brand-name">K4-Technology</span>
+      </a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="primary-links" aria-label="Open navigation">
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </button>
+      <div class="nav-links" id="primary-links"><a href="/services/gas-engine-technical-due-diligence/">Due diligence</a><a href="/resources/">Resources</a><a href="/case-studies/">Case studies</a><a href="/insights/">Insights</a><details class="language-menu"><summary aria-label="Choose language">EN</summary><div class="language-options"><a href="/" hreflang="en" lang="en" aria-current="page">English</a><a href="/ru/" hreflang="ru" lang="ru">Русский</a><a href="/zh/" hreflang="zh-CN" lang="zh-CN">简体中文</a><a href="/es/" hreflang="es" lang="es">Español</a><a href="/pt-br/" hreflang="pt-BR" lang="pt-BR">Português</a></div></details><a class="nav-cta" href="#contact">Request an assessment</a></div>
+    </nav>
+  </header>
 
-<main>
-
-<section id="top">
-  <div class="wrap">
-    <span class="kicker">KIV-Technology · K4 engineering group</span>
-    <h1>Gas-to-Power Engineering. Full Cycle. Proven in Hard Conditions.</h1>
-    <p class="lead">We design, build and operate gas engine power plants from 0.4 to 10+ MW — for industrial sites, oilfields and remote facilities where grid power is expensive, unreliable or simply absent.</p>
-    <a class="email-cta" href="mailto:office@kiv-technology.rs">office@kiv-technology.rs</a>
-
-    <div class="plate">
-      <div class="plate-title"><span>Group data plate</span><span>Rev. 07-2026</span></div>
-      <div class="plate-grid">
-        <div class="cell">
-          <div class="val">16 <em>/</em> ~25 MW</div>
-          <div class="lbl">Power plants delivered · CIS region</div>
+  <main id="main">
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <div class="shell">
+        <div class="hero-copy">
+          <div class="eyebrow">Evidence-based gas-to-power project and asset advisory</div>
+          <h1 id="hero-title">Decide before <span>you commit capital.</span></h1>
+          <p class="hero-lead">We help owners, investors and lenders determine what to build, what to buy and what to reject — with project economics, equipment due diligence and client-side technical control.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="/services/gas-engine-technical-due-diligence/">Technical due diligence <span class="button-arrow" aria-hidden="true">→</span></a>
+            <a class="button button-secondary" href="/insights/">Research &amp; insights</a>
+            <a class="button button-secondary" href="mailto:ceo@k4-technology.com?subject=Initial%20gas-to-power%20project%20assessment">Request an assessment</a>
+          </div>
+          <p class="entity-note">K4-Technology is the advisory practice of KIV-Technology d.o.o., Belgrade, Serbia.</p>
         </div>
-        <div class="cell">
-          <div class="val">24/7 <em>→</em> 2030</div>
-          <div class="lbl">O&amp;M contract · Jenbacher J320 ×3 · monthly KTG reporting</div>
+
+        <div class="hero-status" aria-label="K4 engineering group track record">
+          <div class="status-cell">
+            <div class="status-value">16 <span>/</span> ≈25 MW</div>
+            <div class="status-label">Plants delivered<br>K4 group track record</div>
+          </div>
+          <div class="status-cell">
+            <div class="status-value">0.4–10+ MW</div>
+            <div class="status-label">Project range<br>CHP to autonomous sites</div>
+          </div>
+          <div class="status-cell">
+            <div class="status-value">24/7 <span>→</span> 2030</div>
+            <div class="status-label">Continuous operation<br>Service contract through 2030</div>
+          </div>
+          <div class="status-cell">
+            <div class="status-value">High-H₂S</div>
+            <div class="status-label">Field-gas experience<br>Fuel treatment &amp; operation</div>
+          </div>
         </div>
-        <div class="cell">
-          <div class="val">High-H₂S</div>
-          <div class="lbl">Sour field gas · fuel treatment &amp; operation</div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="proof-title">
+      <div class="shell proof-layout">
+        <div class="proof-copy">
+          <div class="eyebrow">Three questions before CAPEX</div>
+          <h2 class="section-heading" id="proof-title">A better decision is the first project deliverable.</h2>
+          <p class="section-intro">The useful answer is not always “build it.” We make assumptions visible, test the economics and identify the risks before a supplier or contractor defines the project for you.</p>
+        </div>
+        <div class="proof-list">
+          <article class="proof-item">
+            <span class="proof-number">01</span>
+            <div><h3>Should this project be built?</h3><p>Demand, fuel, site constraints, tariffs, CAPEX, OPEX and downside cases are tested in one decision model.</p></div>
+          </article>
+          <article class="proof-item">
+            <span class="proof-number">02</span>
+            <div><h3>Is this the right equipment?</h3><p>New and pre-owned offers are compared on verified condition, lifecycle cost, serviceability and commercial exposure.</p></div>
+          </article>
+          <article class="proof-item">
+            <span class="proof-number">03</span>
+            <div><h3>Who should deliver it locally?</h3><p>We define the scope, qualify local contractors, normalize bids and verify technical delivery on the client's side.</p></div>
+          </article>
         </div>
       </div>
-    </div>
-  </div>
-</section>
+    </section>
 
-<section id="group">
-  <div class="wrap">
-    <span class="kicker">About the group</span>
-    <h2>One Group. Two Alphabets. One Engineering Standard.</h2>
-    <p>KIV-Technology d.o.o. (Belgrade, Serbia) is the international contracting entity of the K4 engineering group. The group's track record — 16 gas engine power plants totaling approximately 25 MW — has been delivered across the CIS region: brownfield integrations, containerized turnkey CHP plants, installations running on complex field gas.</p>
-    <p>We are an independent engineering and service company. We are not a dealer or distributor of INNIO Jenbacher or any other engine manufacturer. Our Jenbacher expertise comes from years of hands-on installation, commissioning, maintenance and overhaul work, a proprietary cross-reference database for spare parts, and live service contracts with monthly availability reporting.</p>
+    <section class="section section-paper" id="services" aria-labelledby="services-title">
+      <div class="shell">
+        <div class="eyebrow">Advisory products</div>
+        <h2 class="section-heading" id="services-title">Three ways to reduce risk before and during delivery.</h2>
+        <p class="section-intro">Each engagement has a defined decision, evidence set and written deliverable. Scope can start with a rapid screen and expand only when the project merits it.</p>
 
-    <div class="person">
-      <div class="avatar" aria-hidden="true">IS</div>
-      <div>
-        <h3>Igor Shibanov — Managing Partner</h3>
-        <p class="muted">16 plants delivered. Deal-making and project leadership across gas-to-power: from field gas analysis to signed O&amp;M contracts.</p>
+        <div class="services-grid">
+          <article class="service-card">
+            <span class="service-code">PRODUCT / 01</span>
+            <h3>Project Intelligence</h3>
+            <p>Rapid project screen, feasibility study and techno-economic model. We connect gas quality, load, generation concept, CAPEX, OPEX, overhaul reserves and sensitivity cases into an investment decision.</p>
+            <div class="service-meta">Screen / feasibility / lender review</div>
+          </article>
+          <article class="service-card">
+            <span class="service-code">PRODUCT / 02</span>
+            <h3>Asset Intelligence</h3>
+            <p>Evidence-based review of supplier quotations and pre-owned gas engines. We verify configuration, condition, operating history, residual life, restoration budget and fair value before purchase.</p>
+            <div class="service-meta">Offer review / inspection / valuation</div>
+          </article>
+          <article class="service-card">
+            <span class="service-code">PRODUCT / 03</span>
+            <h3>Owner's Engineering</h3>
+            <p>Client-side technical representation from tender strategy to handover. We prepare requirements, search and qualify local contractors, compare bids, review design gates and verify milestones.</p>
+            <div class="service-meta">Tender / contractor selection / acceptance</div>
+          </article>
+        </div>
       </div>
-    </div>
+    </section>
 
-    <ul class="beliefs">
-      <li><strong>Availability is a contract term, not a feeling.</strong> We commit to KTG/availability factors and prove them monthly.</li>
-      <li><strong>Lifecycle cost beats purchase price.</strong> An engine is bought once and maintained for 80,000 hours.</li>
-      <li><strong>Honest arithmetic.</strong> Estimates are labeled as estimates; capital recovery and overhaul reserves are always in the model.</li>
-    </ul>
-  </div>
-</section>
+    <section class="section section-dark" id="audit" aria-labelledby="audit-title">
+      <div class="shell audit-layout">
+        <div class="audit-copy">
+          <div class="eyebrow">Asset Intelligence / pre-owned gensets</div>
+          <h2 class="section-heading" id="audit-title">Know the asset before you wire the money.</h2>
+          <p class="section-intro">The secondary market is opaque. We turn claimed condition into documented engineering evidence for buyers, lessors, banks and insurers.</p>
+        </div>
 
-<section id="work">
-  <div class="wrap">
-    <span class="kicker">What we do</span>
-    <h2>From Gas Analysis to Grid Synchronization — and Every Hour After.</h2>
-    <p>An engine plant is not a purchase, it is a 80,000-hour commitment. We cover the whole arc:</p>
-    <div class="trio">
-      <div>
-        <h3>EPC</h3>
-        <p>Fuel study (gas composition, methane number per AVL 3.10), design, permitting, procurement — Jenbacher-class or Chinese OEM (Weichai, VMAN) depending on budget and sanctions exposure — construction, commissioning, CHP integration.</p>
+        <ol class="audit-steps">
+          <li><span class="audit-step-number">01</span><span><strong>Borescope inspection</strong><span>Cylinder condition without disassembly.</span></span></li>
+          <li><span class="audit-step-number">02</span><span><strong>Operating-hours verification</strong><span>Wear evidence checked against meter readings and records.</span></span></li>
+          <li><span class="audit-step-number">03</span><span><strong>Oil and coolant analysis</strong><span>Wear metals, contamination and coolant chemistry.</span></span></li>
+          <li><span class="audit-step-number">04</span><span><strong>Residual-life assessment</strong><span>Hours to the next minor and major overhaul.</span></span></li>
+          <li><span class="audit-step-number">05</span><span><strong>Restoration budget</strong><span>Itemized parts and labor to serviceable condition.</span></span></li>
+          <li><span class="audit-step-number">06</span><span><strong>Fair market value opinion</strong><span>Value based on verified condition, not seller claims.</span></span></li>
+        </ol>
+
+        <div class="deliverable"><strong>Deliverable:</strong> a written report with photo and video evidence, suitable for credit committees, insurance review and dispute resolution.</div>
       </div>
-      <div>
-        <h3>Operations &amp; Maintenance</h3>
-        <p>Scheduled maintenance by operating hours, 24/7 monitoring, fixed fee + per-kWh structure, monthly reporting pack: availability, maintenance, efficiency. Overhaul reserves planned — no surprise CAPEX.</p>
+    </section>
+
+    <section class="section section-paper" aria-labelledby="due-diligence-title">
+      <div class="shell">
+        <div class="eyebrow">New / Evidence-based technical due diligence</div>
+        <h2 class="section-heading" id="due-diligence-title">Buying or investing in a gas engine?</h2>
+        <p class="section-intro">Before price becomes the decision, understand the engine's actual condition, maintenance history, overhaul exposure, fuel fit and lifecycle cost. K4 provides an evidence-based written conclusion for buyers, investors and lenders.</p>
+        <div class="services-grid">
+          <article class="service-card">
+            <span class="service-code">QUICK REVIEW / USD 450</span>
+            <h3>Screen the opportunity</h3>
+            <p>Remote review of the available offer and documents, focused on material gaps, red flags and the next evidence worth requesting.</p>
+            <div class="service-meta">Fixed fee / written conclusion</div>
+          </article>
+          <article class="service-card">
+            <span class="service-code">FULL REMOTE / USD 950</span>
+            <h3>Test the investment case</h3>
+            <p>Deeper technical due diligence covering condition evidence, maintenance and overhaul exposure, configuration, fuel, scope and lifecycle implications.</p>
+            <div class="service-meta">Fixed fee / decision-ready report</div>
+          </article>
+          <article class="service-card">
+            <span class="service-code">ON-SITE / BY QUOTATION</span>
+            <h3>Verify the asset in person</h3>
+            <p>Inspection scope is defined around the asset, location and decision. Travel, tests and specialist inputs are agreed before engagement.</p>
+            <div class="service-meta">Inspection / evidence / recommendation</div>
+          </article>
+        </div>
+        <div class="hero-actions" style="margin-top:32px">
+          <a class="button button-primary" href="https://wa.me/998970575996?text=Hello%20K4-Technology.%20I%20would%20like%20a%20gas%20engine%20technical%20review." target="_blank" rel="noopener noreferrer" data-event="technical_due_diligence_whatsapp_click" data-location="homepage">Discuss on WhatsApp <span class="button-arrow" aria-hidden="true">↗</span></a>
+          <a class="button button-secondary" href="/services/gas-engine-technical-due-diligence/">View scope and pricing</a>
+          <a class="button button-secondary" href="/insights/">Explore Gas Engine Intelligence</a>
+        </div>
       </div>
-      <div>
-        <h3>Spare Parts</h3>
-        <p>OEM and verified alternative part numbers from a proprietary cross-reference database. Both options quoted with lead times and our warranty on fitment. Quote within 48 hours.</p>
+    </section>
+
+    <section class="section" id="delivery" aria-labelledby="delivery-title">
+      <div class="shell">
+        <div class="eyebrow">Owner's Engineering / local execution</div>
+        <h2 class="section-heading" id="delivery-title">Local contractors execute. We protect the client's decision.</h2>
+        <p class="section-intro">The client contracts the selected local contractor directly. K4-Technology remains independent on the client side — defining the result, testing the bid and verifying delivery.</p>
+
+        <div class="compute-frame">
+          <div class="compute-header"><span>Engagement model / client-side</span><span>Define → Select → Verify</span></div>
+          <div class="compute-flow">
+            <article class="compute-stage">
+              <div class="stage-label">Decision / 01</div>
+              <h3>Define the result</h3>
+              <p>Requirements, interfaces, economics, risk allocation and acceptance criteria are fixed before the tender.</p>
+            </article>
+            <article class="compute-stage">
+              <div class="stage-label">Market / 02</div>
+              <h3>Qualify local execution</h3>
+              <p>Contractors are sourced and assessed; offers are normalized so price, exclusions and technical risk are comparable.</p>
+            </article>
+            <article class="compute-stage">
+              <div class="stage-label">Delivery / 03</div>
+              <h3>Verify every gate</h3>
+              <p>Design reviews, factory and site tests, milestones, commissioning evidence and handover are checked against the brief.</p>
+            </article>
+          </div>
+          <div class="compute-note"><strong>Commercial independence</strong><span>No hidden commissions and no obligation to award work to a preferred supplier. Any third-party remuneration or conflict is disclosed before the decision.</span></div>
+        </div>
       </div>
+    </section>
+
+    <section class="section section-navy" aria-labelledby="principles-title">
+      <div class="shell">
+        <div class="eyebrow">Engagement levels</div>
+        <h2 class="section-heading" id="principles-title">Start small. Add depth only when the evidence supports it.</h2>
+        <div class="principles">
+          <article class="principle"><span class="index">01 / RAPID SCREEN</span><h3>Is there a project?</h3><p>A concise decision memo with key assumptions, indicative CAPEX/OPEX, red flags and the next information required.</p></article>
+          <article class="principle"><span class="index">02 / FULL STUDY</span><h3>Is it bankable?</h3><p>A transparent technical and economic model with scenarios, lifecycle costs, equipment concept and implementation strategy.</p></article>
+          <article class="principle"><span class="index">03 / CLIENT-SIDE</span><h3>Is it being delivered correctly?</h3><p>Targeted owner's engineering through tendering, design review, testing, commissioning and acceptance.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-projects" id="projects" aria-labelledby="projects-title">
+      <div class="shell projects-layout">
+        <div class="projects-copy">
+          <div class="eyebrow">Realized projects / field footage</div>
+          <h2 class="section-heading" id="projects-title">See the equipment in the field.</h2>
+          <p class="section-intro">Short, factual footage from gas-to-power projects involving K4-Technology and founder Igor Shibanov — equipment logistics, installation, commissioning and operation.</p>
+          <div class="projects-actions">
+            <a class="projects-link projects-link-primary" href="https://www.youtube.com/playlist?list=PLSHrRquTk9NA" target="_blank" rel="noopener noreferrer">Open project playlist ↗</a>
+            <a class="projects-link" href="https://www.youtube.com/@K4TechnologyGlobal" target="_blank" rel="noopener noreferrer">YouTube channel</a>
+          </div>
+          <div class="projects-meta">Playlist updated as project records are prepared</div>
+        </div>
+        <div class="projects-player"><a class="projects-poster" href="https://www.youtube.com/watch?v=kl6ObG_N-P0" target="_blank" rel="noopener noreferrer" aria-label="Watch on YouTube: 2 × Jenbacher J320, 2 × 1,000 kW Gas-to-Power Project"><img src="/project-2xj320-2mw-thumbnail.jpg" width="1280" height="720" alt="2 × Jenbacher J320 generating sets, 2 × 1,000 kW — K4-Technology project video" loading="lazy"><span class="projects-play" aria-hidden="true">▶</span><span class="projects-watch">Watch on YouTube ↗</span></a></div>
+      </div>
+    </section>
+
+    <section class="section section-paper" id="insights" aria-labelledby="insights-title">
+      <div class="shell">
+        <div class="eyebrow">K4 Gas Engine Intelligence</div>
+        <h2 class="section-heading" id="insights-title">Evidence-based intelligence for gas-engine decisions.</h2>
+        <p class="section-intro">Technical due diligence, operating economics and practical research based on public data, engineering calculations and explicit assumptions.</p>
+        <div class="insights-grid">
+          <article class="insight is-published"><span class="insight-index">FEATURED GUIDE / 01</span><div><span class="publication-badge">Evidence-Based Due Diligence</span><h3><a class="publication-link" href="/insights/used-jenbacher-buying-guide/">Used Jenbacher Buying Guide: J320 &amp; J420 Due Diligence</a></h3><p>Identity, operating hours, service history, borescope evidence, FAT, fuel fit and transaction risk.</p><div class="publication-actions"><a href="/insights/used-jenbacher-buying-guide/">Read the guide →</a><a href="/resources/">Resources</a></div></div></article>
+          <article class="insight is-published"><span class="insight-index">PUBLISHED / 02</span><div><span class="publication-badge">Open-access research</span><h3><a class="publication-link" href="/insights/oml30-flare-gas/">53 MW on OML 30 Associated Gas: What the Satellite Record Says</a></h3><p>A technical review of gas availability, nameplate versus net output, VIIRS uncertainty and the questions still required before FID.</p><div class="publication-actions"><a href="/insights/oml30-flare-gas/">Read online →</a><a href="/downloads/OML30-EN.pdf">PDF ↓</a></div></div></article>
+          <article class="insight"><span class="insight-index">01</span><div><h3>How Much Does a 1–10 MW Gas Engine Power Plant Cost?</h3><p>CAPEX ranges, boundaries and the assumptions behind them.</p></div></article>
+          <article class="insight"><span class="insight-index">02</span><div><h3>Gas Engine Power Plant CAPEX: What Suppliers Leave Outside the Quote</h3><p>Interfaces, balance of plant and owner-side costs.</p></div></article>
+          <article class="insight is-published"><span class="insight-index">PUBLISHED / 03</span><div><span class="publication-badge">Lifecycle cost research</span><h3><a class="publication-link" href="/insights/jenbacher-j320-maintenance-cost-lifecycle/">Jenbacher J320 Maintenance Cost &amp; Lifecycle</a></h3><p>Scheduled maintenance events, the 40,000-hour cash cliff and a transparent reserve model from €8.19 to €11.94/MWh.</p><div class="publication-actions"><a href="/insights/jenbacher-j320-maintenance-cost-lifecycle/">Read the research →</a><a href="/insights/">All insights</a></div></div></article>
+          <article class="insight"><span class="insight-index">04</span><div><h3>Used Jenbacher Due Diligence: A Pre-Purchase Checklist</h3><p>Documents, inspection points and commercial red flags.</p></div></article>
+          <article class="insight"><span class="insight-index">05</span><div><h3>How to Verify the Real Operating Hours of a Gas Engine</h3><p>Records, wear evidence and inconsistencies to test.</p></div></article>
+          <article class="insight"><span class="insight-index">06</span><div><h3>OEM Parts vs Verified Alternatives: Lifecycle Cost Comparison</h3><p>Price, risk, availability and warranty trade-offs.</p></div></article>
+          <article class="insight"><span class="insight-index">07</span><div><h3>High-H₂S Gas: Treatment Costs Before Engine Selection</h3><p>Why fuel treatment belongs upstream of the equipment decision.</p></div></article>
+          <article class="insight"><span class="insight-index">08</span><div><h3>EPC, EPCM or Multi-Contract Delivery: Which Model Fits a Small Power Project?</h3><p>Control, interfaces and risk allocation by delivery model.</p></div></article>
+          <article class="insight"><span class="insight-index">09</span><div><h3>How to Compare Three Genset Supplier Quotations Correctly</h3><p>A normalized comparison beyond headline price and efficiency.</p></div></article>
+          <article class="insight"><span class="insight-index">10</span><div><h3>When Stranded-Gas Mining Can Become AI Compute</h3><p>The infrastructure and service thresholds behind the transition.</p></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="company" aria-labelledby="company-title">
+      <div class="shell company-layout">
+        <div class="company-text">
+          <div class="eyebrow">K4 engineering group</div>
+          <h2 class="section-heading" id="company-title">Operating experience behind evidence-based advice.</h2>
+          <p>KIV-Technology d.o.o. in Belgrade is the international contracting entity of the K4 engineering group. The group's operating track record — 16 gas engine power plants totaling approximately 25 MW — is the practical foundation for our international advisory work.</p>
+          <p>We are independent of engine manufacturers and execution contractors. Our recommendations are informed by installation, commissioning, maintenance, overhaul work and live service contracts, but our international role starts on the client's side: analysis, due diligence and technical control.</p>
+        </div>
+        <aside class="person-card" aria-label="Managing Partner">
+          <img class="person-photo" src="/igor-shibanov-wide.jpg" width="1600" height="2134" loading="lazy" decoding="async" alt="Igor Shibanov, Managing Partner of K4-Technology">
+          <h3>Igor Shibanov</h3>
+          <div class="person-role">Managing Partner / Gas Engine Technical Advisor</div>
+          <p>Across his career with different companies, Igor has participated in delivering about 40 MW of gas-engine generation; about 25 MW of that was delivered through his own company.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="faq-title">
+      <div class="shell">
+        <div class="eyebrow">Clear answers</div>
+        <h2 class="section-heading" id="faq-title">What clients and technical reviewers ask first.</h2>
+        <div class="faq-list">
+          <details><summary>What decisions can K4-Technology support?</summary><p>Whether to build, what equipment to buy, how to compare supplier offers, which delivery model to use and which local contractor should execute the project.</p></details>
+          <details><summary>Does K4-Technology act as the EPC contractor?</summary><p>Our default model is client-side advisory. The client contracts a qualified local execution contractor directly; we define requirements, evaluate bids and verify delivery. Any broader scope is agreed separately.</p></details>
+          <details><summary>What inputs are needed for a rapid project screen?</summary><p>Useful starting inputs are a gas analysis, site and load data, utility constraints, supplier quotations and any available equipment or project documents.</p></details>
+          <details><summary>What does pre-owned genset due diligence deliver?</summary><p>A written engineering report with photo and video evidence, condition findings, residual-life assessment, restoration budget and a fair-market-value opinion.</p></details>
+        </div>
+      </div>
+    </section>
+
+    <section class="section contact" id="contact" aria-labelledby="contact-title">
+      <div class="shell">
+        <div class="eyebrow">Start with the decision</div>
+        <h2 class="contact-heading" id="contact-title">Show us the project before you commit to it.</h2>
+        <a class="contact-email" href="mailto:ceo@k4-technology.com?subject=K4-Technology%20initial%20project%20assessment">ceo@k4-technology.com</a>
+        <div class="contact-messengers" aria-label="Messaging contacts"><a class="contact-chip" href="https://wa.me/998970575996?text=Hello%20K4-Technology.%20I%20would%20like%20to%20discuss%20a%20gas-engine%20project." target="_blank" rel="noopener noreferrer" data-event="whatsapp_click" data-location="homepage-contact">WhatsApp</a><a class="contact-chip" href="https://t.me/k4_technology" target="_blank" rel="noopener noreferrer" data-event="telegram_click" data-location="homepage-contact">Telegram</a><span class="contact-message-note">+998 97 057 59 96 · messages only</span></div>
+        <p class="contact-help">Send a gas analysis, site and load profile, supplier quotation or asset documents. We will identify the decision to make, the missing evidence and the smallest useful scope.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell">
+      <div class="footer-top">
+        <div><span class="footer-brand">KIV-Technology d.o.o.</span> · Belgrade, Serbia · Tax ID (PIB) 113538693 · <a href="mailto:ceo@k4-technology.com">ceo@k4-technology.com</a></div>
+        <div class="footer-links"><a href="#services">Advisory</a><a href="/services/gas-engine-technical-due-diligence/">Technical due diligence</a><a href="#delivery">Delivery model</a><a href="#projects">Projects</a><a href="/insights/">Insights</a><a href="https://www.youtube.com/@K4TechnologyGlobal" target="_blank" rel="noopener noreferrer">YouTube</a><a href="https://rutube.ru/channel/16732014/" target="_blank" rel="noopener noreferrer">RuTube archive</a><a href="/ru/" hreflang="ru" lang="ru">Русский</a><a href="/zh/" hreflang="zh-CN" lang="zh-CN">简体中文</a><a href="/es/" hreflang="es" lang="es">Español</a><a href="/pt-br/" hreflang="pt-BR" lang="pt-BR">Português</a><a href="/llms.txt">AI overview</a></div>
+      </div>
+      <p class="legal">KIV-Technology is an advisory and engineering company. We are not a dealer, distributor or affiliate of INNIO Jenbacher, any other engine manufacturer or any execution contractor. All trademarks belong to their respective owners. All financial figures on this site are indicative estimates. © 2026 KIV-Technology d.o.o.</p>
     </div>
-    <div class="note">
-      <p><strong>Reference configurations:</strong> 4×400 kW in-building CHP in an existing boiler house · 2.5 MW containerized turnkey module (40 t, 10.5 kV output) · 2–10 MW multi-unit autonomous plants for oilfield, off-grid and compute loads. Fuel treatment engineered for associated gas including high-H₂S cases.</p>
-    </div>
-  </div>
-</section>
+  </footer>
+  <script>
+    (() => {
+      const button = document.querySelector('.menu-toggle');
+      const menu = document.querySelector('.nav-links');
+      if (!button || !menu) return;
 
-<section id="audit">
-  <div class="wrap">
-    <span class="kicker">Flagship service · pre-owned genset audit</span>
-    <h2>Know What You're Buying Before You Wire the Money.</h2>
-    <p>The secondary market for gas gensets is opaque. Hour meters get rolled back. "After overhaul" means anything from a full rebuild to a fresh coat of paint. Lessors repossess units with no idea of their residual value. We provide the missing piece: an independent engineering audit.</p>
-    <ol class="method">
-      <li><strong>Borescope inspection</strong> Cylinder condition without disassembly</li>
-      <li><strong>Operating-hours verification</strong> Indirect wear evidence vs. meter readings and documentation</li>
-      <li><strong>Oil and coolant analysis</strong> Wear metals, contamination, coolant chemistry</li>
-      <li><strong>Residual life assessment</strong> Hours to next minor/major overhaul per OEM schedule</li>
-      <li><strong>Restoration budget</strong> Itemized parts and labor to serviceable condition</li>
-      <li><strong>Fair market value opinion</strong> What the asset is actually worth in its verified condition</li>
-    </ol>
-    <p style="margin-top:2rem"><strong>Deliverable:</strong> a written report with photo and video evidence — suitable for credit committees, insurance and dispute resolution. Ordered by buyers before payment, by leasing companies and banks for collateral, by insurers before coverage, by sellers to defend the price.</p>
-  </div>
-</section>
+      const closeMenu = () => {
+        button.setAttribute('aria-expanded', 'false');
+        button.setAttribute('aria-label', 'Open navigation');
+        menu.classList.remove('is-open');
+        document.body.classList.remove('menu-open');
+      };
 
-<section id="compute">
-  <div class="wrap">
-    <span class="kicker">Energy-to-Compute</span>
-    <h2>Stranded Gas → Lowest-Cost Power → Compute.</h2>
-    <p>Flared and stranded gas is the cheapest energy on the planet — and the hardest to use. Our answer: autonomous containerized gas engine plants (2–10 MW) built next to the source, powering compute loads that tolerate remote sites.</p>
-    <p><strong>Phase 1 — Mining.</strong> Interruption-tolerant, satellite-uplink-friendly, fast cash flow. Infrastructure is built AI-ready from day one: power density margin, liquid-cooling provisions.</p>
-    <p><strong>Phase 2 — AI inference.</strong> Where fiber reaches the site, capacity converts to GPU inference workloads with softer SLA than training clusters.</p>
-    <div class="note">
-      <p><strong>The honest math.</strong> In mining, electricity is 70–80% of operating cost — cheap gas is the whole edge. In AI compute, electricity is 10–15% of GPU-hour cost — cheap power alone doesn't win; site rights, uptime engineering and operations do. That is why the durable asset is energy rights plus an operated site, and why we sequence mining before AI. All economics on request, marked indicative.</p>
-    </div>
-  </div>
-</section>
+      button.addEventListener('click', () => {
+        const isOpen = button.getAttribute('aria-expanded') === 'true';
+        if (isOpen) {
+          closeMenu();
+          return;
+        }
+        button.setAttribute('aria-expanded', 'true');
+        button.setAttribute('aria-label', 'Close navigation');
+        menu.classList.add('is-open');
+        document.body.classList.add('menu-open');
+      });
 
-<section id="contact">
-  <div class="wrap">
-    <span class="kicker">Contact</span>
-    <h2>The best way to get in touch with us is to send us an email:</h2>
-    <a class="big-mail" href="mailto:office@kiv-technology.rs?subject=K4.ENERGY%20site">office@kiv-technology.rs</a>
-    <p class="muted" style="margin-top:2rem">Send what you have: a unit model and claimed hours, a gas analysis, a parts list, a site and a load. We answer parts inquiries within 48 hours.</p>
-  </div>
-</section>
-
-</main>
-
-<footer>
-  <div class="wrap">
-    <p><strong>KIV-Technology d.o.o.</strong> · Belgrade, Serbia · PIB 113538693</p>
-    <p class="legal">KIV-Technology is an independent engineering and service company. We are not a dealer, distributor or affiliate of INNIO Jenbacher or any other engine manufacturer. All trademarks belong to their respective owners. All financial figures on this site are indicative estimates. © 2026 KIV-Technology d.o.o.</p>
-  </div>
-</footer>
-
+      menu.querySelectorAll('a').forEach((link) => link.addEventListener('click', closeMenu));
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+          closeMenu();
+          button.focus();
+        }
+      });
+      window.matchMedia('(min-width: 721px)').addEventListener('change', closeMenu);
+    })();
+  </script>
+  <script src="/assets/intelligence.js" defer></script>
 </body>
 </html>
