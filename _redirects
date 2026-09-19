@@ -1,0 +1,8 @@
+/en / 301
+/en/ / 301
+/en/insights/* /insights/:splat 301
+/en/services/* /services/:splat 301
+/en/resources/* /resources/:splat 301
+/en/case-studies/* /case-studies/:splat 301
+/insights/gas-engine-om-benchmark-2026/ /insights/ 302
+/ru/insights/gas-engine-om-benchmark-2026/ /ru/insights/ 302
