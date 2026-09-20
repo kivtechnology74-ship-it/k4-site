@@ -4,5 +4,18 @@
 /en/services/* /services/:splat 301
 /en/resources/* /resources/:splat 301
 /en/case-studies/* /case-studies/:splat 301
+
+# Keep the published case-study URLs canonical, then serve their directory
+# indexes directly. Explicit rewrites avoid a platform-generated clean-URL
+# redirect chain while preserving the public trailing-slash URLs.
+/case-studies/j320-303-days-operating-data /case-studies/j320-303-days-operating-data/ 301
+/case-studies/j320-303-days-operating-data/ /case-studies/j320-303-days-operating-data/index.html 200
+/case-studies/used-jenbacher-j320-lifecycle-verification /case-studies/used-jenbacher-j320-lifecycle-verification/ 301
+/case-studies/used-jenbacher-j320-lifecycle-verification/ /case-studies/used-jenbacher-j320-lifecycle-verification/index.html 200
+/case-studies/jenbacher-j320-d21-d25-configuration-mismatch /case-studies/jenbacher-j320-d21-d25-configuration-mismatch/ 301
+/case-studies/jenbacher-j320-d21-d25-configuration-mismatch/ /case-studies/jenbacher-j320-d21-d25-configuration-mismatch/index.html 200
+/case-studies/used-j320-corrosion-preservation-risk /case-studies/used-j320-corrosion-preservation-risk/ 301
+/case-studies/used-j320-corrosion-preservation-risk/ /case-studies/used-j320-corrosion-preservation-risk/index.html 200
+
 /insights/gas-engine-om-benchmark-2026/ /insights/ 302
 /ru/insights/gas-engine-om-benchmark-2026/ /ru/insights/ 302
