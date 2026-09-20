@@ -28,3 +28,4 @@ python3 scripts/qa_live.py
 - Run both QA scripts before deployment. A successful local check does not itself mean the Cloudflare deployment has completed.
 
 The custom domain is configured by `CNAME`.
+Cloudflare Git auto-deploy verified: 2026-09-20.
