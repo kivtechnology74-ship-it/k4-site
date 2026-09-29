@@ -123,6 +123,7 @@ def main() -> int:
 
     sitemap = (ROOT / "sitemap.xml").read_text(encoding="utf-8")
     required = {
+        "/services/remote-technical-review/",
         "/services/gas-engine-technical-due-diligence/",
         "/ru/services/gas-engine-technical-due-diligence/",
         "/resources/",

@@ -17,6 +17,7 @@ ROUTES = [
     "/insights/oml30-flare-gas/",
     "/ru/insights/oml30-flare-gas/",
     "/zh/insights/oml30-flare-gas/",
+    "/services/remote-technical-review/",
     "/services/gas-engine-technical-due-diligence/",
     "/ru/services/gas-engine-technical-due-diligence/",
     "/resources/",
