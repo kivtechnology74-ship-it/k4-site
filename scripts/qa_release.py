@@ -132,6 +132,10 @@ def main() -> int:
         "/insights/used-jenbacher-buying-guide/",
         "/ru/insights/used-jenbacher-buying-guide/",
         "/insights/jenbacher-j320-maintenance-cost-lifecycle/",
+        "/insights/verify-used-jenbacher-operating-hours/",
+        "/insights/jenbacher-borescope-inspection/",
+        "/insights/used-gas-engine-acceptance-red-flags/",
+        "/insights/used-jenbacher-fleet-serial-verification/",
     }
     for route in required:
         if not route_target(route).exists():
