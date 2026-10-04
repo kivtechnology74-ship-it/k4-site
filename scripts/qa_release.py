@@ -10,6 +10,16 @@ from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parent.parent
 ORIGIN = "https://k4-technology.com"
+TRACKED_ARTICLE_ROUTES = {
+    "/insights/gas-engine-project-due-diligence-investors-lenders/",
+    "/insights/gas-to-power-financial-model-technical-assumptions/",
+    "/insights/gas-engine-commissioning-checklist/",
+    "/insights/gas-engine-spare-parts-strategy/",
+    "/insights/data-center-captive-gas-power-engines/",
+    "/insights/onsite-gas-power-mining-hpc-due-diligence/",
+    "/insights/gas-consumption-data-gas-engine-investment/",
+    "/insights/gas-engine-availability-headline-percentage/",
+}
 
 
 class AuditParser(HTMLParser):
@@ -89,6 +99,8 @@ def main() -> int:
         parser = AuditParser()
         parser.feed(raw)
         route = public_path(file)
+        if route in TRACKED_ARTICLE_ROUTES and raw.count('data-event="article_cta_click"') < 2:
+            errors.append(f"missing tracked article CTAs at {route}")
         for href in parser.links:
             parsed = urlparse(href)
             if parsed.scheme in {"http", "https", "mailto", "tel", "javascript"} or href.startswith("#"):
@@ -137,6 +149,14 @@ def main() -> int:
         "/insights/jenbacher-borescope-inspection/",
         "/insights/used-gas-engine-acceptance-red-flags/",
         "/insights/used-jenbacher-fleet-serial-verification/",
+        "/insights/gas-engine-project-due-diligence-investors-lenders/",
+        "/insights/gas-to-power-financial-model-technical-assumptions/",
+        "/insights/gas-engine-commissioning-checklist/",
+        "/insights/gas-engine-spare-parts-strategy/",
+        "/insights/data-center-captive-gas-power-engines/",
+        "/insights/onsite-gas-power-mining-hpc-due-diligence/",
+        "/insights/gas-consumption-data-gas-engine-investment/",
+        "/insights/gas-engine-availability-headline-percentage/",
     }
     for route in required:
         if not route_target(route).exists():

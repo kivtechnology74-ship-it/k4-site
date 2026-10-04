@@ -20,6 +20,15 @@ Public scopes: Quick Technical Review — USD 450; Full Remote Technical Due Dil
 - Buying a Used Jenbacher Fleet — unit-by-unit serial, configuration, hours, history and condition verification: https://k4-technology.com/insights/used-jenbacher-fleet-serial-verification/
 - OML 30 flare-to-compute research: https://k4-technology.com/insights/oml30-flare-gas/
 
+- Gas Engine Project Due Diligence for Investors and Lenders — A decision framework connecting fuel, equipment, net output, maintenance, acceptance evidence and the financial model: https://k4-technology.com/insights/gas-engine-project-due-diligence-investors-lenders/
+- Gas-to-Power Financial Model: Technical Assumptions That Can Break the Economics — How fuel, net output, availability, maintenance and overhaul assumptions can break project economics: https://k4-technology.com/insights/gas-to-power-financial-model-technical-assumptions/
+- Gas Engine Commissioning: What Should Be Verified Before Commercial Operation — An evidence-led checklist for mechanical completion, controls, protection, safety systems and operating handover: https://k4-technology.com/insights/gas-engine-commissioning-checklist/
+- Gas Engine Spare Parts Strategy: What to Stock Before the Plant Starts Operating — Build a serial-specific, risk-based spares plan before start-up instead of buying from a generic list: https://k4-technology.com/insights/gas-engine-spare-parts-strategy/
+- Captive Gas Power for Data Centers: What to Check Before Selecting Reciprocating Engines — Load, redundancy, transition, fuel, cooling and grid-interface checks before selecting gas engines for a data center: https://k4-technology.com/insights/data-center-captive-gas-power-engines/
+- Onsite Gas Power for Mining & HPC: Technical Due Diligence Before Deployment — Due diligence for fuel credibility, modularity, cooling, uptime and deployment boundaries in mining and HPC projects: https://k4-technology.com/insights/onsite-gas-power-mining-hpc-due-diligence/
+- Why Gas Consumption Data Can Mislead a Gas-Engine Investment Decision — Why meter totals can mislead an investment model and when passport consumption is the defensible basis: https://k4-technology.com/insights/gas-consumption-data-gas-engine-investment/
+- Gas Engine Availability: What the Headline Percentage Does Not Tell You — What a headline percentage hides: denominator, exclusions, unit-level events and 806 lost unit-hours: https://k4-technology.com/insights/gas-engine-availability-headline-percentage/
+
 Evidence labels distinguish OEM DATA, VERIFIED PUBLIC DATA, FIELD EVIDENCE, K4 FIELD DATA, K4 CASE STUDY and K4 ANALYSIS. Missing or seller-reported evidence is not upgraded to fact.
 
 Contact: ceo@k4-technology.com · WhatsApp +998 97 057 59 96 · Telegram @k4_technology
