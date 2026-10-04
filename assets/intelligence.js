@@ -41,6 +41,9 @@
   const reviewField=document.querySelector('[data-review-type-field]');
   document.querySelectorAll('[data-event]').forEach(el=>el.addEventListener('click',()=>{
     const reviewType=el.dataset.reviewType;
+    const href=el.getAttribute('href');
+    const linkUrl=href?new URL(href,location.href):null;
+    const fileName=el.hasAttribute('download')&&linkUrl?decodeURIComponent(linkUrl.pathname.split('/').pop()||''):undefined;
     if(reviewType&&reviewField&&Array.from(reviewField.options).some(option=>option.value===reviewType)){
       reviewField.value=reviewType;
     }
@@ -48,7 +51,9 @@
       location:el.dataset.location||location.pathname,
       channel:el.dataset.channel,
       review_type:reviewType,
-      language:el.dataset.language||document.documentElement.lang
+      language:el.dataset.language||document.documentElement.lang,
+      file_name:fileName,
+      link_url:linkUrl?.href
     });
   }));
 
@@ -84,7 +89,9 @@
         '',
         'Submitting this information does not create an engagement.'
       ];
-      track('equipment_form_submit',formDetails());
+      const details=formDetails();
+      track('equipment_form_submit',details);
+      track('lead_contact_click',{...details,channel:'email'});
       const subject=form.dataset.formSubject||'Gas engine technical review';
       location.href=`mailto:ceo@k4-technology.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`;
     });

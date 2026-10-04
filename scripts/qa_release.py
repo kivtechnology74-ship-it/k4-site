@@ -20,6 +20,7 @@ TRACKED_ARTICLE_ROUTES = {
     "/insights/gas-consumption-data-gas-engine-investment/",
     "/insights/gas-engine-availability-headline-percentage/",
     "/insights/gas-engine-project-checklist-purchase-operations/",
+    "/ru/insights/gas-engine-project-checklist-purchase-operations/",
 }
 
 
@@ -168,6 +169,7 @@ def main() -> int:
         "/insights/gas-consumption-data-gas-engine-investment/",
         "/insights/gas-engine-availability-headline-percentage/",
         "/insights/gas-engine-project-checklist-purchase-operations/",
+        "/ru/insights/gas-engine-project-checklist-purchase-operations/",
     }
     for route in required:
         if not route_target(route).exists():
@@ -184,17 +186,55 @@ def main() -> int:
         if file.exists():
             errors.append(f"prohibited public file remains: {file.relative_to(ROOT)}")
 
-    checklist_route = "/insights/gas-engine-project-checklist-purchase-operations/"
-    checklist_html = route_target(checklist_route).read_text(encoding="utf-8")
-    checklist_pdf = ROOT / "downloads/K4-Gas-Engine-Project-Checklist.pdf"
-    if not checklist_pdf.exists() or checklist_pdf.stat().st_size < 10_000:
-        errors.append("missing or unexpectedly small gas-engine project checklist PDF")
-    if checklist_html.count('href="/downloads/K4-Gas-Engine-Project-Checklist.pdf"') < 3:
-        errors.append("checklist page must provide three direct PDF download links")
-    if checklist_html.count('data-event="checklist_pdf_download"') < 3:
-        errors.append("checklist PDF download tracking is incomplete")
-    if checklist_html.count(" download") < 3:
-        errors.append("checklist PDF links must use the download attribute")
+    checklists = {
+        "/insights/gas-engine-project-checklist-purchase-operations/": "K4-Gas-Engine-Project-Checklist.pdf",
+        "/ru/insights/gas-engine-project-checklist-purchase-operations/": "K4-Checklist-Gazoporshnevogo-Proekta-RU.pdf",
+    }
+    for checklist_route, pdf_name in checklists.items():
+        checklist_html = route_target(checklist_route).read_text(encoding="utf-8")
+        checklist_pdf = ROOT / "downloads" / pdf_name
+        if not checklist_pdf.exists() or checklist_pdf.stat().st_size < 10_000:
+            errors.append(f"missing or unexpectedly small checklist PDF: {pdf_name}")
+        if checklist_html.count(f'href="/downloads/{pdf_name}"') < 3:
+            errors.append(f"{checklist_route}: must provide three direct PDF download links")
+        if checklist_html.count('data-event="checklist_pdf_download"') < 3:
+            errors.append(f"{checklist_route}: PDF download tracking is incomplete")
+        if checklist_html.count(" download") < 3:
+            errors.append(f"{checklist_route}: PDF links must use the download attribute")
+
+    intelligence = (ROOT / "assets/intelligence.js").read_text(encoding="utf-8")
+    for token in ["file_name", "link_url", "equipment_form_submit", "lead_contact_click"]:
+        if token not in intelligence:
+            errors.append(f"analytics implementation is missing {token}")
+
+    promoted_articles = [
+        p for p in (ROOT / "insights").glob("*/index.html")
+        if 'class="checklist-promo"' in p.read_text(encoding="utf-8")
+    ]
+    if len(promoted_articles) != 12:
+        errors.append(f"expected checklist promotion in 12 English articles, found {len(promoted_articles)}")
+    for page in promoted_articles:
+        html = page.read_text(encoding="utf-8")
+        if 'data-event="checklist_landing_click"' not in html:
+            errors.append(f"checklist promotion lacks analytics: {page.relative_to(ROOT)}")
+
+    distribution_pages = {
+        "index.html": "/insights/gas-engine-project-checklist-purchase-operations/",
+        "ru/index.html": "/ru/insights/gas-engine-project-checklist-purchase-operations/",
+        "resources/index.html": "/insights/gas-engine-project-checklist-purchase-operations/",
+        "ru/resources/index.html": "/ru/insights/gas-engine-project-checklist-purchase-operations/",
+        "services/gas-engine-technical-due-diligence/index.html": "/insights/gas-engine-project-checklist-purchase-operations/",
+        "ru/services/gas-engine-technical-due-diligence/index.html": "/ru/insights/gas-engine-project-checklist-purchase-operations/",
+        "services/remote-technical-review/index.html": "/insights/gas-engine-project-checklist-purchase-operations/",
+    }
+    for page, target in distribution_pages.items():
+        html = (ROOT / page).read_text(encoding="utf-8")
+        if target not in html or 'data-event="checklist_landing_click"' not in html:
+            errors.append(f"checklist distribution is incomplete at {page}")
+
+    ru_service = (ROOT / "ru/services/gas-engine-technical-due-diligence/index.html").read_text(encoding="utf-8")
+    if ru_service.count('data-event="lead_contact_click"') < 2:
+        errors.append("Russian due-diligence service needs tracked WhatsApp and email lead actions")
 
     searchable = "\n".join(p.read_text(encoding="utf-8", errors="ignore") for p in html_files if "oml30-flare-gas" not in p.as_posix())
     for pattern in [r"Independent Gas Engine", r"Independent Technical", r"Global Gas Engine O&M Benchmark", r"€225k", r"universal 2,000 h"]:
