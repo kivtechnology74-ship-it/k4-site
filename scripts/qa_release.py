@@ -134,6 +134,15 @@ def main() -> int:
                     errors.append(f"invalid JSON-LD at {route}: {exc}")
 
     sitemap = (ROOT / "sitemap.xml").read_text(encoding="utf-8")
+    not_found = ROOT / "404.html"
+    if not not_found.exists():
+        errors.append("missing custom 404.html")
+    else:
+        not_found_html = not_found.read_text(encoding="utf-8")
+        if 'name="robots" content="noindex,follow"' not in not_found_html:
+            errors.append("404.html must be noindex,follow")
+        if '<h1>' not in not_found_html:
+            errors.append("404.html is missing an h1")
     required = {
         "/services/remote-technical-review/",
         "/services/gas-engine-technical-due-diligence/",

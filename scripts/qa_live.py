@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import re
 import sys
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -43,6 +44,14 @@ ROUTES = [
     "/insights/used-jenbacher-buying-guide/",
     "/ru/insights/used-jenbacher-buying-guide/",
     "/insights/jenbacher-j320-maintenance-cost-lifecycle/",
+    "/insights/gas-engine-project-due-diligence-investors-lenders/",
+    "/insights/gas-to-power-financial-model-technical-assumptions/",
+    "/insights/gas-engine-commissioning-checklist/",
+    "/insights/gas-engine-spare-parts-strategy/",
+    "/insights/data-center-captive-gas-power-engines/",
+    "/insights/onsite-gas-power-mining-hpc-due-diligence/",
+    "/insights/gas-consumption-data-gas-engine-investment/",
+    "/insights/gas-engine-availability-headline-percentage/",
 ]
 
 
@@ -91,6 +100,21 @@ def main() -> int:
                 print(f"OK redirect {source} -> {expected}")
         except Exception as exc:
             errors.append(f"redirect {source}: {exc}")
+
+    missing_path = "/definitely-not-a-real-k4-page-release-check/"
+    try:
+        status, _, _ = get(missing_path)
+        errors.append(f"soft 404 {missing_path}: HTTP {status}, expected 404")
+    except urllib.error.HTTPError as exc:
+        body = exc.read().decode("utf-8", "replace")
+        if exc.code != 404:
+            errors.append(f"missing route {missing_path}: HTTP {exc.code}, expected 404")
+        elif "Page Not Found | K4-Technology" not in body or 'content="noindex,follow"' not in body:
+            errors.append(f"missing route {missing_path}: custom 404 body not served")
+        else:
+            print(f"OK 404 {missing_path}")
+    except Exception as exc:
+        errors.append(f"missing route {missing_path}: {exc}")
 
     print(f"Errors: {len(errors)}")
     for error in errors:
