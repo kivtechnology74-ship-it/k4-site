@@ -52,6 +52,7 @@ ROUTES = [
     "/insights/onsite-gas-power-mining-hpc-due-diligence/",
     "/insights/gas-consumption-data-gas-engine-investment/",
     "/insights/gas-engine-availability-headline-percentage/",
+    "/insights/gas-engine-project-checklist-purchase-operations/",
 ]
 
 
@@ -83,7 +84,23 @@ def main() -> int:
                 errors.append(f"{route}: missing branded project-video poster")
             if "youtube-nocookie.com/embed" in body:
                 errors.append(f"{route}: legacy embedded player still present")
+        if route == "/insights/gas-engine-project-checklist-purchase-operations/":
+            if body.count('href="/downloads/K4-Gas-Engine-Project-Checklist.pdf"') < 3:
+                errors.append(f"{route}: missing direct PDF download links")
+            if body.count('data-event="checklist_pdf_download"') < 3:
+                errors.append(f"{route}: missing download analytics events")
         print(f"OK {status} {route} :: {re.sub(r'<[^>]+>', '', title.group(1)).strip() if title else 'NO TITLE'}")
+
+    try:
+        pdf_request = urllib.request.Request(ORIGIN + "/downloads/K4-Gas-Engine-Project-Checklist.pdf" + CACHE, headers={"User-Agent": "K4-release-QA/1.0", "Cache-Control": "no-cache"})
+        with urllib.request.urlopen(pdf_request, timeout=20) as response:
+            pdf_data = response.read()
+            if response.status != 200 or response.headers.get_content_type() != "application/pdf" or not pdf_data.startswith(b"%PDF-"):
+                errors.append("checklist PDF: invalid production response")
+            else:
+                print(f"OK {response.status} /downloads/K4-Gas-Engine-Project-Checklist.pdf :: {len(pdf_data)} bytes")
+    except Exception as exc:
+        errors.append(f"checklist PDF: {exc}")
 
     redirects = {
         "/en/resources/": "/resources/",

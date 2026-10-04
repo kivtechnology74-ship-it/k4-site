@@ -19,6 +19,7 @@ TRACKED_ARTICLE_ROUTES = {
     "/insights/onsite-gas-power-mining-hpc-due-diligence/",
     "/insights/gas-consumption-data-gas-engine-investment/",
     "/insights/gas-engine-availability-headline-percentage/",
+    "/insights/gas-engine-project-checklist-purchase-operations/",
 }
 
 
@@ -166,6 +167,7 @@ def main() -> int:
         "/insights/onsite-gas-power-mining-hpc-due-diligence/",
         "/insights/gas-consumption-data-gas-engine-investment/",
         "/insights/gas-engine-availability-headline-percentage/",
+        "/insights/gas-engine-project-checklist-purchase-operations/",
     }
     for route in required:
         if not route_target(route).exists():
@@ -181,6 +183,18 @@ def main() -> int:
     for file in prohibited_routes:
         if file.exists():
             errors.append(f"prohibited public file remains: {file.relative_to(ROOT)}")
+
+    checklist_route = "/insights/gas-engine-project-checklist-purchase-operations/"
+    checklist_html = route_target(checklist_route).read_text(encoding="utf-8")
+    checklist_pdf = ROOT / "downloads/K4-Gas-Engine-Project-Checklist.pdf"
+    if not checklist_pdf.exists() or checklist_pdf.stat().st_size < 10_000:
+        errors.append("missing or unexpectedly small gas-engine project checklist PDF")
+    if checklist_html.count('href="/downloads/K4-Gas-Engine-Project-Checklist.pdf"') < 3:
+        errors.append("checklist page must provide three direct PDF download links")
+    if checklist_html.count('data-event="checklist_pdf_download"') < 3:
+        errors.append("checklist PDF download tracking is incomplete")
+    if checklist_html.count(" download") < 3:
+        errors.append("checklist PDF links must use the download attribute")
 
     searchable = "\n".join(p.read_text(encoding="utf-8", errors="ignore") for p in html_files if "oml30-flare-gas" not in p.as_posix())
     for pattern in [r"Independent Gas Engine", r"Independent Technical", r"Global Gas Engine O&M Benchmark", r"€225k", r"universal 2,000 h"]:
