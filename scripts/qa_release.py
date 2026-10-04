@@ -136,6 +136,14 @@ def main() -> int:
         "/insights/jenbacher-borescope-inspection/",
         "/insights/used-gas-engine-acceptance-red-flags/",
         "/insights/used-jenbacher-fleet-serial-verification/",
+        "/insights/gas-engine-project-due-diligence-investors-lenders/",
+        "/insights/gas-to-power-financial-model-technical-assumptions/",
+        "/insights/gas-engine-commissioning-checklist/",
+        "/insights/gas-engine-spare-parts-strategy/",
+        "/insights/data-center-captive-gas-power-engines/",
+        "/insights/onsite-gas-power-mining-hpc-due-diligence/",
+        "/insights/gas-consumption-data-gas-engine-investment/",
+        "/insights/gas-engine-availability-headline-percentage/",
     }
     for route in required:
         if not route_target(route).exists():
