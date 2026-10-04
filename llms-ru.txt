@@ -9,6 +9,7 @@ K4 Technology выполняет доказательный технически
 ## Канонические материалы
 
 - Руководство по покупке б/у Jenbacher: https://k4-technology.com/ru/insights/used-jenbacher-buying-guide/
+- Чек-лист газопоршневого проекта — шесть этапов от покупки до долгосрочной эксплуатации и ТО: https://k4-technology.com/ru/insights/gas-engine-project-checklist-purchase-operations/
 - Технический Due Diligence: https://k4-technology.com/ru/services/gas-engine-technical-due-diligence/
 - Краткие и полные запросы / чек-листы: https://k4-technology.com/ru/resources/
 - Кейсы K4: https://k4-technology.com/ru/case-studies/
