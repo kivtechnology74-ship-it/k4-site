@@ -28,6 +28,31 @@
     document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
   }
 
+  const tableHintCopy={
+    ru:'Прокрутите таблицу по горизонтали →',
+    zh:'横向滑动查看完整表格 →',
+    en:'Swipe to view the full table →'
+  };
+  const updateTableHints=()=>{
+    const language=(document.documentElement.lang||'en').toLowerCase();
+    const copy=language.startsWith('ru')?tableHintCopy.ru:language.startsWith('zh')?tableHintCopy.zh:tableHintCopy.en;
+    document.querySelectorAll('.table-scroll').forEach(table=>{
+      const previous=table.previousElementSibling;
+      const current=previous?.classList.contains('table-scroll-hint')?previous:null;
+      const needsHint=table.scrollWidth>table.clientWidth+1;
+      if(needsHint&&!current){
+        const hint=document.createElement('p');
+        hint.className='table-scroll-hint';
+        hint.textContent=copy;
+        table.insertAdjacentElement('beforebegin',hint);
+      }else if(!needsHint&&current){
+        current.remove();
+      }
+    });
+  };
+  requestAnimationFrame(updateTableHints);
+  window.addEventListener('resize',updateTableHints,{passive:true});
+
   const track=(name,detail={})=>{
     const cleanDetail=Object.fromEntries(Object.entries(detail).filter(([,value])=>value!==undefined&&value!==''));
     if(typeof window.gtag==='function'){
