@@ -241,6 +241,38 @@ def main() -> int:
         if re.search(pattern, searchable, re.I):
             errors.append(f"prohibited public phrase: {pattern}")
 
+    editorial_artifacts = [
+        r"Commercial CTA",
+        r"Suggested related K4-Technology content",
+        r"new master article",
+        r">PRIMARY CTA<",
+    ]
+    for pattern in editorial_artifacts:
+        for file in html_files:
+            if re.search(pattern, file.read_text(encoding="utf-8", errors="ignore"), re.I):
+                errors.append(f"editorial artifact in {file.relative_to(ROOT)}: {pattern}")
+
+    for file in html_files:
+        if re.search(r"_{20,}", file.read_text(encoding="utf-8", errors="ignore")):
+            errors.append(f"long underscore field can cause mobile overflow: {file.relative_to(ROOT)}")
+
+    oml_pages = {
+        "en": ROOT / "insights/oml30-flare-gas/index.html",
+        "ru": ROOT / "ru/insights/oml30-flare-gas/index.html",
+        "zh": ROOT / "zh/insights/oml30-flare-gas/index.html",
+    }
+    for language, page in oml_pages.items():
+        html = page.read_text(encoding="utf-8")
+        if "data:image" in html:
+            errors.append(f"embedded OML 30 figure remains: {page.relative_to(ROOT)}")
+        for number in range(1, 5):
+            figure = ROOT / f"assets/oml30/{language}/figure-{number}.png"
+            expected_src = f'/assets/oml30/{language}/figure-{number}.png'
+            if not figure.exists() or figure.stat().st_size < 10_000:
+                errors.append(f"missing OML 30 figure: {figure.relative_to(ROOT)}")
+            if expected_src not in html:
+                errors.append(f"OML 30 page does not reference {expected_src}: {page.relative_to(ROOT)}")
+
     print(f"HTML files: {len(html_files)}")
     print(f"Substantive pages audited: {len(substantive)}")
     print(f"Warnings: {len(warnings)}")
