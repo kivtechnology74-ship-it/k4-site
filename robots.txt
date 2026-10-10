@@ -1,7 +1,11 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://k4-technology.com/sitemap.xml
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
 
 User-agent: GPTBot
 Allow: /
@@ -11,3 +15,8 @@ Allow: /
 
 User-agent: ClaudeBot
 Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+Sitemap: https://k4-technology.com/sitemap.xml

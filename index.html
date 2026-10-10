@@ -781,6 +781,19 @@
     @media(max-width:940px){.projects-layout{grid-template-columns:1fr}.projects-copy{max-width:760px}}
     @media(max-width:720px){.projects-actions{align-items:stretch;flex-direction:column}.projects-link{width:100%}}
 
+    .ai-home-section{position:relative;overflow:hidden;color:#fff;background:linear-gradient(135deg,#071a2e 0%,#0b1118 72%)}
+    .ai-home-section::after{position:absolute;inset:0;background:radial-gradient(circle at 85% 18%,rgba(47,125,244,.2),transparent 36%);pointer-events:none;content:""}
+    .ai-home-layout{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,.82fr) minmax(420px,1.18fr);gap:clamp(42px,7vw,92px);align-items:center}
+    .ai-home-copy .section-intro{color:var(--steel-300)}
+    .ai-home-flow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--line-dark)}
+    .ai-home-flow div{min-height:150px;padding:22px;border-right:1px solid var(--line-dark);border-bottom:1px solid var(--line-dark)}
+    .ai-home-flow div:nth-child(3n){border-right:0}.ai-home-flow div:nth-last-child(-n+3){border-bottom:0}
+    .ai-home-flow span{display:block;color:var(--blue-400);font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.09em}
+    .ai-home-flow strong{display:block;margin-top:36px;font-size:16px;line-height:1.25}
+    .ai-home-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+    @media(max-width:960px){.ai-home-layout{grid-template-columns:1fr}.ai-home-flow{max-width:760px}}
+    @media(max-width:640px){.ai-home-flow{grid-template-columns:1fr}.ai-home-flow div,.ai-home-flow div:nth-child(3n),.ai-home-flow div:nth-last-child(-n+3){min-height:0;border-right:0;border-bottom:1px solid var(--line-dark)}.ai-home-flow div:last-child{border-bottom:0}.ai-home-flow strong{margin-top:16px}.ai-home-actions{align-items:stretch;flex-direction:column}.ai-home-actions .button{width:100%}}
+
   .projects-poster{position:relative;display:block;width:100%;height:100%;overflow:hidden;color:#fff;text-decoration:none}.projects-poster img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .35s ease,filter .35s ease}.projects-poster::after{position:absolute;inset:0;background:linear-gradient(180deg,transparent 48%,rgba(2,8,16,.7));content:""}.projects-play{position:absolute;z-index:1;top:50%;left:50%;display:grid;width:72px;height:72px;place-items:center;border:1px solid rgba(255,255,255,.5);border-radius:50%;background:rgba(31,111,235,.94);box-shadow:0 14px 44px rgba(0,0,0,.35);font-size:25px;line-height:1;transform:translate(-50%,-50%);transition:transform .2s ease,background .2s ease}.projects-watch{position:absolute;z-index:1;right:18px;bottom:16px;padding:9px 13px;border:1px solid rgba(255,255,255,.3);border-radius:100px;background:rgba(3,11,21,.75);backdrop-filter:blur(8px);font-size:12px;font-weight:700;letter-spacing:.02em}.projects-poster:hover img,.projects-poster:focus-visible img{transform:scale(1.018);filter:brightness(.9)}.projects-poster:hover .projects-play,.projects-poster:focus-visible .projects-play{background:#2f7df4;transform:translate(-50%,-50%) scale(1.07)}@media(max-width:640px){.projects-play{width:58px;height:58px;font-size:20px}.projects-watch{right:12px;bottom:10px;padding:7px 10px;font-size:10px}}
   </style>
 </head>
@@ -799,7 +812,7 @@
         <span aria-hidden="true"></span>
         <span aria-hidden="true"></span>
       </button>
-      <div class="nav-links" id="primary-links"><a href="/services/gas-engine-advisory-for-power-developers/">Advisory</a><a href="/services/gas-engine-technical-due-diligence/">Due diligence</a><a href="/case-studies/">Case studies</a><a href="/insights/">Insights</a><a href="/resources/">Resources</a><details class="language-menu"><summary aria-label="Choose language">EN</summary><div class="language-options"><a href="/" hreflang="en" lang="en" aria-current="page">English</a><a href="/ru/" hreflang="ru" lang="ru">Русский</a><a href="/zh/" hreflang="zh-CN" lang="zh-CN">简体中文</a><a href="/es/" hreflang="es" lang="es">Español</a><a href="/pt-br/" hreflang="pt-BR" lang="pt-BR">Português</a></div></details><a class="nav-cta" href="/services/gas-engine-advisory-for-power-developers/#discuss-project" data-event="power_project_cta_click" data-location="homepage-nav" data-language="en">Discuss a project</a></div>
+      <div class="nav-links" id="primary-links"><a href="/services/gas-engine-advisory-for-power-developers/">Advisory</a><a href="/services/ai-power-project-advisory/">AI Power</a><a href="/services/gas-engine-technical-due-diligence/">Due diligence</a><a href="/case-studies/">Case studies</a><a href="/insights/">Insights</a><a href="/resources/">Resources</a><details class="language-menu"><summary aria-label="Choose language">EN</summary><div class="language-options"><a href="/" hreflang="en" lang="en" aria-current="page">English</a><a href="/ru/" hreflang="ru" lang="ru">Русский</a><a href="/zh/" hreflang="zh-CN" lang="zh-CN">简体中文</a><a href="/es/" hreflang="es" lang="es">Español</a><a href="/pt-br/" hreflang="pt-BR" lang="pt-BR">Português</a></div></details><a class="nav-cta" href="/services/gas-engine-advisory-for-power-developers/#discuss-project" data-event="power_project_cta_click" data-location="homepage-nav" data-language="en">Discuss a project</a></div>
     </nav>
   </header>
 
@@ -921,6 +934,28 @@
         <div class="developer-actions">
           <a class="button button-primary" href="/services/gas-engine-advisory-for-power-developers/#discuss-project" data-event="power_project_cta_click" data-location="homepage-developer-path" data-language="en">Discuss a power project <span class="button-arrow" aria-hidden="true">→</span></a>
           <a class="button button-secondary" href="/services/gas-engine-advisory-for-power-developers/" data-event="developer_advisory_click" data-location="homepage-developer-path" data-language="en">See the advisory scope</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section ai-home-section" aria-labelledby="ai-home-title">
+      <div class="shell ai-home-layout">
+        <div class="ai-home-copy">
+          <div class="eyebrow">AI and data-center power / zero stage</div>
+          <h2 class="section-heading" id="ai-home-title">Choose the power architecture and equipment before major CAPEX.</h2>
+          <p class="section-intro">K4 helps owners and developers test on-site gas-power architecture, unit size, fleet redundancy, fuel requirements and new-versus-used equipment as one owner-side decision.</p>
+          <div class="ai-home-actions">
+            <a class="button button-primary" href="/services/ai-power-project-advisory/" data-event="ai_power_cta_click" data-channel="service" data-location="homepage-ai-power" data-language="en">Explore AI Power Advisory <span class="button-arrow" aria-hidden="true">→</span></a>
+            <a class="button button-secondary" href="mailto:ceo@k4-technology.com?subject=AI%20power%20project%20%E2%80%94%20initial%20discussion" data-event="ai_power_cta_click" data-channel="email" data-location="homepage-ai-power" data-language="en">Discuss your project</a>
+          </div>
+        </div>
+        <div class="ai-home-flow" aria-label="AI power project decision sequence">
+          <div><span>01 / CONDITIONS</span><strong>Load, site, utility and schedule</strong></div>
+          <div><span>02 / ARCHITECTURE</span><strong>Operating modes and system boundary</strong></div>
+          <div><span>03 / FUEL</span><strong>Gas quality and treatment</strong></div>
+          <div><span>04 / GENERATION</span><strong>Platform, unit size, new or used</strong></div>
+          <div><span>05 / RESILIENCE</span><strong>Fleet states and distribution</strong></div>
+          <div><span>06 / LOAD</span><strong>Dependable power for compute</strong></div>
         </div>
       </div>
     </section>
