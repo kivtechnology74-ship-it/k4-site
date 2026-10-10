@@ -514,7 +514,7 @@
     .audit-steps strong { display: block; margin-bottom: 4px; font-weight: 600; }
     .audit-steps span:last-child { color: var(--steel-400); font-size: .94rem; }
     .deliverable {
-      grid-column: 1 / -1;
+      grid-column: 2;
       margin-top: 22px;
       padding: 27px 28px;
       border-left: 2px solid var(--blue-500);
@@ -685,6 +685,7 @@
       .status-cell:nth-child(4) { border-top: 1px solid var(--line-dark); }
       .proof-layout, .audit-layout, .company-layout { grid-template-columns: 1fr; }
       .proof-copy, .audit-copy { position: static; }
+      .deliverable { grid-column: 1; }
       .audit-copy .section-intro { margin-bottom: 12px; }
       .compute-stage:nth-child(3) { grid-column: 1 / -1; border-top: 1px solid var(--line-light); border-left: 0; }
       .compute-stage:nth-child(2)::after { display: none; }
