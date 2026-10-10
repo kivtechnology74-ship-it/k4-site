@@ -169,6 +169,7 @@ def main() -> int:
         "/insights/gas-consumption-data-gas-engine-investment/",
         "/insights/gas-engine-availability-headline-percentage/",
         "/insights/gas-engine-project-checklist-purchase-operations/",
+        "/insights/k4-project-os-design-partner/",
         "/ru/insights/gas-engine-project-checklist-purchase-operations/",
     }
     for route in required:

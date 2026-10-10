@@ -25,6 +25,7 @@ Public scopes: Quick Technical Review — USD 450; Full Remote Technical Due Dil
 - Used Gas Engine Red Flags — twelve acceptance checks for identity, documentation, preservation, condition, completeness and payment hold points: https://k4-technology.com/insights/used-gas-engine-acceptance-red-flags/
 - Buying a Used Jenbacher Fleet — unit-by-unit serial, configuration, hours, history and condition verification: https://k4-technology.com/insights/used-jenbacher-fleet-serial-verification/
 - OML 30 flare-to-compute research: https://k4-technology.com/insights/oml30-flare-gas/
+- K4 Project OS product concept and design partner programme — A local-first owner-side workspace connecting contractual requirements, technical evidence, decisions, actions and asset history across gas-engine power projects: https://k4-technology.com/insights/k4-project-os-design-partner/
 
 - Gas Engine Project Due Diligence for Investors and Lenders — A decision framework connecting fuel, equipment, net output, maintenance, acceptance evidence and the financial model: https://k4-technology.com/insights/gas-engine-project-due-diligence-investors-lenders/
 - Gas-to-Power Financial Model: Technical Assumptions That Can Break the Economics — How fuel, net output, availability, maintenance and overhaul assumptions can break project economics: https://k4-technology.com/insights/gas-to-power-financial-model-technical-assumptions/
