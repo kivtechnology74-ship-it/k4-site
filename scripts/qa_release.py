@@ -296,6 +296,7 @@ def main() -> int:
         "__k4IntelligenceLoaded",
         "k4_internal",
         "traffic_type",
+        "debug_mode",
         "codex_internal_test",
         "utm_medium",
         "page_path",
@@ -317,15 +318,22 @@ def main() -> int:
         "engaged_60s",
         "scroll_50",
         "scroll_90",
+        "analyticsContext",
+        "safeLinkUrl",
     ]
     for token in analytics_tokens:
         if token not in intelligence:
             errors.append(f"analytics implementation is missing {token}")
+    if re.search(r"track\(\s*['\"]file_download['\"]", intelligence):
+        errors.append("file_download must come only from GA4 Enhanced Measurement")
     for file in html_files:
         raw = file.read_text(encoding="utf-8")
         route = public_path(file)
-        if '/assets/intelligence.js' not in raw:
-            errors.append(f"shared analytics script is missing at {route}")
+        intelligence_count = raw.count('/assets/intelligence.js')
+        if intelligence_count != 1:
+            errors.append(
+                f"shared analytics script must appear exactly once at {route} (found {intelligence_count})"
+            )
         if "googletagmanager.com/gtag/js" in raw or re.search(r"gtag\(['\"]config['\"]", raw):
             errors.append(f"inline GA bootstrap remains at {route}")
 

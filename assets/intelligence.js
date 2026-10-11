@@ -6,6 +6,22 @@
   const internalKey='k4_internal';
   const search=new URLSearchParams(location.search);
   const internalControl=search.get(internalKey);
+  const readInternalCookie=()=>{
+    try{
+      return document.cookie.split(';').some(part=>part.trim()===`${internalKey}=1`);
+    }catch(error){
+      return false;
+    }
+  };
+  const writeInternalCookie=enabled=>{
+    try{
+      document.cookie=enabled
+        ?`${internalKey}=1; Max-Age=31536000; Path=/; SameSite=Lax; Secure`
+        :`${internalKey}=; Max-Age=0; Path=/; SameSite=Lax; Secure`;
+    }catch(error){
+      // Cookies can be unavailable in privacy-restricted or sandboxed contexts.
+    }
+  };
   const setInternalFlag=enabled=>{
     try{
       if(enabled)localStorage.setItem(internalKey,'true');
@@ -13,9 +29,7 @@
     }catch(error){
       // Storage can be unavailable in privacy-restricted browsers; the cookie is the fallback.
     }
-    document.cookie=enabled
-      ?`${internalKey}=1; Max-Age=31536000; Path=/; SameSite=Lax; Secure`
-      :`${internalKey}=; Max-Age=0; Path=/; SameSite=Lax; Secure`;
+    writeInternalCookie(enabled);
   };
   if(internalControl==='1')setInternalFlag(true);
   if(internalControl==='0')setInternalFlag(false);
@@ -24,27 +38,14 @@
   try{
     persistentInternal=localStorage.getItem(internalKey)==='true';
   }catch(error){
-    persistentInternal=document.cookie.split(';').some(part=>part.trim()===`${internalKey}=1`);
+    persistentInternal=readInternalCookie();
   }
   if(!persistentInternal){
-    persistentInternal=document.cookie.split(';').some(part=>part.trim()===`${internalKey}=1`);
+    persistentInternal=readInternalCookie();
   }
   const qaSource=search.get('utm_source')==='codex_internal_test'&&search.get('utm_medium')==='qa';
   const isInternal=internalControl==='0'?false:persistentInternal||qaSource;
-  const trafficParams=isInternal?{traffic_type:'internal'}:{};
-
-  window.dataLayer=window.dataLayer||[];
-  window.gtag=window.gtag||function(){window.dataLayer.push(arguments)};
-  if(isInternal)window.gtag('set',trafficParams);
-  if(!document.querySelector(`script[src*="googletagmanager.com/gtag/js?id=${gaId}"]`)){
-    const script=document.createElement('script');
-    script.async=true;
-    script.src='https://www.googletagmanager.com/gtag/js?id='+gaId;
-    script.dataset.k4Ga4='true';
-    document.head.appendChild(script);
-  }
-  window.gtag('js',new Date());
-  window.gtag('config',gaId,trafficParams);
+  const trafficParams=isInternal?{traffic_type:'internal',debug_mode:true}:{};
 
   const localeSegments=new Set(['en','ru','zh','es','pt-br']);
   const routeInfo=pathname=>{
@@ -53,22 +54,41 @@
     if(!segments.length)return{pageType:'home'};
     const section=segments[0];
     const slug=segments[1];
-    if(section==='services')return{pageType:'service',serviceSlug:slug||'services'};
-    if(section==='case-studies')return{pageType:'case_study',caseSlug:slug||'case-studies'};
-    if(section==='insights')return{pageType:'insight',articleSlug:slug||'insights'};
+    if(section==='services')return slug
+      ?{pageType:'service',serviceSlug:slug}
+      :{pageType:'services_index'};
+    if(section==='case-studies')return slug
+      ?{pageType:'case_study',caseSlug:slug}
+      :{pageType:'case_studies_index'};
+    if(section==='insights')return slug
+      ?{pageType:'insight',articleSlug:slug}
+      :{pageType:'insights_index'};
     if(section==='resources')return{pageType:'resource'};
     return{pageType:'other'};
   };
   const pagePath=location.pathname;
   const currentRoute=routeInfo(pagePath);
   const pageContext=()=>{
-    const context={page_path:pagePath,page_type:currentRoute.pageType};
+    const context={page_path:pagePath,page_type:currentRoute.pageType,...trafficParams};
     if(currentRoute.serviceSlug)context.service_slug=currentRoute.serviceSlug;
     if(currentRoute.caseSlug)context.case_slug=currentRoute.caseSlug;
     if(currentRoute.articleSlug)context.article_slug=currentRoute.articleSlug;
-    if(isInternal)context.traffic_type='internal';
     return context;
   };
+
+  window.dataLayer=window.dataLayer||[];
+  window.gtag=window.gtag||function(){window.dataLayer.push(arguments)};
+  const analyticsContext=pageContext();
+  window.gtag('set',analyticsContext);
+  if(!document.querySelector(`script[src*="googletagmanager.com/gtag/js?id=${gaId}"]`)){
+    const script=document.createElement('script');
+    script.async=true;
+    script.src='https://www.googletagmanager.com/gtag/js?id='+gaId;
+    script.dataset.k4Ga4='true';
+    document.head.appendChild(script);
+  }
+  window.gtag('js',new Date());
+  window.gtag('config',gaId,analyticsContext);
 
   const track=(name,detail={})=>{
     const cleanDetail=Object.fromEntries(
@@ -145,7 +165,10 @@
   };
   const destinationFor=linkUrl=>{
     if(!linkUrl)return undefined;
-    return linkUrl.origin===location.origin?`${linkUrl.pathname}${linkUrl.hash}`:linkUrl.href;
+    if(!['http:','https:'].includes(linkUrl.protocol))return undefined;
+    return linkUrl.origin===location.origin
+      ?`${linkUrl.pathname}${linkUrl.hash}`
+      :`${linkUrl.origin}${linkUrl.pathname}${linkUrl.hash}`;
   };
   const downloadable=(element,linkUrl)=>element.hasAttribute('download')
     ||/\.(?:pdf|docx?|xlsx?|csv|zip)$/i.test(linkUrl?.pathname||'');
@@ -157,6 +180,7 @@
     const linkUrl=href?new URL(href,location.href):null;
     const targetRoute=linkUrl&&linkUrl.origin===location.origin?routeInfo(linkUrl.pathname):{};
     const type=contactType(element,linkUrl);
+    const safeLinkUrl=type?undefined:destinationFor(linkUrl);
     const fileName=downloadable(element,linkUrl)
       ?decodeURIComponent(linkUrl?.pathname.split('/').pop()||'')
       :undefined;
@@ -168,12 +192,14 @@
       review_type:reviewType,
       language:element.dataset.language||document.documentElement.lang,
       file_name:fileName,
-      link_url:linkUrl?.href
+      link_url:safeLinkUrl
     };
     if(reviewType&&reviewField&&Array.from(reviewField.options).some(option=>option.value===reviewType)){
       reviewField.value=reviewType;
     }
-    if(declaredEvent){
+    // GA4 Enhanced Measurement is the sole source of file_download. The global
+    // analytics context above enriches that automatic event without duplicating it.
+    if(declaredEvent&&declaredEvent!=='file_download'){
       const declaredDetail={...baseDetail};
       if(declaredEvent==='lead_contact_click'){
         declaredDetail.contact_type=type||'other';
@@ -188,8 +214,8 @@
         declaredDetail.destination=element.dataset.destination||destinationFor(linkUrl);
         declaredDetail.cta_location=locationName;
       }
-      if(declaredEvent==='file_download'||declaredEvent==='checklist_pdf_download'){
-        declaredDetail.file_url=linkUrl?.href;
+      if(declaredEvent==='checklist_pdf_download'){
+        declaredDetail.file_url=safeLinkUrl;
       }
       track(declaredEvent,declaredDetail);
     }
@@ -198,13 +224,6 @@
         ...baseDetail,
         contact_type:type,
         cta_location:locationName
-      });
-    }
-    if(fileName&&declaredEvent!=='file_download'){
-      track('file_download',{
-        ...baseDetail,
-        file_name:fileName,
-        file_url:linkUrl?.href
       });
     }
     const serviceIntentFragment=/^#(?:contact|discuss|request|review|start)/.test(href||'');
