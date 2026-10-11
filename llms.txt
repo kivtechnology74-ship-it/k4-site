@@ -6,12 +6,17 @@ K4 Technology provides independent owner-side gas-engine technical advisory for 
 
 K4 acts as an external gas-engine competence layer for distributed, captive and behind-the-meter power projects, including data-center, AI/HPC, mining and industrial applications. The advisory framework is SELECT → VERIFY → OPERATE. Reliability and availability conclusions remain bounded by the stated evidence and assumptions; K4 does not publish unconditional uptime guarantees.
 
+## AI Power Project Advisory
+
+K4 provides independent owner-side advisory for zero-stage power-system selection for AI and data-center infrastructure. The scope can compare new and used gas-engine options, equipment and fleet configuration, fuel-gas requirements, supplier evidence, technical due diligence, commissioning readiness and operating strategy. K4 does not act as the EPC contractor and does not replace licensed local designers, builders or contractors.
+
 ## Evidence-Based Gas Engine Technical Due Diligence
 
 Public scopes: Quick Technical Review — USD 450; Full Remote Technical Due Diligence — USD 950; On-Site Technical Inspection — By Quote. Decision states: BUY, BUY WITH CONDITIONS, PRICE ADJUSTMENT, DO NOT BUY.
 
 ## Canonical public resources
 
+- AI Power Project Advisory: https://k4-technology.com/services/ai-power-project-advisory/
 - Gas Engine Advisory for Power Developers: https://k4-technology.com/services/gas-engine-advisory-for-power-developers/
 - Gas Engine Lifecycle & Reliability Advisory: https://k4-technology.com/services/gas-engine-lifecycle-reliability/
 - Remote Gas Engine Technical Review: https://k4-technology.com/services/remote-technical-review/

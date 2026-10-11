@@ -2,14 +2,14 @@
   const gaId='G-7ZWVHK5XV9';
   if(!document.querySelector(`script[src*="googletagmanager.com/gtag/js?id=${gaId}"]`)){
     window.dataLayer=window.dataLayer||[];
-    window.gtag=window.gtag||function(){dataLayer.push(arguments)};
+    window.gtag=window.gtag||function(){window.dataLayer.push(arguments)};
     const s=document.createElement('script');
     s.async=true;
     s.src='https://www.googletagmanager.com/gtag/js?id='+gaId;
     s.dataset.k4Ga4='true';
     document.head.appendChild(s);
-    gtag('js',new Date());
-    gtag('config',gaId);
+    window.gtag('js',new Date());
+    window.gtag('config',gaId);
   }
 
   const menuButton=document.querySelector('[data-menu]');

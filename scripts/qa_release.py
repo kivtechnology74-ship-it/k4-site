@@ -6,7 +6,8 @@ import re
 import sys
 from html.parser import HTMLParser
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import unquote, urlparse
+from xml.etree import ElementTree
 
 ROOT = Path(__file__).resolve().parent.parent
 ORIGIN = "https://k4-technology.com"
@@ -34,6 +35,8 @@ class AuditParser(HTMLParser):
         self.h1 = 0
         self.meta_description = 0
         self.jsonld: list[str] = []
+        self.ids: set[str] = set()
+        self.tracked_events: list[dict[str, str | None]] = []
         self._capture_title = False
         self._capture_jsonld = False
         self._buffer: list[str] = []
@@ -42,6 +45,10 @@ class AuditParser(HTMLParser):
         data = dict(attrs)
         if tag == "a" and data.get("href"):
             self.links.append(data["href"] or "")
+        if data.get("id"):
+            self.ids.add(data["id"] or "")
+        if data.get("data-event"):
+            self.tracked_events.append(data)
         if tag == "link" and data.get("rel") == "canonical" and data.get("href"):
             self.canonical.append(data["href"] or "")
         if tag == "link" and data.get("rel") == "alternate" and data.get("hreflang") and data.get("href"):
@@ -95,11 +102,13 @@ def main() -> int:
     warnings: list[str] = []
     titles: dict[str, str] = {}
     html_files = sorted(ROOT.rglob("*.html"))
+    parsed_pages: dict[Path, AuditParser] = {}
     substantive = [p for p in html_files if any(part in {"resources", "case-studies", "services", "insights"} for part in p.parts)]
     for file in html_files:
         raw = file.read_text(encoding="utf-8")
         parser = AuditParser()
         parser.feed(raw)
+        parsed_pages[file] = parser
         route = public_path(file)
         if route in TRACKED_ARTICLE_ROUTES and raw.count('data-event="article_cta_click"') < 2:
             errors.append(f"missing tracked article CTAs at {route}")
@@ -135,7 +144,36 @@ def main() -> int:
                 except json.JSONDecodeError as exc:
                     errors.append(f"invalid JSON-LD at {route}: {exc}")
 
-    sitemap = (ROOT / "sitemap.xml").read_text(encoding="utf-8")
+    for file, parser in parsed_pages.items():
+        route = public_path(file)
+        for event in parser.tracked_events:
+            if event.get("data-event") in {"ai_power_cta_click", "ai_power_evidence_click"}:
+                for attribute in ["data-location", "data-channel", "data-language"]:
+                    if not event.get(attribute):
+                        errors.append(f"{event.get('data-event')} lacks {attribute} at {route}")
+        for href in parser.links:
+            parsed = urlparse(href)
+            if parsed.scheme or not parsed.fragment:
+                continue
+            target = file if not parsed.path else route_target(parsed.path)
+            if target.exists() and target.suffix == ".html":
+                target_parser = parsed_pages.get(target)
+                if target_parser is None:
+                    target_parser = AuditParser()
+                    target_parser.feed(target.read_text(encoding="utf-8"))
+                if unquote(parsed.fragment) not in target_parser.ids:
+                    errors.append(f"broken fragment: {route} -> {href}")
+
+    sitemap_path = ROOT / "sitemap.xml"
+    sitemap = sitemap_path.read_text(encoding="utf-8")
+    try:
+        sitemap_root = ElementTree.fromstring(sitemap)
+        sitemap_ns = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+        sitemap_urls = [node.text or "" for node in sitemap_root.findall("s:url/s:loc", sitemap_ns)]
+        if len(sitemap_urls) != len(set(sitemap_urls)):
+            errors.append("duplicate URL in sitemap.xml")
+    except ElementTree.ParseError as exc:
+        errors.append(f"invalid sitemap.xml: {exc}")
     not_found = ROOT / "404.html"
     if not not_found.exists():
         errors.append("missing custom 404.html")
@@ -147,6 +185,7 @@ def main() -> int:
             errors.append("404.html is missing an h1")
     required = {
         "/services/remote-technical-review/",
+        "/services/ai-power-project-advisory/",
         "/services/gas-engine-technical-due-diligence/",
         "/ru/services/gas-engine-technical-due-diligence/",
         "/resources/",
@@ -177,6 +216,54 @@ def main() -> int:
             errors.append(f"missing required route: {route}")
         if ORIGIN + route not in sitemap:
             errors.append(f"route absent from sitemap: {route}")
+
+    ai_route = "/services/ai-power-project-advisory/"
+    ai_page = route_target(ai_route).read_text(encoding="utf-8")
+    ai_required_tokens = [
+        "Confidence in the power-system choice before major capital is committed.",
+        "K4 does not act as the EPC contractor.",
+        'data-event="ai_power_cta_click"',
+        'data-event="ai_power_evidence_click"',
+        'data-channel="email"',
+        'data-channel="whatsapp"',
+        'data-channel="telegram"',
+        'data-language="en"',
+        'href="https://k4-technology.com/services/ai-power-project-advisory/"',
+        'hreflang="en"',
+        'hreflang="x-default"',
+        '"@id":"https://k4-technology.com/#organization"',
+        '"@id":"https://k4-technology.com/#igor-shibanov"',
+        '"@id":"https://k4-technology.com/services/ai-power-project-advisory/#service"',
+        "Last reviewed: 11 October 2026",
+    ]
+    for token in ai_required_tokens:
+        if token not in ai_page:
+            errors.append(f"AI Power page is missing required content: {token}")
+    for prohibited in ["K4 completed an AI data-center project", "K4 delivered an AI data-center project", "guaranteed AI indexing"]:
+        if prohibited.lower() in ai_page.lower():
+            errors.append(f"unsupported AI Power claim: {prohibited}")
+
+    for file in html_files:
+        raw = file.read_text(encoding="utf-8")
+        if '<html lang="en"' in raw and (' data-nav' in raw or 'id="primary-links"' in raw):
+            if raw.count('href="/services/ai-power-project-advisory/"') < 1:
+                errors.append(f"English global navigation lacks AI Power: {file.relative_to(ROOT)}")
+    for locale in ["ru", "zh", "es", "pt-br"]:
+        for file in (ROOT / locale).rglob("*.html"):
+            if ">AI Power</a>" in file.read_text(encoding="utf-8"):
+                errors.append(f"AI Power added to non-English navigation: {file.relative_to(ROOT)}")
+
+    robots = (ROOT / "robots.txt").read_text(encoding="utf-8")
+    for crawler in ["Googlebot", "Bingbot", "GPTBot", "OAI-SearchBot", "ClaudeBot", "PerplexityBot"]:
+        if f"User-agent: {crawler}" not in robots:
+            errors.append(f"robots.txt lacks explicit allowed crawler: {crawler}")
+    llms = (ROOT / "llms.txt").read_text(encoding="utf-8")
+    if ORIGIN + ai_route not in llms or "K4 does not act as the EPC contractor" not in llms:
+        errors.append("llms.txt AI Power entry is missing or inconsistent")
+    headers = (ROOT / "_headers").read_text(encoding="utf-8")
+    for header in ["Strict-Transport-Security", "Content-Security-Policy", "Permissions-Policy", "frame-ancestors 'none'", "X-Content-Type-Options", "Referrer-Policy"]:
+        if header not in headers:
+            errors.append(f"_headers is missing {header}")
     prohibited_routes = [
         ROOT / "insights/gas-engine-om-benchmark-2026/index.html",
         ROOT / "ru/insights/gas-engine-om-benchmark-2026/index.html",
