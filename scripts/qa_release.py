@@ -291,9 +291,51 @@ def main() -> int:
             errors.append(f"{checklist_route}: PDF links must use the download attribute")
 
     intelligence = (ROOT / "assets/intelligence.js").read_text(encoding="utf-8")
-    for token in ["file_name", "link_url", "equipment_form_submit", "lead_contact_click"]:
+    analytics_tokens = [
+        "G-7ZWVHK5XV9",
+        "__k4IntelligenceLoaded",
+        "k4_internal",
+        "traffic_type",
+        "debug_mode",
+        "codex_internal_test",
+        "utm_medium",
+        "page_path",
+        "page_type",
+        "service_slug",
+        "case_slug",
+        "article_slug",
+        "contact_type",
+        "cta_location",
+        "service_review_cta_click",
+        "article_cta_click",
+        "file_download",
+        "file_name",
+        "file_url",
+        "link_url",
+        "equipment_form_submit",
+        "lead_contact_click",
+        "engaged_30s",
+        "engaged_60s",
+        "scroll_50",
+        "scroll_90",
+        "analyticsContext",
+        "safeLinkUrl",
+    ]
+    for token in analytics_tokens:
         if token not in intelligence:
             errors.append(f"analytics implementation is missing {token}")
+    if re.search(r"track\(\s*['\"]file_download['\"]", intelligence):
+        errors.append("file_download must come only from GA4 Enhanced Measurement")
+    for file in html_files:
+        raw = file.read_text(encoding="utf-8")
+        route = public_path(file)
+        intelligence_count = raw.count('/assets/intelligence.js')
+        if intelligence_count != 1:
+            errors.append(
+                f"shared analytics script must appear exactly once at {route} (found {intelligence_count})"
+            )
+        if "googletagmanager.com/gtag/js" in raw or re.search(r"gtag\(['\"]config['\"]", raw):
+            errors.append(f"inline GA bootstrap remains at {route}")
 
     promoted_articles = [
         p for p in (ROOT / "insights").glob("*/index.html")
