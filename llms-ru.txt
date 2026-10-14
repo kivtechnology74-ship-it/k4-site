@@ -8,6 +8,7 @@ K4 Technology выполняет доказательный технически
 
 ## Канонические материалы
 
+- AI Compute Power Reality Check — проверка физических МВт, топлива, генерации, maintenance states и dependable output до compute CAPEX: https://k4-technology.com/ru/insights/ai-compute-power-reality-check/
 - Руководство по покупке б/у Jenbacher: https://k4-technology.com/ru/insights/used-jenbacher-buying-guide/
 - Чек-лист газопоршневого проекта — шесть этапов от покупки до долгосрочной эксплуатации и ТО: https://k4-technology.com/ru/insights/gas-engine-project-checklist-purchase-operations/
 - Технический Due Diligence: https://k4-technology.com/ru/services/gas-engine-technical-due-diligence/

@@ -209,6 +209,8 @@ def main() -> int:
         "/insights/gas-engine-availability-headline-percentage/",
         "/insights/gas-engine-project-checklist-purchase-operations/",
         "/insights/k4-project-os-design-partner/",
+        "/insights/ai-compute-power-reality-check/",
+        "/ru/insights/ai-compute-power-reality-check/",
         "/ru/insights/gas-engine-project-checklist-purchase-operations/",
     }
     for route in required:
