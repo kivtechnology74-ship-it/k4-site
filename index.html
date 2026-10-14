@@ -387,7 +387,11 @@
       content: "";
     }
     .hero-copy { max-width: 980px; }
-    .hero .eyebrow { margin-bottom: 34px; }
+    .hero .eyebrow { margin-bottom: 18px; }
+    .hero-ai-signal { display:inline-flex; flex-wrap:wrap; align-items:center; gap:8px 15px; margin-bottom:30px; padding:10px 14px; border:1px solid rgba(90,153,255,.34); border-left:3px solid var(--blue-400); color:#fff; background:rgba(47,125,244,.08); text-decoration:none; }
+    .hero-ai-signal span { color:var(--blue-400); font-family:var(--mono); font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; }
+    .hero-ai-signal strong { font-size:.82rem; font-weight:600; }
+    .hero-ai-signal:hover { border-color:rgba(90,153,255,.7); background:rgba(47,125,244,.14); }
     h1 {
       max-width: 1040px;
       margin-bottom: 30px;
@@ -440,6 +444,38 @@
     .status-value { margin-bottom: 7px; font-size: clamp(1.45rem, 2.7vw, 2.25rem); line-height: 1; font-weight: 600; letter-spacing: -.025em; }
     .status-value span { color: var(--blue-400); }
     .status-label { color: var(--steel-400); font-family: var(--mono); font-size: 10px; line-height: 1.5; letter-spacing: .1em; text-transform: uppercase; }
+
+    .ai-first-glance {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(54px, 7vw, 86px) 0;
+      color: #fff;
+      background:
+        radial-gradient(circle at 88% 18%, rgba(47,125,244,.2), transparent 31%),
+        var(--graphite-900);
+    }
+    .ai-first-glance::before {
+      position: absolute;
+      inset: 0;
+      opacity: .16;
+      background-image:
+        linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px);
+      background-size: 64px 64px;
+      pointer-events: none;
+      content: "";
+    }
+    .ai-first-layout { position: relative; display: grid; grid-template-columns: minmax(0,.9fr) minmax(500px,1.1fr); gap: clamp(42px,7vw,92px); align-items: center; }
+    .ai-first-copy h2 { max-width: 780px; margin: 18px 0 20px; font-size: clamp(2.45rem,5vw,4.75rem); line-height: 1; font-weight: 600; letter-spacing: -.045em; text-wrap: balance; }
+    .ai-first-copy p { max-width: 720px; color: var(--steel-300); font-size: 1.06rem; }
+    .ai-first-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+    .ai-first-flow { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); border: 1px solid var(--line-dark); background: rgba(4,14,25,.6); }
+    .ai-first-stage { position: relative; min-height: 170px; padding: 22px 18px; }
+    .ai-first-stage + .ai-first-stage { border-left: 1px solid var(--line-dark); }
+    .ai-first-stage + .ai-first-stage::before { position: absolute; top: 37px; left: -5px; color: var(--blue-400); font-size: 13px; content: "\2192"; }
+    .ai-first-stage span { display: block; color: var(--blue-400); font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .1em; }
+    .ai-first-stage strong { display: block; margin-top: 54px; font-size: .92rem; line-height: 1.2; }
+    .ai-first-note { grid-column: 1/-1; padding: 16px 18px; border-top: 1px solid var(--line-dark); color: var(--steel-400); font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
 
     .proof-layout { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); gap: clamp(48px, 7vw, 96px); align-items: start; }
     .proof-copy { position: sticky; top: 120px; }
@@ -667,6 +703,8 @@
       .proof-layout { grid-template-columns: 1fr; }
       .proof-copy { position: static; }
       .proof-copy .section-heading { max-width: 830px; }
+      .ai-first-layout { grid-template-columns: 1fr; }
+      .ai-first-flow { max-width: 880px; }
     }
 
     @media (max-width: 940px) {
@@ -729,6 +767,7 @@
       .nav-links .nav-cta { min-height: 48px; justify-content: center; margin-top: 12px; padding: 0 18px; border-bottom: 1px solid rgba(255,255,255,.24); font-size: 14px !important; }
       .hero { min-height: auto; padding: 124px 0 72px; }
       h1 { font-size: clamp(3.05rem, 14.5vw, 4.35rem); line-height: .9; }
+      .hero-ai-signal { display:grid; gap:7px; width:100%; }
       .hero-actions { align-items: stretch; flex-direction: column; }
       .hero-actions .button { width: 100%; }
       .entity-note { margin-top: 18px; }
@@ -736,6 +775,13 @@
       .status-cell { min-height: 110px; }
       .status-cell:nth-child(odd) { padding-left: 0; border-left: 0; }
       .status-cell:nth-child(even) { padding-left: 18px; }
+      .ai-first-actions { align-items: stretch; flex-direction: column; }
+      .ai-first-actions .button { width: 100%; }
+      .ai-first-flow { grid-template-columns: 1fr; }
+      .ai-first-stage { min-height: 0; padding: 18px 18px 18px 46px; }
+      .ai-first-stage + .ai-first-stage { border-top: 1px solid var(--line-dark); border-left: 0; }
+      .ai-first-stage + .ai-first-stage::before { top: 19px; left: 18px; content: "\2193"; }
+      .ai-first-stage strong { margin-top: 12px; }
       .services-grid, .compute-flow, .principles { grid-template-columns: 1fr; }
       .service-card { min-height: 320px; padding: 28px; }
       .developer-intro { margin-bottom: 44px; }
@@ -813,6 +859,7 @@
       <div class="shell">
         <div class="hero-copy">
           <div class="eyebrow">Independent gas-engine technical advisory</div>
+          <a class="hero-ai-signal" href="/services/ai-power-project-advisory/" data-event="ai_power_cta_click" data-channel="service" data-location="homepage-hero-signal" data-language="en"><span>AI / Compute Infrastructure</span><strong>Compute demand → dependable MW</strong></a>
           <h1 id="hero-title">Gas-engine expertise <span>for power developers and asset owners.</span></h1>
           <p class="hero-lead">Equipment selection, new-versus-pre-owned strategy, lifecycle economics, reliability engineering and owner-side technical due diligence for distributed and behind-the-meter power projects.</p>
           <div class="hero-actions">
@@ -840,6 +887,28 @@
             <div class="status-value">OWNER-SIDE</div>
             <div class="status-label">Independent advice<br>with disclosed roles</div>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="ai-first-glance" aria-labelledby="ai-first-title">
+      <div class="shell ai-first-layout">
+        <div class="ai-first-copy">
+          <div class="eyebrow">AI / Compute Infrastructure</div>
+          <h2 id="ai-first-title">AI compute is only as real as the dependable MW behind it.</h2>
+          <p>K4 helps AI and data-center developers test the physical power layer behind compute: site conditions, fuel supply, on-site generation, fleet architecture, dependable output, lifecycle and commissioning readiness.</p>
+          <div class="ai-first-actions">
+            <a class="button button-primary" href="/services/ai-power-project-advisory/" data-event="ai_power_cta_click" data-channel="service" data-location="homepage-ai-first-glance" data-language="en">Explore AI Power <span class="button-arrow" aria-hidden="true">→</span></a>
+            <a class="button button-secondary" href="/insights/ai-compute-power-reality-check/" data-event="ai_power_evidence_click" data-channel="internal" data-location="homepage-ai-first-glance" data-language="en">Power Reality Check</a>
+          </div>
+        </div>
+        <div class="ai-first-flow" aria-label="From compute demand to dependable power">
+          <div class="ai-first-stage"><span>01</span><strong>COMPUTE</strong></div>
+          <div class="ai-first-stage"><span>02</span><strong>POWER DEMAND</strong></div>
+          <div class="ai-first-stage"><span>03</span><strong>SITE + FUEL</strong></div>
+          <div class="ai-first-stage"><span>04</span><strong>GENERATION</strong></div>
+          <div class="ai-first-stage"><span>05</span><strong>DEPENDABLE MW</strong></div>
+          <p class="ai-first-note">Nameplate MW ≠ compute-ready MW</p>
         </div>
       </div>
     </section>
