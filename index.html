@@ -388,10 +388,10 @@
     }
     .hero-copy { max-width: 980px; }
     .hero .eyebrow { margin-bottom: 18px; }
-    .hero-ai-signal { display:inline-flex; flex-wrap:wrap; align-items:center; gap:8px 15px; margin-bottom:30px; padding:10px 14px; border:1px solid rgba(90,153,255,.34); border-left:3px solid var(--blue-400); color:#fff; background:rgba(47,125,244,.08); text-decoration:none; }
+    .hero-ai-signal { display:flex; width:fit-content; max-width:100%; flex-wrap:wrap; align-items:center; gap:7px 13px; margin-bottom:30px; padding:0 0 9px; border-bottom:1px solid rgba(90,153,255,.35); color:var(--steel-300); text-decoration:none; transition:border-color .2s ease,color .2s ease; }
     .hero-ai-signal span { color:var(--blue-400); font-family:var(--mono); font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; }
-    .hero-ai-signal strong { font-size:.82rem; font-weight:600; }
-    .hero-ai-signal:hover { border-color:rgba(90,153,255,.7); background:rgba(47,125,244,.14); }
+    .hero-ai-signal strong { font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; }
+    .hero-ai-signal:hover { border-color:var(--blue-400); color:#fff; }
     h1 {
       max-width: 1040px;
       margin-bottom: 30px;
@@ -767,7 +767,8 @@
       .nav-links .nav-cta { min-height: 48px; justify-content: center; margin-top: 12px; padding: 0 18px; border-bottom: 1px solid rgba(255,255,255,.24); font-size: 14px !important; }
       .hero { min-height: auto; padding: 124px 0 72px; }
       h1 { font-size: clamp(3.05rem, 14.5vw, 4.35rem); line-height: .9; }
-      .hero-ai-signal { display:grid; gap:7px; width:100%; }
+      .hero .eyebrow { font-size:10px; letter-spacing:.13em; }
+      .hero-ai-signal { width:fit-content; }
       .hero-actions { align-items: stretch; flex-direction: column; }
       .hero-actions .button { width: 100%; }
       .entity-note { margin-top: 18px; }
