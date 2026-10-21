@@ -14,6 +14,7 @@ ORIGIN = "https://k4-technology.com"
 TRACKED_ARTICLE_ROUTES = {
     "/insights/gas-engine-project-due-diligence-investors-lenders/",
     "/insights/gas-to-power-financial-model-technical-assumptions/",
+    "/insights/south-africa-5gw-gas-to-power-determination-engines-vs-turbines/",
     "/insights/gas-engine-commissioning-checklist/",
     "/insights/gas-engine-spare-parts-strategy/",
     "/insights/data-center-captive-gas-power-engines/",
@@ -201,6 +202,7 @@ def main() -> int:
         "/insights/used-jenbacher-fleet-serial-verification/",
         "/insights/gas-engine-project-due-diligence-investors-lenders/",
         "/insights/gas-to-power-financial-model-technical-assumptions/",
+        "/insights/south-africa-5gw-gas-to-power-determination-engines-vs-turbines/",
         "/insights/gas-engine-commissioning-checklist/",
         "/insights/gas-engine-spare-parts-strategy/",
         "/insights/data-center-captive-gas-power-engines/",
