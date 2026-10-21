@@ -8,7 +8,7 @@ import urllib.parse
 import urllib.request
 
 ORIGIN = "https://k4-technology.com"
-CACHE = "?release=j320-fix-20260914"
+CACHE = "?release=south-africa-5gw-20261022"
 ROUTES = [
     "/",
     "/ru/",
@@ -46,6 +46,7 @@ ROUTES = [
     "/insights/jenbacher-j320-maintenance-cost-lifecycle/",
     "/insights/gas-engine-project-due-diligence-investors-lenders/",
     "/insights/gas-to-power-financial-model-technical-assumptions/",
+    "/insights/south-africa-5gw-gas-to-power-determination-engines-vs-turbines/",
     "/insights/gas-engine-commissioning-checklist/",
     "/insights/gas-engine-spare-parts-strategy/",
     "/insights/data-center-captive-gas-power-engines/",
@@ -59,6 +60,11 @@ ROUTES = [
 CHECKLISTS = {
     "/insights/gas-engine-project-checklist-purchase-operations/": "K4-Gas-Engine-Project-Checklist.pdf",
     "/ru/insights/gas-engine-project-checklist-purchase-operations/": "K4-Checklist-Gazoporshnevogo-Proekta-RU.pdf",
+}
+
+LIVE_ASSETS = {
+    "/assets/insights/south-africa-5gw-gas-to-power/cape-town-twelve-apostles.jpg": "image/jpeg",
+    "/assets/insights/south-africa-5gw-gas-to-power/cape-town-twelve-apostles-og.jpg": "image/jpeg",
 }
 
 
@@ -110,6 +116,18 @@ def main() -> int:
                     print(f"OK {response.status} {pdf_path} :: {len(pdf_data)} bytes")
         except Exception as exc:
             errors.append(f"{pdf_path}: {exc}")
+
+    for asset_path, expected_type in LIVE_ASSETS.items():
+        try:
+            asset_request = urllib.request.Request(ORIGIN + asset_path + CACHE, headers={"User-Agent": "K4-release-QA/1.0", "Cache-Control": "no-cache"})
+            with urllib.request.urlopen(asset_request, timeout=20) as response:
+                asset_data = response.read()
+                if response.status != 200 or response.headers.get_content_type() != expected_type or not asset_data:
+                    errors.append(f"{asset_path}: invalid production response")
+                else:
+                    print(f"OK {response.status} {asset_path} :: {len(asset_data)} bytes")
+        except Exception as exc:
+            errors.append(f"{asset_path}: {exc}")
 
     redirects = {
         "/en/resources/": "/resources/",
