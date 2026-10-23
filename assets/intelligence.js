@@ -6,6 +6,31 @@
   const internalKey='k4_internal';
   const search=new URLSearchParams(location.search);
   const internalControl=search.get(internalKey);
+  const analyticsPageUrl=new URL(location.href);
+  const utmKeys=new Set(['utm_source','utm_medium','utm_campaign','utm_content','utm_term']);
+  let repairedLegacyUtm=false;
+  for(const [key,value] of [...analyticsPageUrl.searchParams]){
+    if(!key.startsWith('amp;utm_'))continue;
+    const normalizedKey=key.slice(4);
+    if(utmKeys.has(normalizedKey)&&!analyticsPageUrl.searchParams.has(normalizedKey)){
+      analyticsPageUrl.searchParams.set(normalizedKey,value);
+    }
+    analyticsPageUrl.searchParams.delete(key);
+    repairedLegacyUtm=true;
+  }
+  const legacyCampaignSources={
+    existing_fleet_2026:'direct_outreach',
+    data_center_power_2026:'direct_outreach'
+  };
+  const legacyCampaign=analyticsPageUrl.searchParams.get('utm_campaign');
+  if(repairedLegacyUtm&&!analyticsPageUrl.searchParams.has('utm_source')&&legacyCampaignSources[legacyCampaign]){
+    analyticsPageUrl.searchParams.set('utm_source',legacyCampaignSources[legacyCampaign]);
+  }
+  const effectiveSearch=analyticsPageUrl.searchParams;
+  const qaSource=effectiveSearch.get('utm_source')==='codex_internal_test'&&effectiveSearch.get('utm_medium')==='qa';
+  const isQa=qaSource||search.has('qa')||search.has('gtm_latency');
+  const technicalParams=['k4_internal','qa','gtm_latency','release'];
+  technicalParams.forEach(parameter=>analyticsPageUrl.searchParams.delete(parameter));
   const readInternalCookie=()=>{
     try{
       return document.cookie.split(';').some(part=>part.trim()===`${internalKey}=1`);
@@ -43,9 +68,10 @@
   if(!persistentInternal){
     persistentInternal=readInternalCookie();
   }
-  const qaSource=search.get('utm_source')==='codex_internal_test'&&search.get('utm_medium')==='qa';
-  const isInternal=internalControl==='0'?false:persistentInternal||qaSource;
-  const trafficParams=isInternal?{traffic_type:'internal',debug_mode:true}:{};
+  const isInternal=internalControl==='0'?false:persistentInternal||isQa;
+  const trafficParams={};
+  if(isInternal)trafficParams.traffic_type='internal';
+  if(isQa)trafficParams.debug_mode=true;
 
   const localeSegments=new Set(['en','ru','zh','es','pt-br']);
   const routeInfo=pathname=>{
@@ -88,7 +114,10 @@
     document.head.appendChild(script);
   }
   window.gtag('js',new Date());
-  window.gtag('config',gaId,analyticsContext);
+  window.gtag('config',gaId,{...analyticsContext,page_location:analyticsPageUrl.href});
+  if(analyticsPageUrl.href!==location.href){
+    history.replaceState(history.state,'',`${analyticsPageUrl.pathname}${analyticsPageUrl.search}${analyticsPageUrl.hash}`);
+  }
 
   const track=(name,detail={})=>{
     const cleanDetail=Object.fromEntries(
@@ -140,13 +169,6 @@
   window.addEventListener('resize',updateTableHints,{passive:true});
 
   const reviewField=document.querySelector('[data-review-type-field]');
-  const serviceIntentEvents=new Set([
-    'ai_power_cta_click',
-    'developer_advisory_click',
-    'lifecycle_reliability_click',
-    'power_project_cta_click',
-    'project_os_interest_click'
-  ]);
   const ctaLocation=element=>element.dataset.location
     ||(element.closest('nav')?'navigation'
       :element.closest('.hero')?'hero'
@@ -174,6 +196,12 @@
     ||/\.(?:pdf|docx?|xlsx?|csv|zip)$/i.test(linkUrl?.pathname||'');
 
   document.querySelectorAll('a[href], [data-event]').forEach(element=>element.addEventListener('click',()=>{
+    const trackedThisGesture=new Set();
+    const trackOnce=(name,detail)=>{
+      if(trackedThisGesture.has(name))return;
+      trackedThisGesture.add(name);
+      track(name,detail);
+    };
     const declaredEvent=element.dataset.event;
     const reviewType=element.dataset.reviewType;
     const href=element.getAttribute('href');
@@ -217,30 +245,12 @@
       if(declaredEvent==='checklist_pdf_download'){
         declaredDetail.file_url=safeLinkUrl;
       }
-      track(declaredEvent,declaredDetail);
+      trackOnce(declaredEvent,declaredDetail);
     }
     if(type&&declaredEvent!=='lead_contact_click'){
-      track('lead_contact_click',{
+      trackOnce('lead_contact_click',{
         ...baseDetail,
         contact_type:type,
-        cta_location:locationName
-      });
-    }
-    const serviceIntentFragment=/^#(?:contact|discuss|request|review|start)/.test(href||'');
-    const serviceIntent=serviceIntentEvents.has(declaredEvent)
-      &&(targetRoute.pageType==='service'||type||serviceIntentFragment);
-    if(serviceIntent&&declaredEvent!=='service_review_cta_click'){
-      track('service_review_cta_click',{
-        ...baseDetail,
-        service:service||'unspecified',
-        cta_location:locationName
-      });
-    }
-    if(currentRoute.pageType==='insight'&&targetRoute.pageType==='service'&&declaredEvent!=='article_cta_click'){
-      track('article_cta_click',{
-        ...baseDetail,
-        article:currentRoute.articleSlug||'insights',
-        destination:destinationFor(linkUrl),
         cta_location:locationName
       });
     }
@@ -265,7 +275,7 @@
     form.addEventListener('input',()=>{
       if(!started){
         started=true;
-        track('equipment_form_start',formDetails());
+        track('lead_form_start',formDetails());
       }
     });
     form.addEventListener('submit',event=>{
@@ -281,8 +291,7 @@
         'Submitting this information does not create an engagement.'
       ];
       const details=formDetails();
-      track('equipment_form_submit',details);
-      track('lead_contact_click',{...details,channel:'email',contact_type:'email'});
+      track('lead_form_mailto_open',{...details,channel:'email',contact_type:'email'});
       const subject=form.dataset.formSubject||'Gas engine technical review';
       location.href=`mailto:ceo@k4-technology.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`;
     });
