@@ -1,0 +1,26 @@
+[
+  {
+    "name": "existing_fleet_2026_apa_case_study",
+    "path": "/case-studies/j320-303-days-operating-data/",
+    "utm_source": "direct_outreach",
+    "utm_medium": "email",
+    "utm_campaign": "existing_fleet_2026",
+    "utm_content": "apa_group_01"
+  },
+  {
+    "name": "existing_fleet_2026_apa_availability",
+    "path": "/insights/gas-engine-availability-headline-percentage/",
+    "utm_source": "direct_outreach",
+    "utm_medium": "email",
+    "utm_campaign": "existing_fleet_2026",
+    "utm_content": "apa_group_01"
+  },
+  {
+    "name": "data_center_power_2026_khazna_case_study",
+    "path": "/case-studies/j320-303-days-operating-data/",
+    "utm_source": "direct_outreach",
+    "utm_medium": "email",
+    "utm_campaign": "data_center_power_2026",
+    "utm_content": "khazna_01"
+  }
+]

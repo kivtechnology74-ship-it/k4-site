@@ -8,7 +8,7 @@ import urllib.parse
 import urllib.request
 
 ORIGIN = "https://k4-technology.com"
-CACHE = "?release=iso-site-rating-20261023"
+CACHE = "?release=analytics-measurement-20261023"
 ROUTES = [
     "/",
     "/ru/",
@@ -136,6 +136,11 @@ def main() -> int:
         "/en/resources/": "/resources/",
         "/insights/gas-engine-om-benchmark-2026/": "/insights/",
         "/ru/insights/gas-engine-om-benchmark-2026/": "/ru/insights/",
+        "/case-studies/j320-303-days-": "/case-studies/j320-303-days-operating-data/",
+        "/case-studies/j320-303-days-operating-": "/case-studies/j320-303-days-operating-data/",
+        "/case-": "/case-studies/",
+        "/insights/gas-engine-": "/insights/gas-engine-availability-headline-percentage/",
+        "/insights/data-center-captive-gas-power-": "/insights/data-center-captive-gas-power-engines/",
     }
     for source, expected in redirects.items():
         try:

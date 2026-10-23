@@ -3,10 +3,11 @@ from __future__ import annotations
 
 import json
 import re
+import subprocess
 import sys
 from html.parser import HTMLParser
 from pathlib import Path
-from urllib.parse import unquote, urlparse
+from urllib.parse import parse_qsl, unquote, urljoin, urlparse
 from xml.etree import ElementTree
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -25,6 +26,37 @@ TRACKED_ARTICLE_ROUTES = {
     "/insights/gas-engine-project-checklist-purchase-operations/",
     "/ru/insights/gas-engine-project-checklist-purchase-operations/",
 }
+ALLOWED_ANALYTICS_EVENTS = {
+    "ai_power_cta_click",
+    "ai_power_evidence_click",
+    "article_cta_click",
+    "checklist_landing_click",
+    "checklist_pdf_download",
+    "developer_advisory_click",
+    "engaged_30s",
+    "engaged_60s",
+    "file_download",
+    "lead_contact_click",
+    "lead_form_mailto_open",
+    "lead_form_start",
+    "lifecycle_reliability_click",
+    "not_found_cta_click",
+    "not_found_navigation",
+    "power_project_cta_click",
+    "project_os_interest_click",
+    "scroll_50",
+    "scroll_90",
+    "service_review_cta_click",
+}
+KNOWN_BROKEN_REDIRECTS = {
+    "/case-studies/j320-303-days-": "/case-studies/j320-303-days-operating-data/",
+    "/case-studies/j320-303-days-operating-": "/case-studies/j320-303-days-operating-data/",
+    "/case-": "/case-studies/",
+    "/insights/gas-engine-": "/insights/gas-engine-availability-headline-percentage/",
+    "/insights/data-center-captive-gas-power-": "/insights/data-center-captive-gas-power-engines/",
+}
+UTM_KEYS = {"utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"}
+UTM_VALUE = re.compile(r"^[a-z0-9]+(?:_[a-z0-9]+)*$")
 
 
 class AuditParser(HTMLParser):
@@ -116,6 +148,19 @@ def main() -> int:
             errors.append(f"missing tracked article CTAs at {route}")
         for href in parser.links:
             parsed = urlparse(href)
+            browser_url = urlparse(urljoin(ORIGIN + route, href))
+            query = parse_qsl(browser_url.query, keep_blank_values=True)
+            query_keys = [key for key, _ in query]
+            if "amp;utm_" in browser_url.geturl() or any(key.startswith("amp;utm_") for key in query_keys):
+                errors.append(f"literal amp;utm_ in browser URL: {route} -> {href}")
+            present_utm = [(key, value) for key, value in query if key.startswith("utm_")]
+            if present_utm and "utm_source" not in query_keys:
+                errors.append(f"campaign URL lacks utm_source: {route} -> {href}")
+            for key, value in present_utm:
+                if key not in UTM_KEYS:
+                    errors.append(f"unknown UTM parameter {key}: {route} -> {href}")
+                elif not UTM_VALUE.fullmatch(value):
+                    errors.append(f"UTM value is not lowercase snake_case: {route} -> {key}={value}")
             if parsed.scheme in {"http", "https", "mailto", "tel", "javascript"} or href.startswith("#"):
                 continue
             if not href.startswith("/"):
@@ -148,11 +193,23 @@ def main() -> int:
 
     for file, parser in parsed_pages.items():
         route = public_path(file)
+        hreflang_codes: set[str] = set()
+        for language, href in parser.hreflang:
+            if language in hreflang_codes:
+                errors.append(f"duplicate hreflang {language} at {route}")
+            hreflang_codes.add(language)
+            alternate = urlparse(href)
+            if alternate.scheme != "https" or alternate.netloc != "k4-technology.com":
+                errors.append(f"invalid hreflang URL at {route}: {href}")
+            elif not route_target(alternate.path).exists():
+                errors.append(f"hreflang target is missing at {route}: {href}")
         for event in parser.tracked_events:
-            if event.get("data-event") in {"ai_power_cta_click", "ai_power_evidence_click"}:
-                for attribute in ["data-location", "data-channel", "data-language"]:
-                    if not event.get(attribute):
-                        errors.append(f"{event.get('data-event')} lacks {attribute} at {route}")
+            event_name = event.get("data-event") or ""
+            if event_name not in ALLOWED_ANALYTICS_EVENTS:
+                errors.append(f"unknown analytics event {event_name} at {route}")
+            for attribute in ["data-location", "data-channel", "data-language"]:
+                if not event.get(attribute):
+                    errors.append(f"{event_name} lacks {attribute} at {route}")
         for href in parser.links:
             parsed = urlparse(href)
             if parsed.scheme or not parsed.fragment:
@@ -168,12 +225,19 @@ def main() -> int:
 
     sitemap_path = ROOT / "sitemap.xml"
     sitemap = sitemap_path.read_text(encoding="utf-8")
+    sitemap_urls: list[str] = []
     try:
         sitemap_root = ElementTree.fromstring(sitemap)
         sitemap_ns = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
         sitemap_urls = [node.text or "" for node in sitemap_root.findall("s:url/s:loc", sitemap_ns)]
         if len(sitemap_urls) != len(set(sitemap_urls)):
             errors.append("duplicate URL in sitemap.xml")
+        for sitemap_url in sitemap_urls:
+            parsed_url = urlparse(sitemap_url)
+            if parsed_url.scheme != "https" or parsed_url.netloc != "k4-technology.com":
+                errors.append(f"non-canonical sitemap URL: {sitemap_url}")
+            elif not route_target(parsed_url.path).exists():
+                errors.append(f"sitemap URL has no local page: {sitemap_url}")
     except ElementTree.ParseError as exc:
         errors.append(f"invalid sitemap.xml: {exc}")
     not_found = ROOT / "404.html"
@@ -318,7 +382,8 @@ def main() -> int:
         "file_name",
         "file_url",
         "link_url",
-        "equipment_form_submit",
+        "lead_form_start",
+        "lead_form_mailto_open",
         "lead_contact_click",
         "engaged_30s",
         "engaged_60s",
@@ -332,6 +397,12 @@ def main() -> int:
             errors.append(f"analytics implementation is missing {token}")
     if re.search(r"track\(\s*['\"]file_download['\"]", intelligence):
         errors.append("file_download must come only from GA4 Enhanced Measurement")
+    for event_name in re.findall(r"track(?:Once)?\(\s*['\"]([^'\"]+)['\"]", intelligence):
+        if event_name not in ALLOWED_ANALYTICS_EVENTS:
+            errors.append(f"unknown analytics event in intelligence.js: {event_name}")
+    for false_lead_event in ["equipment_form_submit", "lead_form_submit_success", "generate_lead"]:
+        if false_lead_event in intelligence:
+            errors.append(f"mailto flow must not claim successful lead event: {false_lead_event}")
     for file in html_files:
         raw = file.read_text(encoding="utf-8")
         route = public_path(file)
@@ -342,6 +413,39 @@ def main() -> int:
             )
         if "googletagmanager.com/gtag/js" in raw or re.search(r"gtag\(['\"]config['\"]", raw):
             errors.append(f"inline GA bootstrap remains at {route}")
+
+    redirects_text = (ROOT / "_redirects").read_text(encoding="utf-8")
+    for broken_path, canonical_path in KNOWN_BROKEN_REDIRECTS.items():
+        expected_line = f"{broken_path} {canonical_path} 301"
+        if expected_line not in redirects_text.splitlines():
+            errors.append(f"missing exact damaged-path redirect: {expected_line}")
+        for file, parser in parsed_pages.items():
+            for href in parser.links:
+                if urlparse(href).path == broken_path:
+                    errors.append(f"known damaged path linked at {public_path(file)}: {broken_path}")
+        if any(urlparse(url).path == broken_path for url in sitemap_urls):
+            errors.append(f"known damaged path present in sitemap: {broken_path}")
+    wildcard_redirects = []
+    for line in redirects_text.splitlines():
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        source = line.split()[0]
+        if "*" in source and any(broken.startswith(source.split("*", 1)[0]) for broken in KNOWN_BROKEN_REDIRECTS):
+            wildcard_redirects.append(line)
+    if wildcard_redirects:
+        errors.append(f"damaged paths must not use wildcard redirects: {wildcard_redirects}")
+
+    for command, label in [
+        (["node", "scripts/campaign_urls.mjs"], "campaign URL validation"),
+        (["node", "scripts/test_analytics.mjs"], "analytics contract tests"),
+    ]:
+        try:
+            result = subprocess.run(command, cwd=ROOT, text=True, capture_output=True, timeout=30, check=False)
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            errors.append(f"{label} could not run: {exc}")
+            continue
+        if result.returncode:
+            errors.append(f"{label} failed: {(result.stdout + result.stderr).strip()}")
 
     promoted_articles = [
         p for p in (ROOT / "insights").glob("*/index.html")
