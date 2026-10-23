@@ -8,7 +8,7 @@ import urllib.parse
 import urllib.request
 
 ORIGIN = "https://k4-technology.com"
-CACHE = "?release=south-africa-5gw-20261022"
+CACHE = "?release=iso-site-rating-20261023"
 ROUTES = [
     "/",
     "/ru/",
@@ -47,6 +47,7 @@ ROUTES = [
     "/insights/gas-engine-project-due-diligence-investors-lenders/",
     "/insights/gas-to-power-financial-model-technical-assumptions/",
     "/insights/south-africa-5gw-gas-to-power-determination-engines-vs-turbines/",
+    "/insights/iso-rating-site-derate-gas-engines-turbines/",
     "/insights/gas-engine-commissioning-checklist/",
     "/insights/gas-engine-spare-parts-strategy/",
     "/insights/data-center-captive-gas-power-engines/",
@@ -65,6 +66,8 @@ CHECKLISTS = {
 LIVE_ASSETS = {
     "/assets/insights/south-africa-5gw-gas-to-power/cape-town-twelve-apostles.jpg": "image/jpeg",
     "/assets/insights/south-africa-5gw-gas-to-power/cape-town-twelve-apostles-og.jpg": "image/jpeg",
+    "/assets/insights/iso-rating-site-derate/gas-engine-cooling-site-conditions.jpg": "image/jpeg",
+    "/assets/insights/iso-rating-site-derate/gas-engine-cooling-site-conditions-og.jpg": "image/jpeg",
 }
 
 
