@@ -360,6 +360,6 @@
   <script>
     (()=>{const button=document.querySelector('.menu-toggle');const menu=document.querySelector('.nav-links');if(!button||!menu)return;const closeMenu=()=>{button.setAttribute('aria-expanded','false');button.setAttribute('aria-label','Abrir menu');menu.classList.remove('is-open');document.body.classList.remove('menu-open')};button.addEventListener('click',()=>{const isOpen=button.getAttribute('aria-expanded')==='true';if(isOpen){closeMenu();return}button.setAttribute('aria-expanded','true');button.setAttribute('aria-label','Fechar menu');menu.classList.add('is-open');document.body.classList.add('menu-open')});menu.querySelectorAll('a').forEach(link=>link.addEventListener('click',closeMenu));document.addEventListener('keydown',event=>{if(event.key==='Escape'){closeMenu();button.focus()}});window.matchMedia('(min-width: 721px)').addEventListener('change',closeMenu)})();
   </script>
-  <script defer src="/assets/intelligence.js"></script>
+  <script defer src="/assets/intelligence.js?v=20261026-1"></script>
 </body>
 </html>
