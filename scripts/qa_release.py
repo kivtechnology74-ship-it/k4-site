@@ -57,6 +57,7 @@ KNOWN_BROKEN_REDIRECTS = {
 }
 UTM_KEYS = {"utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"}
 UTM_VALUE = re.compile(r"^[a-z0-9]+(?:_[a-z0-9]+)*$")
+ANALYTICS_ASSET_VERSION = "20261026-1"
 
 
 class AuditParser(HTMLParser):
@@ -410,6 +411,14 @@ def main() -> int:
         if intelligence_count != 1:
             errors.append(
                 f"shared analytics script must appear exactly once at {route} (found {intelligence_count})"
+            )
+        versioned_intelligence_count = raw.count(
+            f"/assets/intelligence.js?v={ANALYTICS_ASSET_VERSION}"
+        )
+        if versioned_intelligence_count != 1:
+            errors.append(
+                f"analytics asset version mismatch at {route} "
+                f"(expected {ANALYTICS_ASSET_VERSION})"
             )
         if "googletagmanager.com/gtag/js" in raw or re.search(r"gtag\(['\"]config['\"]", raw):
             errors.append(f"inline GA bootstrap remains at {route}")
