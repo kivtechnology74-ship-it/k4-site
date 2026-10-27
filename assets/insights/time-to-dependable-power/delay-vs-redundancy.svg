@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">One month of delay compared with the value of N+2 redundancy</title>
+  <desc id="desc">Per dependable IT megawatt, one month of delay is valued at 0.67 to 1.10 million dollars for a GPU owner, 0.40 to 1.70 million for a compute operator, and 0.14 to 0.20 million for a powered-shell developer. The 15-year net present value of moving from N+1 to N+2 ranges from negative 0.33 to positive 0.54 million dollars.</desc>
+  <rect width="1200" height="630" fill="#070b10"/>
+  <rect x="46" y="42" width="1108" height="546" rx="22" fill="#0d141c" stroke="#253445"/>
+  <text x="82" y="98" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700">What does one month of delay cost?</text>
+  <text x="82" y="132" fill="#a9b7c7" font-family="Arial, Helvetica, sans-serif" font-size="18">USD millions per dependable IT MW · K4 screening model</text>
+
+  <g font-family="Arial, Helvetica, sans-serif">
+    <line x1="290" y1="498" x2="1090" y2="498" stroke="#425365" stroke-width="2"/>
+    <g fill="#91a0b1" font-size="15" text-anchor="middle">
+      <text x="290" y="529">−0.4</text><text x="450" y="529">0</text><text x="610" y="529">0.4</text><text x="770" y="529">0.8</text><text x="930" y="529">1.2</text><text x="1090" y="529">1.6</text>
+    </g>
+    <g stroke="#253445" stroke-width="1">
+      <line x1="290" y1="165" x2="290" y2="498"/><line x1="450" y1="165" x2="450" y2="498"/><line x1="610" y1="165" x2="610" y2="498"/><line x1="770" y1="165" x2="770" y2="498"/><line x1="930" y1="165" x2="930" y2="498"/><line x1="1090" y1="165" x2="1090" y2="498"/>
+    </g>
+
+    <text x="82" y="205" fill="#e8edf3" font-size="19" font-weight="700">GPU owner</text>
+    <text x="82" y="229" fill="#91a0b1" font-size="14">idle hardware carrying cost</text>
+    <line x1="718" y1="214" x2="890" y2="214" stroke="#26d3a2" stroke-width="18" stroke-linecap="round"/>
+    <circle cx="804" cy="214" r="7" fill="#ffffff"/>
+    <text x="900" y="220" fill="#26d3a2" font-size="17" font-weight="700">$0.67–1.10M</text>
+
+    <text x="82" y="296" fill="#e8edf3" font-size="19" font-weight="700">Compute operator</text>
+    <text x="82" y="320" fill="#91a0b1" font-size="14">contribution on confirmed demand</text>
+    <line x1="610" y1="305" x2="1090" y2="305" stroke="#42a5f5" stroke-width="18" stroke-linecap="round"/>
+    <circle cx="850" cy="305" r="7" fill="#ffffff"/>
+    <text x="914" y="286" fill="#42a5f5" font-size="17" font-weight="700">$0.40–1.70M</text>
+
+    <text x="82" y="387" fill="#e8edf3" font-size="19" font-weight="700">Powered-shell developer</text>
+    <text x="82" y="411" fill="#91a0b1" font-size="14">one month of rent, before damages</text>
+    <line x1="506" y1="396" x2="530" y2="396" stroke="#f5c04a" stroke-width="18" stroke-linecap="round"/>
+    <text x="545" y="402" fill="#f5c04a" font-size="17" font-weight="700">$0.14–0.20M</text>
+
+    <text x="82" y="468" fill="#e8edf3" font-size="19" font-weight="700">N+1 → N+2</text>
+    <text x="82" y="492" fill="#91a0b1" font-size="14">net PV over 15 years</text>
+    <rect x="318" y="452" width="348" height="30" rx="15" fill="#7c8794" opacity="0.72"/>
+    <line x1="450" y1="446" x2="450" y2="488" stroke="#ffffff" stroke-width="2"/>
+    <text x="676" y="474" fill="#cbd4de" font-size="17" font-weight="700">−$0.33M to +$0.54M</text>
+
+    <text x="82" y="562" fill="#748395" font-size="14">Ranges are K4 estimates, not market quotations. Delay cases overlap and are not additive.</text>
+    <text x="1090" y="562" fill="#ffffff" font-size="17" font-weight="700" text-anchor="end">K4 / TECHNOLOGY</text>
+  </g>
+</svg>
