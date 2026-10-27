@@ -1,0 +1,819 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Time to Dependable Power for AI Data Centers | K4</title>
+    <meta
+      name="description"
+      content="AI data centers should compare power options by dependable IT MW delivered by date—not first power or generator availability. A quantified K4 framework."
+    />
+    <meta
+      name="robots"
+      content="index,follow,max-image-preview:large,max-snippet:-1"
+    />
+    <meta name="theme-color" content="#070b10" />
+    <link rel="icon" href="/favicon.png" />
+    <link rel="stylesheet" href="/assets/intelligence.css" />
+    <link
+      rel="canonical"
+      href="https://k4-technology.com/insights/time-to-dependable-power-ai-data-centers/"
+    />
+    <link
+      rel="alternate"
+      hreflang="en"
+      href="https://k4-technology.com/insights/time-to-dependable-power-ai-data-centers/"
+    />
+    <link
+      rel="alternate"
+      hreflang="x-default"
+      href="https://k4-technology.com/insights/time-to-dependable-power-ai-data-centers/"
+    />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="K4-Technology" />
+    <meta
+      property="og:title"
+      content="Time to Dependable Power: The Metric AI Data Centers Should Actually Compare"
+    />
+    <meta
+      property="og:description"
+      content="First power is not dependable power. Compare the IT megawatts delivered by date, under a defined workload and availability obligation."
+    />
+    <meta
+      property="og:url"
+      content="https://k4-technology.com/insights/time-to-dependable-power-ai-data-centers/"
+    />
+    <meta
+      property="og:image"
+      content="https://k4-technology.com/assets/insights/time-to-dependable-power/delay-vs-redundancy-og.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="One month of delay value by payer compared with the 15-year net present value of N+2 redundancy"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="Time to Dependable Power for AI Data Centers"
+    />
+    <meta
+      name="twitter:description"
+      content="A quantified K4 framework for comparing power options by dependable IT MW delivered by date."
+    />
+    <meta
+      name="twitter:image"
+      content="https://k4-technology.com/assets/insights/time-to-dependable-power/delay-vs-redundancy-og.png"
+    />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Article",
+            "headline": "Time to Dependable Power: The Metric AI Data Centers Should Actually Compare",
+            "datePublished": "2026-10-27",
+            "dateModified": "2026-10-27",
+            "image": {
+              "@type": "ImageObject",
+              "url": "https://k4-technology.com/assets/insights/time-to-dependable-power/delay-vs-redundancy-og.png",
+              "width": 1200,
+              "height": 630,
+              "caption": "One month of delay value by payer compared with the 15-year net present value of N+2 redundancy"
+            },
+            "author": {
+              "@type": "Person",
+              "name": "Igor Shibanov",
+              "jobTitle": "Founder and Technical Advisor",
+              "worksFor": { "@type": "Organization", "name": "K4-Technology" },
+              "url": "https://k4-technology.com/#igor-shibanov"
+            },
+            "publisher": {
+              "@type": "Organization",
+              "@id": "https://k4-technology.com/#organization",
+              "name": "K4-Technology"
+            },
+            "mainEntityOfPage": "https://k4-technology.com/insights/time-to-dependable-power-ai-data-centers/",
+            "inLanguage": "en",
+            "isAccessibleForFree": true,
+            "about": [
+              "AI data center power",
+              "dependable IT megawatts",
+              "onsite generation",
+              "N+2 redundancy"
+            ],
+            "description": "A quantified framework for comparing AI data-center power options by dependable IT MW delivered by date."
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "What is a dependable IT megawatt?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "It is the IT load the full fuel-to-IT system can serve while meeting a stated obligation for annual unserved minutes, event count and maximum event duration."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Is first power the same as dependable power?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "No. First power may precede completion of reserve capacity, permanent fuel, controls, distribution, maintenance support and the plant-level tests needed to meet the operating obligation."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Does N+2 always pay for itself?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "No. In K4's stated islanded training-load example, the 15-year net present value of moving from N+1 to N+2 ranges from negative 0.33 million to positive 0.54 million dollars per dependable IT MW."
+                }
+              }
+            ]
+          },
+          {
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://k4-technology.com/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Insights",
+                "item": "https://k4-technology.com/insights/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 3,
+                "name": "Time to Dependable Power",
+                "item": "https://k4-technology.com/insights/time-to-dependable-power-ai-data-centers/"
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body class="page-article">
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="topbar">
+      <nav class="nav shell" aria-label="Primary">
+        <a class="brand" href="/"
+          ><span class="brand-mark">K4</span><span class="brand-slash">/</span
+          ><span class="brand-name">K4-Technology</span></a
+        ><button
+          class="menu"
+          data-menu
+          aria-expanded="false"
+          aria-label="Open navigation"
+        >
+          ☰
+        </button>
+        <div class="nav-links" data-nav>
+          <a href="/services/gas-engine-advisory-for-power-developers/"
+            >Advisory</a
+          ><a href="/services/ai-power-project-advisory/">AI Power</a
+          ><a href="/services/gas-engine-technical-due-diligence/"
+            >Due diligence</a
+          ><a href="/case-studies/">Case studies</a
+          ><a href="/insights/" aria-current="page">Insights</a
+          ><a href="/resources/">Resources</a
+          ><a class="lang" href="/ru/" hreflang="ru">RU</a
+          ><a
+            data-channel="internal_navigation"
+            class="nav-cta"
+            href="/services/ai-power-project-advisory/"
+            data-event="ai_power_cta_click"
+            data-location="site-nav"
+            data-language="en"
+            >Discuss AI power</a
+          >
+        </div>
+      </nav>
+    </header>
+    <main id="main">
+      <div class="breadcrumbs">
+        <div class="shell">
+          <a href="/">Home</a> / <a href="/insights/">Insights</a> / Time to
+          Dependable Power
+        </div>
+      </div>
+      <section class="hero article-hero">
+        <div class="shell">
+          <div class="kicker">AI POWER / RELIABILITY ECONOMICS</div>
+          <h1>
+            Time to Dependable Power: The Metric AI Data Centers Should Actually
+            Compare
+          </h1>
+          <p class="sub">
+            First power is not dependable power. Compare the IT megawatts
+            delivered by date, under a defined workload and availability
+            obligation.
+          </p>
+          <div class="article-meta">
+            <span>Igor Shibanov · Founder and Technical Advisor</span
+            ><span>Published: 27 October 2026</span
+            ><span>Evidence checked: 27 October 2026</span>
+          </div>
+          <div class="evidence">
+            <span class="badge">PRIMARY SOURCES</span
+            ><span class="badge">K4 MODEL</span
+            ><span class="badge">ASSUMPTIONS SHOWN</span>
+          </div>
+        </div>
+      </section>
+      <div class="shell article-layout">
+        <article class="article">
+          <p class="lead">
+            <strong>Summary.</strong> First power is not dependable power. For
+            AI data centers, the investable metric is dependable IT megawatts
+            delivered by a defined date, under a defined workload and
+            availability obligation. Whether reliability or speed should
+            dominate depends on who pays for delay: a GPU owner with hardware on
+            site and a powered-shell developer reach different answers from the
+            same plant.
+          </p>
+
+          <h2 id="first-mw">First MW is not dependable MW</h2>
+          <p>
+            Most onsite-power debates for AI campuses start with the wrong
+            question: which technology gives power fastest, or which is cheapest
+            per kilowatt. Both questions count the generator. The customer
+            counts something else—the IT load that stays powered when units
+            trip, gas pressure drops or a GPU cluster swings tens of megawatts
+            in a second.
+          </p>
+          <p>
+            Williams’ Socrates project for a Meta campus in New Albany, Ohio,
+            makes the gap visible. Williams describes two 200 MW sites,<sup
+              ><a href="#source-1">[1]</a></sup
+            >
+            while its 2026 investor materials report 556 MW of combined ISO
+            generation capacity, excluding BESS.<sup
+              ><a href="#source-2">[2]</a></sup
+            >
+            The resulting 1.39 ratio illustrates the gap between publicly stated
+            project capacity and installed ISO capacity, although the public
+            sources do not fully reconcile the measurement boundaries. ISO
+            rating, net output at site conditions, committed capacity and the
+            delivery point are four different numbers—exactly the problem.
+          </p>
+          <p>
+            The metric I propose is
+            <strong
+              >dependable IT megawatts delivered by a defined date, under a
+              defined workload and availability obligation</strong
+            >. Every word removes a way to make an option look better than it
+            is.
+          </p>
+          <ul>
+            <li>
+              <strong>Dependable</strong> excludes reserve, derate and auxiliary
+              losses.
+            </li>
+            <li><strong>IT megawatts</strong> exclude cooling and PUE.</li>
+            <li>
+              <strong>By a date</strong> puts time-to-power inside the metric
+              instead of beside it.
+            </li>
+            <li>
+              <strong>Under an obligation</strong> forces the owner to say what
+              “reliable” means before choosing equipment.
+            </li>
+          </ul>
+          <p>
+            For a transparent calculation path, see the companion
+            <a href="/resources/dependable-it-mw-ai-data-centers/"
+              >technical note: model, inputs and comparison tables</a
+            >. The earlier
+            <a href="/insights/ai-compute-power-reality-check/"
+              >AI Compute Power Reality Check</a
+            >
+            explains why power availability should be tested before compute
+            CAPEX.
+          </p>
+
+          <h2 id="three-layers">Three layers of reliability</h2>
+          <p>
+            “Reliable power” hides three different quantities, and vendors,
+            plant operators and tenants each quote a different one.
+          </p>
+          <ol>
+            <li>
+              <strong>Unit reliability</strong>—how often one engine or turbine
+              trips and how long it takes to return. This is what an OEM data
+              sheet and a service contract describe.
+            </li>
+            <li>
+              <strong>Plant availability</strong>—how many hours and events
+              leave the running fleet unable to carry the required load, and
+              whether the plant stays stable when one unit drops out. This
+              depends on unit count, unit size relative to load, controls and
+              switchgear.
+            </li>
+            <li>
+              <strong>Fuel-to-IT resilience</strong>—how many minutes a year the
+              IT load actually loses power, how many events cause that loss, and
+              how long the longest lasts. This includes fuel, generation,
+              medium-voltage distribution, UPS and batteries, any grid tie and
+              the control software linking them.
+            </li>
+          </ol>
+          <p>
+            AI load stresses the second and third layers more than conventional
+            IT. Microsoft, OpenAI and NVIDIA describe synchronized training jobs
+            that swing “tens or hundreds of megawatts” at roughly 0.2–3 Hz, a
+            range that can excite torsional resonance in turbine-generator
+            shafts.<sup><a href="#source-5">[5]</a></sup> Meta reported instant
+            fluctuations “on the order of tens of megawatts” while training
+            Llama 3.<sup><a href="#source-6">[6]</a></sup>
+          </p>
+          <p>
+            The third layer is also where common-mode failures live. In Winter
+            Storm Elliott, natural-gas fuel issues represented 20% of all causes
+            of US generation outages, derates and failed starts, and about 83%
+            of the fuel-related causes.<sup><a href="#source-7">[7]</a></sup> No
+            amount of N+k protects twelve engines that share one vulnerable gas
+            header.
+          </p>
+
+          <h2 id="nk-example">
+            Same availability, different risk: a transparent N+k example
+          </h2>
+          <p>
+            Take an islanded plant that needs ten units to carry full load, with
+            each unit unavailable 2% of the time because of forced outages. The
+            table shows what additional spare units buy. These are K4 model
+            results under stated assumptions, not measurements from an operating
+            site.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Configuration</th>
+                  <th>Hours per year below full capacity</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>N+1 (11 units)</td>
+                  <td>171</td>
+                </tr>
+                <tr>
+                  <td>N+2 (12 units)</td>
+                  <td>13.5</td>
+                </tr>
+                <tr>
+                  <td>N+3 (13 units)</td>
+                  <td>0.9</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            <small
+              >Assumptions: each unit has 2% forced unavailability; failures are
+              independent; planned maintenance and common-mode events are
+              excluded. Event frequency and duration, which require repair-time
+              assumptions, are modelled in the technical note.</small
+            >
+          </p>
+          <p>
+            <strong>Availability alone does not describe risk.</strong> The same
+            deficit hours can arrive as many short events or a few long ones.
+            Two fleets calibrated to the same availability can have very
+            different outage profiles.
+          </p>
+          <p>
+            <strong>A deficit hour is not automatically an IT outage.</strong>
+            If one equal-sized unit is missing, training load can be curtailed
+            by about 10% or a battery can carry the gap until reserve starts.
+            Curtailment of AI load at 25% for three hours has been demonstrated
+            in a utility program.<sup><a href="#source-11">[11]</a></sup>
+          </p>
+          <p>
+            <strong>Every unit trip is still a transient.</strong> Even with
+            reserve, the remaining units and battery must ride through every
+            trip—dozens a year in a plant of this size. How many reach the IT
+            load depends on unit size, battery sizing and controls. No operator
+            publishes that figure yet; it is the figure I would ask any bidder
+            to defend.
+          </p>
+
+          <h2 id="delay-vs-outages">
+            A month of delay vs a lifetime of outages: it depends who pays
+          </h2>
+          <p>
+            The claim that AI data centers need reliability above everything and
+            the counter-claim that speed beats everything are both wrong as
+            general rules. The value of one month differs by party.
+          </p>
+          <p>
+            The delay values below are K4 estimates. For the GPU owner they
+            represent depreciation and cost of capital on $30–45M of IT
+            equipment per megawatt. For the compute operator they represent lost
+            contribution using a $2.2–4.5 per H100-hour screening range,<sup
+              ><a href="#source-12">[12]</a></sup
+            >
+            60–90% utilization and 60–80% margin; this overlaps with the owner
+            case and is never added to it. For the developer, the model uses
+            assumed rent of $140–200 per kW-month before lease delay damages.
+          </p>
+          <figure>
+            <img
+              src="/assets/insights/time-to-dependable-power/delay-vs-redundancy.svg"
+              width="1200"
+              height="630"
+              loading="lazy"
+              decoding="async"
+              alt="Comparison of one month of delay value by payer with the 15-year net present value of adding N+2 redundancy, per dependable IT MW"
+            />
+            <figcaption class="figure-caption">
+              Comparison of one month of delay value by payer with the 15-year
+              net present value of adding N+2 redundancy, per dependable IT MW.
+              Ranges are K4 estimates and overlap; they are not additive.
+            </figcaption>
+          </figure>
+          <p>
+            Moving the ten-unit island from N+1 to N+2 costs about $26–63k per
+            dependable IT MW per year in capital charge. For training load that
+            can be curtailed, it avoids about $15–105k a year of curtailment and
+            restart cost. The net result is roughly
+            <strong>−$48k to +$79k a year</strong>, or
+            <strong>−$0.33M to +$0.54M over 15 years</strong> at a 12% discount
+            rate. The extra unit may or may not pay for itself. It is a
+            borderline call, not a rule.
+          </p>
+          <ul>
+            <li>
+              <strong>GPU owner:</strong> one month of delay outweighs even the
+              best case for the extra unit. Speed wins once the design clears a
+              defined reliability floor.
+            </li>
+            <li>
+              <strong>Powered-shell developer:</strong> the best case for the
+              extra unit equals roughly three months of rent, and the tenant
+              will price outage risk into the lease. Reliability weighs at least
+              as much as speed.
+            </li>
+            <li>
+              <strong>Inference and SLA-bound load:</strong> each event carries
+              customer and contract consequences a curtailment model cannot
+              capture. N+2 should be tested as the minimum islanded screening
+              case; a grid tie or battery can change the result.
+            </li>
+          </ul>
+          <p>
+            Power caused 45% of operators’ most impactful data-center outages in
+            2025, and one in five impactful outages cost more than $1M.<sup
+              ><a href="#source-8">[8]</a></sup
+            >
+            The question is never “reliability or speed” in the abstract. It is
+            how much reliability this obligation needs, and how soon this party
+            needs it.
+          </p>
+
+          <h2 id="public-strategies">Three public strategies</h2>
+          <p>
+            Three of the best-documented US AI campuses with onsite gas show
+            different answers to the trade-off. None publishes achieved
+            availability, so these are readings of design choices, not
+            performance verdicts.
+          </p>
+          <p>
+            <strong
+              >Socrates, Ohio (Williams for Meta): reliability designed
+              in.</strong
+            >
+            The plant is islanded—Ohio siting material says it would not be
+            physically connected to the electric grid. The design uses multiple
+            generating technologies, a mobile spare, diesel black-start
+            capability and two dedicated gas pipelines.<sup
+              ><a href="#source-4">[4]</a></sup
+            >
+            This may reduce some equipment-specific failure modes while
+            increasing controls, spares and skills complexity. Public sources do
+            not establish whether the two pipelines eliminate upstream
+            common-mode exposure. Williams reported phase one complete within
+            budget and on time, with phase two on track for the fourth quarter
+            of 2026.<sup><a href="#source-3">[3]</a></sup>
+          </p>
+          <p>
+            <strong
+              >Stargate, Abilene, Texas (Crusoe for OpenAI): grid plus
+              onsite.</strong
+            >
+            The campus connects to ERCOT and adds aeroderivative and industrial
+            gas turbines onsite. Crusoe ordered 29 LM2500XPRESS units of about
+            35 MW for its AI data centers—GE does not say all are destined for
+            Abilene—which GE says can start independently of the grid in five
+            minutes.<sup><a href="#source-9">[9]</a></sup> Grid access plus
+            onsite generation can reduce single-source exposure, although the
+            paths are not necessarily independent of every common-mode event and
+            large units make each trip a large share of an island load.
+          </p>
+          <p>
+            <strong>Colossus, Memphis and Southaven (xAI): speed first.</strong>
+            Turbines went in before permanent permits, full grid capacity and
+            permanent units, according to permit records and satellite analysis;
+            Tesla Megapacks were added at the first site.<sup
+              ><a href="#source-10">[10]</a></sup
+            >
+            The strategy won the market window. It also created additional
+            permitting and litigation exposure.
+          </p>
+          <p>
+            The pattern: speed is a legitimate first phase, but only if the
+            permanent architecture is already decided and the bridge fits inside
+            it.
+          </p>
+
+          <h2 id="questions">
+            Five questions to answer before choosing an OEM
+          </h2>
+          <ol>
+            <li>
+              <strong>What exactly is the obligation?</strong> State annual
+              unserved IT minutes, maximum events and longest permitted event by
+              hall and workload. “99.99%” alone is ambiguous—it still allows
+              about 53 minutes a year, in one block or fifty.
+            </li>
+            <li>
+              <strong
+                >What happens when the largest unit trips at peak load?</strong
+              >
+              Ask for a plant-level dynamic study, not a unit data sheet. Start
+              times, ramp rates and permissible load steps are different
+              numbers; the GPU load profile decides which binds.
+            </li>
+            <li>
+              <strong
+                >Which single event takes out more than the reserve?</strong
+              >
+              Walk the chain from gas supply to rack: one pipeline, one header,
+              one control system, one MV bus, one cold snap.
+            </li>
+            <li>
+              <strong
+                >When is the obligation met, not when is first power?</strong
+              >
+              A bridge should use the permanent single-line, be permitted for
+              its unit count and period, and satisfy: months gained × delay
+              value &gt; bridge cost − residual value + extra outage exposure.
+            </li>
+            <li>
+              <strong
+                >What does a delivered dependable megawatt-hour cost?</strong
+              >
+              Include capital per dependable IT MW, fuel at real heat rate,
+              O&amp;M per operating hour, spares and lease-engine pools, and
+              expected unserved energy at its true value. For the islanded
+              gas-engine case we estimate 1.4–2.1 MW installed per dependable IT
+              MW; other technologies need their own conversion.
+            </li>
+          </ol>
+          <p>
+            If a proposal cannot answer these five, its price and lead time are
+            not yet comparable with anything. K4’s
+            <a href="/insights/data-center-captive-gas-power-engines/"
+              >captive gas-power framework</a
+            >
+            provides the project-level checks behind the shortlist.
+          </p>
+
+          <h2 id="independent-review">
+            Independent review on the payer’s side
+          </h2>
+          <p>
+            Across his career, K4 founder Igor Shibanov has participated
+            hands-on in approximately 40 MW of gas-engine generation projects
+            across Jenbacher, MTU, Caterpillar, MWM, Rolls-Royce and Chinese
+            platforms, from project management through operation and major
+            overhauls. What trips island plants is rarely the headline
+            technology choice. It is a unit sized for availability instead of
+            the load, a gas contract written for phase one, or a spares plan
+            nobody priced.
+          </p>
+          <p>
+            K4-Technology reviews AI and industrial power projects for the party
+            that pays: owner, investor or lender. A time-to-dependable-power
+            review covers the obligation definition, N+k and event model,
+            transient-study scope, common-mode audit, O&amp;M and overhaul plan,
+            and lifecycle cost per dependable IT megawatt. In each deal K4 acts
+            either as payer-side adviser or as supplier agent, never both.
+          </p>
+          <div class="article-cta">
+            <p class="eyebrow">AI POWER PROJECT REVIEW</p>
+            <h2>Have a generation shortlist but no dependable-MW case?</h2>
+            <p>
+              That is the right moment to test the obligation, common modes,
+              schedule and lifecycle economics—before the equipment decision
+              hardens.
+            </p>
+            <div class="cta-row">
+              <a
+                class="button primary"
+                href="/services/ai-power-project-advisory/"
+                data-event="article_cta_click"
+                data-channel="internal_navigation"
+                data-location="article-end"
+                data-language="en"
+                >Discuss the project</a
+              ><a
+                class="button secondary"
+                href="/resources/dependable-it-mw-ai-data-centers/"
+                data-event="article_cta_click"
+                data-channel="internal_navigation"
+                data-location="article-end-note"
+                data-language="en"
+                >Open the technical note</a
+              >
+            </div>
+          </div>
+
+          <h2 id="sources">Sources</h2>
+          <ol class="sources">
+            <li id="source-1">
+              <a
+                href="https://www.williams.com/wp-content/uploads/sites/14/2026/02/Socrates-North-and-South-Fact-Sheet-1.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Williams, Socrates North and South fact sheet</a
+              >.
+            </li>
+            <li id="source-2">
+              <a
+                href="https://investor.williams.com/static-files/54c171ab-542b-41d9-af06-3566749244a1"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Williams, 2026 Analyst Day presentation</a
+              >, 10 February 2026, slides 38–39.
+            </li>
+            <li id="source-3">
+              <a
+                href="https://investor.williams.com/news-releases/news-release-details/williams-delivers-strong-second-quarter-2026-results-announces"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Williams, second-quarter 2026 results</a
+              >.
+            </li>
+            <li id="source-4">
+              <a
+                href="https://www.power-eng.com/onsite-power/onsite-gas-turbines-reciprocating-engines-to-power-meta-data-center/"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Power Engineering, onsite generation for Meta’s Socrates
+                campus</a
+              >, June 2025.
+            </li>
+            <li id="source-5">
+              <a
+                href="https://arxiv.org/abs/2508.14318"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Choukse et al., Power Stabilization for AI Training
+                Datacenters</a
+              >, August 2025.
+            </li>
+            <li id="source-6">
+              <a
+                href="https://arxiv.org/abs/2407.21783"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Meta, The Llama 3 Herd of Models</a
+              >, July 2024.
+            </li>
+            <li id="source-7">
+              <a
+                href="https://www.ferc.gov/sites/default/files/2023-11/24_Winter-Storm_Elliot_1107_1300.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                >FERC–NERC, Winter Storm Elliott final report</a
+              >, November 2023.
+            </li>
+            <li id="source-8">
+              <a
+                href="https://intelligence.uptimeinstitute.com/index.php/resource/annual-outage-analysis-2026"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Uptime Institute, Annual Outage Analysis 2026</a
+              >.
+            </li>
+            <li id="source-9">
+              <a
+                href="https://www.gevernova.com/news/press-releases/ge-vernova-crusoe-announce-major-29-unit-aeroderivative-gas-turbine-deliver-ai-data-centers"
+                target="_blank"
+                rel="noopener noreferrer"
+                >GE Vernova and Crusoe, 29-unit LM2500XPRESS order</a
+              >, July 2025.
+            </li>
+            <li id="source-10">
+              <a
+                href="https://cleanview.co/reports/behind-the-meter-data-centers"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Cleanview, Behind-the-Meter Data Centers</a
+              >, May 2026.
+            </li>
+            <li id="source-11">
+              <a
+                href="https://www.utilitydive.com/news/data-centers-flexibility-utilities-speed-to-power/822588/"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Utility Dive, data-center flexibility and speed to power</a
+              >, June 2026.
+            </li>
+            <li id="source-12">
+              <a
+                href="https://www.spheron.network/gpu-rental/"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Spheron, public GPU rental pricing</a
+              >, accessed October 2026.
+            </li>
+          </ol>
+          <p>
+            <small
+              >Model figures are K4-Technology estimates. Inputs, equations,
+              evidence tags and limitations are documented in the
+              <a href="/resources/dependable-it-mw-ai-data-centers/"
+                >companion technical note</a
+              >.</small
+            >
+          </p>
+        </article>
+        <aside class="article-side">
+          <div class="side-card">
+            <p class="side-title">Companion model</p>
+            <h3>Dependable IT MW</h3>
+            <p>
+              Full conversion factors, N+k equations, event model, delay
+              scenarios and technology tables.
+            </p>
+            <a
+              class="side-link"
+              href="/resources/dependable-it-mw-ai-data-centers/"
+              >Open technical note →</a
+            >
+          </div>
+          <div class="side-card">
+            <p class="side-title">Related</p>
+            <a
+              class="side-link"
+              href="/insights/ai-compute-power-reality-check/"
+              >AI Compute Power Reality Check →</a
+            ><a
+              class="side-link"
+              href="/insights/data-center-captive-gas-power-engines/"
+              >Captive Gas Power for Data Centers →</a
+            ><a
+              class="side-link"
+              href="/insights/iso-rating-site-derate-gas-engines-turbines/"
+              >Catalogue MW Is Not Site MW →</a
+            >
+          </div>
+          <div class="side-card">
+            <p class="side-title">Need an owner-side review?</p>
+            <p>
+              Define the obligation and compare power options on one
+              dependable-MW basis.
+            </p>
+            <a
+              class="button primary"
+              href="/services/ai-power-project-advisory/"
+              data-event="ai_power_cta_click"
+              data-channel="internal_navigation"
+              data-location="article-sidebar"
+              data-language="en"
+              >AI power advisory</a
+            >
+          </div>
+        </aside>
+      </div>
+    </main>
+    <footer class="footer">
+      <div class="shell footer-row">
+        <div>
+          <strong style="color: #fff">KIV-Technology d.o.o.</strong> · Belgrade,
+          Serbia ·
+          <a href="mailto:ceo@k4-technology.com">ceo@k4-technology.com</a>
+        </div>
+        <div class="footer-links">
+          <a href="/">Home</a
+          ><a href="/services/ai-power-project-advisory/">AI Power</a
+          ><a href="/insights/">Insights</a><a href="/resources/">Resources</a>
+        </div>
+        <div>K4 Technology · Evidence-Based Power Project Intelligence</div>
+      </div>
+    </footer>
+    <script src="/assets/intelligence.js?v=20261026-1" defer></script>
+  </body>
+</html>

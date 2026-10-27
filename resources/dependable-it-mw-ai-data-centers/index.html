@@ -1,0 +1,1131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Dependable IT MW for AI Data Centers: Model &amp; Inputs | K4</title>
+    <meta
+      name="description"
+      content="K4 technical note documenting dependable IT MW conversion, N+k reliability equations, delay economics and power-option comparison inputs for AI data centers."
+    />
+    <meta
+      name="robots"
+      content="index,follow,max-image-preview:large,max-snippet:-1"
+    />
+    <meta name="theme-color" content="#070b10" />
+    <link rel="icon" href="/favicon.png" />
+    <link rel="stylesheet" href="/assets/intelligence.css" />
+    <link
+      rel="canonical"
+      href="https://k4-technology.com/resources/dependable-it-mw-ai-data-centers/"
+    />
+    <link
+      rel="alternate"
+      hreflang="en"
+      href="https://k4-technology.com/resources/dependable-it-mw-ai-data-centers/"
+    />
+    <link
+      rel="alternate"
+      hreflang="x-default"
+      href="https://k4-technology.com/resources/dependable-it-mw-ai-data-centers/"
+    />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="K4-Technology" />
+    <meta
+      property="og:title"
+      content="Technical Note: Dependable IT MW for AI Data Centers"
+    />
+    <meta
+      property="og:description"
+      content="Model, inputs, evidence tags and comparison tables behind K4’s time-to-dependable-power framework."
+    />
+    <meta
+      property="og:url"
+      content="https://k4-technology.com/resources/dependable-it-mw-ai-data-centers/"
+    />
+    <meta
+      property="og:image"
+      content="https://k4-technology.com/assets/insights/time-to-dependable-power/delay-vs-redundancy-og.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="One month of delay value by payer compared with the 15-year net present value of N+2 redundancy"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Dependable IT MW for AI Data Centers" />
+    <meta
+      name="twitter:description"
+      content="The equations and assumptions behind a dependable-MW comparison."
+    />
+    <meta
+      name="twitter:image"
+      content="https://k4-technology.com/assets/insights/time-to-dependable-power/delay-vs-redundancy-og.png"
+    />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "TechArticle",
+            "headline": "Technical Note: Dependable IT MW for AI Data Centers — Model, Inputs and Comparison Tables",
+            "datePublished": "2026-10-27",
+            "dateModified": "2026-10-27",
+            "image": "https://k4-technology.com/assets/insights/time-to-dependable-power/delay-vs-redundancy-og.png",
+            "author": {
+              "@type": "Person",
+              "name": "Igor Shibanov",
+              "jobTitle": "Founder and Technical Advisor",
+              "worksFor": { "@type": "Organization", "name": "K4-Technology" }
+            },
+            "publisher": { "@id": "https://k4-technology.com/#organization" },
+            "mainEntityOfPage": "https://k4-technology.com/resources/dependable-it-mw-ai-data-centers/",
+            "inLanguage": "en",
+            "isAccessibleForFree": true,
+            "proficiencyLevel": "Expert",
+            "about": [
+              "dependable IT megawatts",
+              "N+k availability",
+              "AI data center power",
+              "reliability economics"
+            ],
+            "description": "The model, inputs, evidence tags and comparison tables behind K4's time-to-dependable-power framework."
+          },
+          {
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://k4-technology.com/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Resources",
+                "item": "https://k4-technology.com/resources/"
+              },
+              {
+                "@type": "ListItem",
+                "position": 3,
+                "name": "Dependable IT MW technical note",
+                "item": "https://k4-technology.com/resources/dependable-it-mw-ai-data-centers/"
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+  </head>
+  <body class="page-article">
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="topbar">
+      <nav class="nav shell" aria-label="Primary">
+        <a class="brand" href="/"
+          ><span class="brand-mark">K4</span><span class="brand-slash">/</span
+          ><span class="brand-name">K4-Technology</span></a
+        ><button
+          class="menu"
+          data-menu
+          aria-expanded="false"
+          aria-label="Open navigation"
+        >
+          ☰
+        </button>
+        <div class="nav-links" data-nav>
+          <a href="/services/gas-engine-advisory-for-power-developers/"
+            >Advisory</a
+          ><a href="/services/ai-power-project-advisory/">AI Power</a
+          ><a href="/services/gas-engine-technical-due-diligence/"
+            >Due diligence</a
+          ><a href="/case-studies/">Case studies</a
+          ><a href="/insights/">Insights</a
+          ><a href="/resources/" aria-current="page">Resources</a
+          ><a class="lang" href="/ru/" hreflang="ru">RU</a
+          ><a
+            data-channel="internal_navigation"
+            class="nav-cta"
+            href="/services/ai-power-project-advisory/"
+            data-event="ai_power_cta_click"
+            data-location="site-nav"
+            data-language="en"
+            >Discuss AI power</a
+          >
+        </div>
+      </nav>
+    </header>
+    <main id="main">
+      <div class="breadcrumbs">
+        <div class="shell">
+          <a href="/">Home</a> / <a href="/resources/">Resources</a> /
+          Dependable IT MW technical note
+        </div>
+      </div>
+      <section class="hero article-hero">
+        <div class="shell">
+          <div class="kicker">TECHNICAL NOTE / K4 MODEL</div>
+          <h1>Dependable IT MW for AI Data Centers</h1>
+          <p class="sub">
+            Model, inputs and comparison tables behind the
+            time-to-dependable-power framework.
+          </p>
+          <div class="article-meta">
+            <span>Igor Shibanov · Founder and Technical Advisor</span
+            ><span>Version 1.0 · 27 October 2026</span
+            ><span>US screening basis · project studies required</span>
+          </div>
+          <div class="evidence">
+            <span class="badge">EQUATIONS SHOWN</span
+            ><span class="badge">SOURCE TAGS</span
+            ><span class="badge">LIMITATIONS STATED</span>
+          </div>
+        </div>
+      </section>
+      <div class="shell article-layout">
+        <article class="article">
+          <p class="lead">
+            <strong>Purpose.</strong> This note documents the numbers behind
+            <a href="/insights/time-to-dependable-power-ai-data-centers/"
+              >Time to Dependable Power</a
+            >: how installed generation converts to dependable IT megawatts, how
+            redundancy translates into deficit hours and events, how delay is
+            valued, and how the main power options compare. All modelled results
+            are screening estimates for US conditions in 2026; project decisions
+            require site-specific studies.
+          </p>
+
+          <h2 id="tags">Evidence tags</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Tag</th>
+                  <th>Meaning</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>PRIMARY / REGULATORY</strong></td>
+                  <td>Regulator, statute or regulatory filing</td>
+                </tr>
+                <tr>
+                  <td><strong>OPERATOR DISCLOSURE</strong></td>
+                  <td>Data-center, utility or developer statement or paper</td>
+                </tr>
+                <tr>
+                  <td><strong>OEM CLAIM</strong></td>
+                  <td>
+                    Manufacturer specification or press release, not
+                    independently tested
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>INDUSTRY REPORTING</strong></td>
+                  <td>
+                    Trade media, survey, satellite or permit analysis by a third
+                    party
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>K4 MODEL</strong></td>
+                  <td>K4 calculation or assumption; inputs shown</td>
+                </tr>
+                <tr>
+                  <td><strong>CONFLICTING / DATA GAP</strong></td>
+                  <td>Sources disagree or no public data was found</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="decision-box">
+            <strong>Key definition</strong>
+            <p>
+              Dependable IT MW is the IT load the full fuel-to-IT system can
+              serve while meeting a stated obligation, expressed as annual
+              unserved IT minutes, maximum events per year and longest permitted
+              event.
+            </p>
+          </div>
+
+          <h2 id="conversion">
+            1. From installed generation to dependable IT MW
+          </h2>
+          <p>
+            <strong
+              >One dependable IT MW requires 1.4–2.1 MW of installed generation
+              for the islanded gas-engine screening case below [K4
+              MODEL].</strong
+            >
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Factor</th>
+                  <th>Low</th>
+                  <th>High</th>
+                  <th>Note</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Peak PUE, liquid-cooled AI</td>
+                  <td>1.15</td>
+                  <td>1.35</td>
+                  <td>Size on peak, not annual average</td>
+                </tr>
+                <tr>
+                  <td>Station auxiliaries, UPS and transformer losses</td>
+                  <td>1.04</td>
+                  <td>1.08</td>
+                  <td>Add gas compression where required</td>
+                </tr>
+                <tr>
+                  <td>Site derate, ambient and altitude</td>
+                  <td>1.03</td>
+                  <td>1.18</td>
+                  <td>
+                    Typically larger for turbines than engines; use project data
+                  </td>
+                </tr>
+                <tr>
+                  <td>Reserve: N+2 on 10–12 required units</td>
+                  <td>1.17</td>
+                  <td>1.20</td>
+                  <td>
+                    14/12 = 1.167; 12/10 = 1.20. Separate maintenance reserve
+                    raises the factor
+                  </td>
+                </tr>
+                <tr>
+                  <td><strong>Product</strong></td>
+                  <td><strong>1.44</strong></td>
+                  <td><strong>2.06</strong></td>
+                  <td>Rounded to 1.4–2.1 for screening</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            At $1,500–2,500 per installed kW for a reciprocating-engine plant,
+            generation capital is $2.2–5.2M per dependable IT MW. At 12% over 15
+            years:
+          </p>
+          <p class="formula">
+            <strong
+              >CRF = r(1+r)<sup>n</sup> / ((1+r)<sup>n</sup> − 1) =
+              0.147</strong
+            >
+            &nbsp; (r = 0.12, n = 15)
+          </p>
+          <p>
+            Annual capital charge is $0.32–0.76M per dependable IT MW-year.
+            Fuel, fixed O&amp;M and per-hour O&amp;M are excluded. If only part
+            of IT capacity is contracted, divide by the contracted share.
+          </p>
+          <p>
+            <strong>Scope.</strong> The 1.4–2.1 conversion applies only to this
+            islanded gas-engine case. Grid, fuel cells, CCGT and BESS hybrids
+            each need their own PUE, derate, reserve and storage-duration model.
+          </p>
+
+          <h3>Socrates cross-check [K4 MODEL based on INDUSTRY REPORTING]</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Filed equipment for Socrates South</th>
+                  <th>Units</th>
+                  <th>Approx. MW each</th>
+                  <th>Approx. total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Solar Titan 250</td>
+                  <td>3</td>
+                  <td>~23</td>
+                  <td>~69</td>
+                </tr>
+                <tr>
+                  <td>“130”-class turbines; vendor attribution unclear</td>
+                  <td>9</td>
+                  <td>~16.5</td>
+                  <td>~149</td>
+                </tr>
+                <tr>
+                  <td>Siemens Energy SGT-400</td>
+                  <td>3</td>
+                  <td>~13–15</td>
+                  <td>~39–45</td>
+                </tr>
+                <tr>
+                  <td>Caterpillar 3520 engines</td>
+                  <td>15</td>
+                  <td>~2.0–2.5</td>
+                  <td>~30–38</td>
+                </tr>
+                <tr>
+                  <td><strong>Total</strong></td>
+                  <td><strong>30</strong></td>
+                  <td></td>
+                  <td><strong>~287–301</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            Williams describes two 200 MW sites while its 2026 investor deck
+            reports 556 MW of combined ISO generation capacity excluding BESS
+            [OPERATOR DISCLOSURE]. The 1.39 ratio illustrates the gap between
+            publicly stated project capacity and installed ISO capacity. Public
+            sources do not fully reconcile ISO, net, committed and
+            delivery-point boundaries, so the gap must not be read as redundancy
+            alone. The equipment-list sum for Socrates South (~1.4–1.5 against
+            200 MW) is consistent with that ratio, not proof of the individual
+            factors.
+          </p>
+
+          <h2 id="availability">2. N+k availability and event model</h2>
+          <p>
+            The binomial model gives expected capacity-deficit hours; event
+            counts and durations require repair-time assumptions [K4 MODEL].
+            Required units k = 10, installed n = 11, 12 or 13, and each unit has
+            forced unavailability q.
+          </p>
+          <p class="formula">
+            <strong
+              >P<sub>def</sub> = Σ C(n,j) q<sup>j</sup>(1−q)<sup
+                >n−j</sup
+              ></strong
+            >, for j = n−k+1 … n; &nbsp;
+            <strong>H<sub>def</sub> = 8,760 × P<sub>def</sub></strong>
+          </p>
+          <p>
+            For the two-state Markov approximation, μ = 1/MTTR and λ = μq/(1−q),
+            so MTBF = MTTR(1−q)/q. At the deficit boundary d = n−k+1:
+          </p>
+          <p class="formula">
+            <strong
+              >f<sub>def</sub> ≈ 8,760 × C(n,d) q<sup>d</sup>(1−q)<sup>n−d</sup>
+              × dμ</strong
+            >; &nbsp;
+            <strong>mean duration = H<sub>def</sub>/f<sub>def</sub></strong>
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Configuration</th>
+                  <th>Deficit h/yr</th>
+                  <th>
+                    MTTR 24 h, MTBF 1,176 h<br />trips · deficit events · mean
+                    duration
+                  </th>
+                  <th>
+                    MTTR 72 h, MTBF 3,528 h<br />trips · deficit events · mean
+                    duration
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>N+1</td>
+                  <td>171</td>
+                  <td>80 · 13.4 · 12.8 h</td>
+                  <td>27 · 4.5 · 38 h</td>
+                </tr>
+                <tr>
+                  <td>N+2</td>
+                  <td>13.5</td>
+                  <td>88 · 1.6 · 8.4 h</td>
+                  <td>29 · 0.54 · 25 h</td>
+                </tr>
+                <tr>
+                  <td>N+3</td>
+                  <td>0.9</td>
+                  <td>95 · 0.14 · 6.2 h</td>
+                  <td>32 · 0.05 · 19 h</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            Raising MTTR from 24 to 72 hours at constant q also raises MTBF from
+            1,176 to 3,528 hours. This is not the same engine repaired more
+            slowly; it compares two fleets with different failure frequency and
+            repair duration but identical 98% availability.
+          </p>
+          <h3>Sensitivity of deficit hours to unit unavailability q</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>q</th>
+                  <th>N</th>
+                  <th>N+1</th>
+                  <th>N+2</th>
+                  <th>N+3</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>5%</td>
+                  <td>3,515</td>
+                  <td>893</td>
+                  <td>171</td>
+                  <td>27</td>
+                </tr>
+                <tr>
+                  <td>2%</td>
+                  <td>1,602</td>
+                  <td>171</td>
+                  <td>13.5</td>
+                  <td>0.9</td>
+                </tr>
+                <tr>
+                  <td>1%</td>
+                  <td>838</td>
+                  <td>45</td>
+                  <td>1.8</td>
+                  <td>0.1</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <h3>From plant events to IT events</h3>
+          <p>
+            This is a concept model, not a fitted result. Unit trips are split
+            into trips while sufficient capacity remains (N<sub>trip,ok</sub>)
+            and trips initiating a deficit state (f<sub>def</sub>), so nothing
+            is counted twice:
+          </p>
+          <p class="formula">
+            <strong
+              >E<sub>IT</sub> = N<sub>trip,ok</sub>p<sub>rt</sub> +
+              f<sub>def</sub>[p<sub>rt</sub> +
+              (1−p<sub>rt</sub>)(1−p<sub>curt</sub>)]</strong
+            >
+          </p>
+          <p>
+            p<sub>rt</sub> is the probability that a trip is not ridden through;
+            p<sub>curt</sub> is the probability that a deficit is met by
+            controlled curtailment. Neither is published by operators [DATA
+            GAP]. Both belong in the EPC or PPA as plant-boundary guarantees.
+          </p>
+          <p>
+            <strong>Exclusions:</strong> planned maintenance, common-mode events
+            such as gas supply or shared controls, and unit start failures. All
+            make real results worse than the independent-failure table.
+          </p>
+
+          <h2 id="economics">3. Delay value and outage exposure</h2>
+          <p>
+            Delay value ranges from approximately $0.14M to $1.7M per dependable
+            IT MW-month depending on the party. The net 15-year PV of moving the
+            modelled plant from N+1 to N+2 for curtailable training is
+            <strong>−$0.33M to +$0.54M</strong> per dependable IT MW [K4 MODEL].
+          </p>
+          <figure>
+            <img
+              src="/assets/insights/time-to-dependable-power/delay-vs-redundancy.svg"
+              width="1200"
+              height="630"
+              loading="lazy"
+              decoding="async"
+              alt="Comparison of one month of delay value by payer with the 15-year net present value of adding N+2 redundancy, per dependable IT MW"
+            />
+            <figcaption class="figure-caption">
+              Delay cases A and C overlap and are never added. The N+2 band is
+              net of the extra unit’s annualized capital cost.
+            </figcaption>
+          </figure>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Scenario</th>
+                  <th>Party</th>
+                  <th>Value per dependable IT MW-month</th>
+                  <th>Inputs</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>A. Carrying cost of idle hardware</td>
+                  <td>GPU owner, hardware delivered</td>
+                  <td>$0.67–1.1M</td>
+                  <td>
+                    IT capital $30–45M/MW; depreciation 5–6 years; cost of
+                    capital 10%
+                  </td>
+                </tr>
+                <tr>
+                  <td>B. Contracted revenue</td>
+                  <td>Powered-shell / colo developer</td>
+                  <td>$0.14–0.20M + delay damages</td>
+                  <td>
+                    Assumed rent $140–200/kW-month [DATA GAP]; CBRE reports H1
+                    2026 asking rates for 10+ MW up 6.7% and 1.4% primary-market
+                    vacancy
+                  </td>
+                </tr>
+                <tr>
+                  <td>C. Compute contribution</td>
+                  <td>GPU operator, confirmed demand</td>
+                  <td>$0.4–1.7M</td>
+                  <td>
+                    ~700 H100 equivalents/MW; $2.2–4.5/GPU-hour screening range;
+                    60–90% utilization; 60–80% contribution margin
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <h3>Outage exposure: curtailable training, q = 2%, MTTR = 24 h</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>N+1</th>
+                  <th>N+2</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    Curtailment: deficit hours × 10% of load × $550–2,300 per IT
+                    MWh
+                  </td>
+                  <td>$9–39k per IT MW-year</td>
+                  <td>$0.7–3k</td>
+                </tr>
+                <tr>
+                  <td>
+                    Restart if each deficit event kills the job: 1–2.5 h cluster
+                    time/event
+                  </td>
+                  <td>$7–77k</td>
+                  <td>$0.9–9k</td>
+                </tr>
+                <tr>
+                  <td><strong>Total exposure</strong></td>
+                  <td><strong>$16–116k</strong></td>
+                  <td><strong>$1.6–12k</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <h3>Net economics of the extra unit</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Per dependable IT MW</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Avoided exposure</td>
+                  <td>$15–105k/year</td>
+                </tr>
+                <tr>
+                  <td>
+                    Extra unit: 1/12 of N+2 generation capital ($2.2–5.2M) × CRF
+                    0.147
+                  </td>
+                  <td>$26–63k/year</td>
+                </tr>
+                <tr>
+                  <td><strong>Net annual result</strong></td>
+                  <td><strong>−$48k to +$79k/year</strong></td>
+                </tr>
+                <tr>
+                  <td>
+                    <strong>Net 15-year PV at 12% (annuity factor 6.81)</strong>
+                  </td>
+                  <td><strong>−$0.33M to +$0.54M</strong></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            The range spans zero, so the result is borderline rather than a case
+            for or against redundancy. Avoided exposure alone is $0.1–0.7M PV
+            and must not be quoted as the net benefit. Inference and SLA-bound
+            loads are outside this curtailment model; contractual consequences
+            dominate there.
+          </p>
+          <h3>Bridge-power test</h3>
+          <p class="formula">
+            <strong
+              >Δt × V<sub>delay</sub> &gt; C<sub>bridge</sub> + O<sub
+                >bridge</sub
+              >
+              − R<sub>residual</sub> + ΔE<sub>outage</sub></strong
+            >
+          </p>
+          <p>
+            Δt is months gained; V<sub>delay</sub> is selected for the party
+            paying; C and O include mobilization, permits and removal; R is the
+            value of bridge assets retained as permanent reserve; ΔE is extra
+            outage exposure during the bridge.
+          </p>
+          <p>
+            Context only: Uptime reports power caused 45% of operators’ most
+            impactful outages in 2025, with 20% costing more than $1M [INDUSTRY
+            REPORTING]. Meta’s 466 Llama 3 job interruptions in 54 days were
+            mostly component failures, not power events; they show checkpoint
+            recovery, not that facility-wide loss of power is cheap [OPERATOR
+            DISCLOSURE].
+          </p>
+
+          <h2 id="comparison">4. Technology comparison</h2>
+          <p>
+            No option leads on both time and dependable IT MW. The ranges below
+            are 2026 US screening estimates [K4 MODEL] unless tagged, per
+            installed kW of generation. The 1.4–2.1 conversion applies only to
+            the islanded gas-engine case in section 1.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Option</th>
+                  <th>Modularity / common mode</th>
+                  <th>Fuel or grid dependency</th>
+                  <th>Installed cost</th>
+                  <th>Indicative time to power</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Utility grid</td>
+                  <td>
+                    Dual substations reduce but do not remove transmission and
+                    ride-through common modes
+                  </td>
+                  <td>Capacity and transmission queue</td>
+                  <td>Customer upgrades; site-specific</td>
+                  <td>
+                    3–7+ years for &gt;100 MW in constrained areas [INDUSTRY
+                    REPORTING]
+                  </td>
+                </tr>
+                <tr>
+                  <td>Gas engines, 2–20 MW</td>
+                  <td>
+                    Fine redundancy granularity; shared gas, controls and MV bus
+                    remain
+                  </td>
+                  <td>Firm pipeline gas</td>
+                  <td>$1,500–2,500/kW</td>
+                  <td>12–24 months</td>
+                </tr>
+                <tr>
+                  <td>Aeroderivative turbines, 30–60 MW</td>
+                  <td>
+                    Fewer, larger units; engine-swap support can shorten
+                    overhaul outage
+                  </td>
+                  <td>Firm high-pressure gas or compression</td>
+                  <td>$1,800–2,800/kW</td>
+                  <td>12–18 months packaged</td>
+                </tr>
+                <tr>
+                  <td>Frame turbine / CCGT</td>
+                  <td>Coarse unit size; one trip may exceed island reserve</td>
+                  <td>Firm gas; usually grid-connected</td>
+                  <td>
+                    CCGT $1,200–1,600/kW; post-2028 quotes reported at
+                    $2,400–2,600/kW
+                  </td>
+                  <td>
+                    New heavy-duty order lead times reported near three years
+                    plus EPC
+                  </td>
+                </tr>
+                <tr>
+                  <td>Diesel</td>
+                  <td>Many units; fuel storage and resupply common mode</td>
+                  <td>Onsite fuel; US emergency-use rules apply</td>
+                  <td>$600–1,000/kW</td>
+                  <td>12–24 months at campus scale [low confidence]</td>
+                </tr>
+                <tr>
+                  <td>Fuel cells, SOFC</td>
+                  <td>
+                    Granular modules; shared gas and power electronics remain
+                  </td>
+                  <td>Pipeline gas</td>
+                  <td>$3,000–5,000/kW [low confidence]</td>
+                  <td>Months [OEM CLAIM]</td>
+                </tr>
+                <tr>
+                  <td>Gas and/or grid + BESS/UPS</td>
+                  <td>
+                    Separates energy from power quality; introduces
+                    battery-control and fire modes
+                  </td>
+                  <td>Primary source plus battery augmentation</td>
+                  <td>Source + $300–600/kWh BESS [low confidence]</td>
+                  <td>Set by source; BESS 6–12 months</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <h3>Dynamic-response screening</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Option</th>
+                  <th>Black start / loading</th>
+                  <th>Loaded step and ramp</th>
+                  <th>Largest-unit loss on a 150 MW island</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Grid</td>
+                  <td>Not applicable</td>
+                  <td>
+                    Interconnection-specific; NERC recommends reconnection ramp
+                    limits
+                  </td>
+                  <td>Risk is ride-through and mass transfer to backup</td>
+                </tr>
+                <tr>
+                  <td>Gas engines</td>
+                  <td>
+                    Auxiliary source needed; selected Fast Response packages
+                    claim &lt;10 s in standby duty
+                  </td>
+                  <td>
+                    OEM- and operating-point-specific; public claims conflict
+                  </td>
+                  <td>2–20 MW, or 1–13%</td>
+                </tr>
+                <tr>
+                  <td>Aeroderivative turbine</td>
+                  <td>
+                    Onsite auxiliaries; LM2500XPRESS claims about 5 minutes
+                  </td>
+                  <td>Fast, but no public plant-level cyclic-load figure</td>
+                  <td>~35 MW, or ~23%</td>
+                </tr>
+                <tr>
+                  <td>Frame turbine / CCGT</td>
+                  <td>Black-start unit required; tens of minutes to hours</td>
+                  <td>Limited; torsional-resonance risk under cyclic load</td>
+                  <td>100–400 MW; potentially exceeds load</td>
+                </tr>
+                <tr>
+                  <td>Diesel</td>
+                  <td>Self-starting; Type 10 packages available</td>
+                  <td>Large block loads; project-specific</td>
+                  <td>2–3 MW, or ~2%</td>
+                </tr>
+                <tr>
+                  <td>Fuel cells</td>
+                  <td>BESS needed for black start; slow cold start</td>
+                  <td>Slow without BESS</td>
+                  <td>&lt;1%</td>
+                </tr>
+                <tr>
+                  <td>Grid-forming BESS</td>
+                  <td>Sub-second if sized and energized</td>
+                  <td>Up to inverter rating; energy and C-rate limited</td>
+                  <td>Small</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            All response figures are unit specifications under stated
+            conditions, not plant response to cyclic AI load. Specify
+            plant-boundary tests in the EPC contract.
+          </p>
+
+          <h2 id="limitations">5. Limitations and open data</h2>
+          <ul>
+            <li>
+              <strong>Confirmed:</strong> Williams reports Socrates at 556 MW
+              ISO generation capacity excluding BESS; the boundary against 400
+              MW of stated project capacity remains unreconciled publicly.
+            </li>
+            <li>
+              <strong>Confirmed:</strong> EIA Table 11.1 reports 269.2 SAIDI
+              minutes, approximately 4.49 hours per customer, for 2025 with
+              major event days. Projects should use the serving utility’s own
+              SAIDI/SAIFI and interconnection studies.
+            </li>
+            <li>
+              <strong>Open:</strong> public wholesale rent level for the
+              powered-shell scenario.
+            </li>
+            <li>
+              <strong>Open:</strong> independent step-load tests for loaded gas
+              engines under cyclic AI load.
+            </li>
+          </ul>
+          <p>
+            Known model limitations: independent failures; no
+            planned-maintenance overlap; no common-mode events; installed-cost
+            estimates extend beyond the last primary public capital-cost
+            dataset; evidence is US-centered; achieved availability of operating
+            AI behind-the-meter plants is not public.
+          </p>
+
+          <div class="article-cta">
+            <p class="eyebrow">USE THE MODEL ON A REAL PROJECT</p>
+            <h2>Turn the screening case into a project obligation</h2>
+            <p>
+              K4 can adapt the model to the site, workload, single-line, fuel
+              arrangement, maintenance plan and commercial party that carries
+              the risk.
+            </p>
+            <div class="cta-row">
+              <a
+                class="button primary"
+                href="/services/ai-power-project-advisory/"
+                data-event="ai_power_cta_click"
+                data-channel="internal_navigation"
+                data-location="technical-note-end"
+                data-language="en"
+                >Discuss the project</a
+              ><a
+                class="button secondary"
+                href="/insights/time-to-dependable-power-ai-data-centers/"
+                data-event="ai_power_evidence_click"
+                data-channel="internal_navigation"
+                data-location="technical-note-end"
+                data-language="en"
+                >Read the article</a
+              >
+            </div>
+          </div>
+
+          <h2 id="sources">Sources</h2>
+          <ol class="sources">
+            <li>
+              <a
+                href="https://www.nerc.com/globalassets/our-work/reports/event-reports/incident_review_large_load_loss.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                >NERC, Incident Review: Considering Simultaneous
+                Voltage-Sensitive Load Reductions</a
+              >, January 2025 [PRIMARY / REGULATORY].
+            </li>
+            <li>
+              <a
+                href="https://www.ferc.gov/sites/default/files/2023-11/24_Winter-Storm_Elliot_1107_1300.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                >FERC–NERC, Winter Storm Elliott final report</a
+              >, November 2023 [PRIMARY / REGULATORY].
+            </li>
+            <li>
+              <a
+                href="https://www.ecfr.gov/current/title-40/chapter-I/subchapter-C/part-60/subpart-IIII/section-60.4211"
+                target="_blank"
+                rel="noopener noreferrer"
+                >40 CFR 60.4211</a
+              >
+              [PRIMARY / REGULATORY].
+            </li>
+            <li>
+              <a
+                href="https://www.eia.gov/analysis/studies/powerplants/capitalcost/pdf/capital_cost_AEO2022.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                >EIA, Capital Cost and Performance Characteristic Estimates for
+                Utility Scale Electric Power Generating Technologies</a
+              >, 2022 [PRIMARY / REGULATORY].
+            </li>
+            <li>
+              <a
+                href="https://www.eia.gov/electricity/Annual/table.php?t=epa_11_01.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                >EIA, Electric Power Annual Table 11.1</a
+              >, 2025 data [PRIMARY / REGULATORY].
+            </li>
+            <li>
+              <a
+                href="https://arxiv.org/abs/2508.14318"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Choukse et al., Power Stabilization for AI Training
+                Datacenters</a
+              >, August 2025 [OPERATOR DISCLOSURE].
+            </li>
+            <li>
+              <a
+                href="https://arxiv.org/abs/2407.21783"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Meta, The Llama 3 Herd of Models</a
+              >, July 2024 [OPERATOR DISCLOSURE].
+            </li>
+            <li>
+              <a
+                href="https://www.williams.com/wp-content/uploads/sites/14/2026/02/Socrates-North-and-South-Fact-Sheet-1.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Williams, Socrates North and South fact sheet</a
+              >
+              [OPERATOR DISCLOSURE].
+            </li>
+            <li>
+              <a
+                href="https://investor.williams.com/static-files/54c171ab-542b-41d9-af06-3566749244a1"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Williams, 2026 Analyst Day presentation</a
+              >, slides 38–39 [OPERATOR DISCLOSURE].
+            </li>
+            <li>
+              <a
+                href="https://investor.williams.com/news-releases/news-release-details/williams-delivers-strong-second-quarter-2026-results-announces"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Williams, Q2 2026 results</a
+              >
+              [OPERATOR DISCLOSURE].
+            </li>
+            <li>
+              <a
+                href="https://www.gevernova.com/news/press-releases/ge-vernova-crusoe-announce-major-29-unit-aeroderivative-gas-turbine-deliver-ai-data-centers"
+                target="_blank"
+                rel="noopener noreferrer"
+                >GE Vernova and Crusoe, LM2500XPRESS order</a
+              >, July 2025 [OEM CLAIM].
+            </li>
+            <li>
+              <a
+                href="https://www.cat.com/en_US/news/engine-press-releases/caterpillar-releases-fast-response-generator-sets-delivering-energy-security-and-additional-revenue-opportunities.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Caterpillar, G3520 Fast Response</a
+              >, November 2025 [OEM CLAIM].
+            </li>
+            <li>
+              <a
+                href="https://www.power-eng.com/onsite-power/onsite-gas-turbines-reciprocating-engines-to-power-meta-data-center/"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Power Engineering, Socrates South filings</a
+              >, June 2025 [INDUSTRY REPORTING].
+            </li>
+            <li>
+              <a
+                href="https://www.power-eng.com/gas/turbines/data-centers-drive-record-surge-in-ge-vernova-power-equipment-orders-as-turbine-slots-tighten-through-2030/"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Power Engineering, GE Vernova Q1 2026 order and lead-time
+                reporting</a
+              >
+              [INDUSTRY REPORTING].
+            </li>
+            <li>
+              <a
+                href="https://intelligence.uptimeinstitute.com/index.php/resource/annual-outage-analysis-2026"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Uptime Institute, Annual Outage Analysis 2026</a
+              >
+              [INDUSTRY REPORTING].
+            </li>
+            <li>
+              <a
+                href="https://www.lazard.com/news-announcements/lazard-releases-2025-levelized-cost-of-energyplus-report-pr/"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Lazard, LCOE+ 2025</a
+              >
+              [INDUSTRY REPORTING].
+            </li>
+            <li>
+              <a
+                href="https://www.cbre.com/insights/books/north-america-data-center-trends-h1-2026"
+                target="_blank"
+                rel="noopener noreferrer"
+                >CBRE, North America Data Center Trends H1 2026</a
+              >
+              [INDUSTRY REPORTING].
+            </li>
+            <li>
+              <a
+                href="https://cleanview.co/reports/behind-the-meter-data-centers"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Cleanview, Behind-the-Meter Data Centers</a
+              >, May 2026 [INDUSTRY REPORTING].
+            </li>
+            <li>
+              <a
+                href="https://www.spheron.network/gpu-rental/"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Spheron, public GPU rental pricing</a
+              >, accessed October 2026 [INDUSTRY REPORTING].
+            </li>
+          </ol>
+        </article>
+        <aside class="article-side">
+          <div class="side-card">
+            <p class="side-title">Main article</p>
+            <h3>Time to Dependable Power</h3>
+            <p>What the model means for owners, operators and developers.</p>
+            <a
+              class="side-link"
+              href="/insights/time-to-dependable-power-ai-data-centers/"
+              >Read the article →</a
+            >
+          </div>
+          <div class="side-card">
+            <p class="side-title">Model scope</p>
+            <p>
+              US 2026 screening basis. Figures are not quotations, guarantees or
+              a substitute for site-specific dynamic, interconnection, fuel and
+              reliability studies.
+            </p>
+          </div>
+          <div class="side-card">
+            <p class="side-title">Related</p>
+            <a
+              class="side-link"
+              href="/insights/iso-rating-site-derate-gas-engines-turbines/"
+              >ISO ratings and site derate →</a
+            ><a
+              class="side-link"
+              href="/insights/data-center-captive-gas-power-engines/"
+              >Captive gas power for data centers →</a
+            >
+          </div>
+        </aside>
+      </div>
+    </main>
+    <footer class="footer">
+      <div class="shell footer-row">
+        <div>
+          <strong style="color: #fff">KIV-Technology d.o.o.</strong> · Belgrade,
+          Serbia ·
+          <a href="mailto:ceo@k4-technology.com">ceo@k4-technology.com</a>
+        </div>
+        <div class="footer-links">
+          <a href="/">Home</a
+          ><a href="/services/ai-power-project-advisory/">AI Power</a
+          ><a href="/insights/">Insights</a><a href="/resources/">Resources</a>
+        </div>
+        <div>K4 Technology · Evidence-Based Power Project Intelligence</div>
+      </div>
+    </footer>
+    <script src="/assets/intelligence.js?v=20261026-1" defer></script>
+  </body>
+</html>
