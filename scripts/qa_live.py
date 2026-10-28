@@ -48,6 +48,8 @@ ROUTES = [
     "/insights/gas-to-power-financial-model-technical-assumptions/",
     "/insights/south-africa-5gw-gas-to-power-determination-engines-vs-turbines/",
     "/insights/iso-rating-site-derate-gas-engines-turbines/",
+    "/insights/jenbacher-j320-feasibility-study-vs-303-days-operation/",
+    "/case-studies/j320-303-days-operating-data/",
     "/insights/gas-engine-commissioning-checklist/",
     "/insights/gas-engine-spare-parts-strategy/",
     "/insights/data-center-captive-gas-power-engines/",
@@ -68,6 +70,7 @@ LIVE_ASSETS = {
     "/assets/insights/south-africa-5gw-gas-to-power/cape-town-twelve-apostles-og.jpg": "image/jpeg",
     "/assets/insights/iso-rating-site-derate/gas-engine-cooling-site-conditions.jpg": "image/jpeg",
     "/assets/insights/iso-rating-site-derate/gas-engine-cooling-site-conditions-og.jpg": "image/jpeg",
+    "/assets/insights/j320-expectation-vs-reality/og_cover_1200x630.png": "image/png",
 }
 
 
