@@ -2,8 +2,9 @@
   const form=document.querySelector('[data-diagnostic-form]');
   const language=document.documentElement.lang||'en';
   const russian=language==='ru';
-  const servicePage=/^\/(?:ru\/)?services\/remote-gas-engine-diagnostics\/$/.test(location.pathname);
-  const casePage=/^\/(?:ru\/)?case-studies\/remote-gas-engine-controller-fault-diagnostics\/$/.test(location.pathname);
+  const french=language==='fr';
+  const servicePage=/^(?:\/(?:ru|fr))?\/services\/remote-gas-engine-diagnostics\/$/.test(location.pathname);
+  const casePage=/^(?:\/(?:ru|fr))?\/case-studies\/remote-gas-engine-controller-fault-diagnostics\/$/.test(location.pathname);
   const attributionKeys=['utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id','gclid','fbclid'];
   let attribution={};
   try{
@@ -11,7 +12,10 @@
     attributionKeys.forEach(key=>{const value=new URLSearchParams(location.search).get(key);if(value)attribution[key]=value;});
     if(Object.keys(attribution).length)sessionStorage.setItem('k4_remote_diagnostics_attribution',JSON.stringify(attribution));
   }catch(error){/* Restricted storage must not affect page navigation. */}
-  const funnelPaths=new Set(['/services/remote-gas-engine-diagnostics/','/ru/services/remote-gas-engine-diagnostics/','/case-studies/remote-gas-engine-controller-fault-diagnostics/','/ru/case-studies/remote-gas-engine-controller-fault-diagnostics/']);
+  const funnelPaths=new Set([
+    '/services/remote-gas-engine-diagnostics/','/ru/services/remote-gas-engine-diagnostics/','/fr/services/remote-gas-engine-diagnostics/',
+    '/case-studies/remote-gas-engine-controller-fault-diagnostics/','/ru/case-studies/remote-gas-engine-controller-fault-diagnostics/','/fr/case-studies/remote-gas-engine-controller-fault-diagnostics/'
+  ]);
   document.querySelectorAll('a[href]').forEach(link=>link.addEventListener('click',()=>{
     try{
       const url=new URL(link.href,location.href);
@@ -43,19 +47,23 @@
     if(!form.reportValidity())return;
     const data=new FormData(form);
     const params=new URLSearchParams(location.search);
-    const attribution=['utm_source','utm_medium','utm_campaign','utm_term','utm_content','gclid','fbclid'];
-    const lines=[russian?'K4 Remote Diagnostics — заявка на диагностику':'K4 Remote Diagnostics — Diagnostic Case','',russian?'Проверьте данные и отправьте это письмо, чтобы передать заявку.':'Please review and send this email to submit the case.'];
+    const attribution=['utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id','gclid','fbclid'];
+    const lines=[
+      russian?'K4 Remote Diagnostics — заявка на диагностику':french?'K4 — demande de diagnostic à distance':'K4 Remote Diagnostics — Diagnostic Case',
+      '',
+      russian?'Проверьте данные и отправьте это письмо, чтобы передать заявку.':french?'Veuillez vérifier les informations puis envoyer cet e-mail pour transmettre votre demande.':'Please review and send this email to submit the case.'
+    ];
     for(const [key,value] of data.entries()){
-      if(key==='Safety acknowledgement'||key==='Подтверждение безопасности')continue;
+      if(['Safety acknowledgement','Подтверждение безопасности','Confirmation de sécurité'].includes(key))continue;
       if(String(value).trim())lines.push(`${key}: ${String(value).trim()}`);
     }
     for(const key of attribution){
       const value=params.get(key);
       if(value)lines.push(`${key}: ${value}`);
     }
-    lines.push('',russian?'Подтверждение безопасности: удалённые рекомендации будут выполнять только квалифицированные и уполномоченные специалисты площадки с соблюдением правил безопасности.':'Safety acknowledgement: The requester confirmed that remote instructions must only be performed by appropriately qualified and authorised site personnel under site safety procedures.');
+    lines.push('',russian?'Подтверждение безопасности: удалённые рекомендации будут выполнять только квалифицированные и уполномоченные специалисты площадки с соблюдением правил безопасности.':french?'Confirmation de sécurité : les consignes à distance ne doivent être exécutées que par du personnel qualifié et autorisé, conformément aux procédures du site.':'Safety acknowledgement: The requester confirmed that remote instructions must only be performed by appropriately qualified and authorised site personnel under site safety procedures.');
     track('diagnostic_case_submit',{location:'diagnostic-form',form_destination:'email_draft'});
-    const subject=russian?'K4 — заявка на удалённую диагностику':'K4 Remote Diagnostics — Diagnostic Case';
+    const subject=russian?'K4 — заявка на удалённую диагностику':french?'K4 — demande de diagnostic à distance':'K4 Remote Diagnostics — Diagnostic Case';
     const href=`mailto:ceo@k4-technology.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`;
     const status=document.getElementById('diagnostic-status');
     status.classList.remove('rd-hidden');
