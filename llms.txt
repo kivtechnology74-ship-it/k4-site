@@ -28,7 +28,6 @@ Public scopes: Quick Technical Review — USD 450; Full Remote Technical Due Dil
 - Quick and full seller requests / inspection checklists: https://k4-technology.com/resources/
 - K4 Gas Engine Field Cases: https://k4-technology.com/case-studies/
 - Jenbacher J320 Maintenance Cost & Lifecycle: https://k4-technology.com/insights/jenbacher-j320-maintenance-cost-lifecycle/
-- Expectation vs. Reality: Three Jenbacher J320 Gensets After 303 Days — 21,008.5 engine-hours, 84.7% average output while running, an EBITDA bridge and an investor checklist: https://k4-technology.com/insights/jenbacher-j320-feasibility-study-vs-303-days-operation/
 - How to Verify Operating Hours on a Used Jenbacher — six independent checks covering calendar plausibility, component chronology, service records, energy, controller data and physical wear: https://k4-technology.com/insights/verify-used-jenbacher-operating-hours/
 - Jenbacher Borescope Inspection — what visible cylinder evidence can and cannot establish and how to organise a cylinder-by-cylinder review: https://k4-technology.com/insights/jenbacher-borescope-inspection/
 - Used Gas Engine Red Flags — twelve acceptance checks for identity, documentation, preservation, condition, completeness and payment hold points: https://k4-technology.com/insights/used-gas-engine-acceptance-red-flags/
@@ -51,3 +50,6 @@ Public scopes: Quick Technical Review — USD 450; Full Remote Technical Due Dil
 Evidence labels distinguish OEM DATA, VERIFIED PUBLIC DATA, FIELD EVIDENCE, K4 FIELD DATA, K4 CASE STUDY and K4 ANALYSIS. Missing or seller-reported evidence is not upgraded to fact.
 
 Contact: ceo@k4-technology.com · WhatsApp +998 97 057 59 96 · Telegram @k4_technology
+
+- K4 Remote Diagnostics — Independent remote fault isolation for gas-engine power plants, with structured evidence review and engineer validation: https://k4-technology.com/services/remote-gas-engine-diagnostics/
+- Multiple Controller Alarms, One Electrical Fault — An anonymized remote fault-isolation case involving Baudouin LECM, Altronic IGS-PTM, ComAp and a residual C105–C106 circuit issue: https://k4-technology.com/case-studies/remote-gas-engine-controller-fault-diagnostics/
