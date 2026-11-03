@@ -25,5 +25,14 @@
 /insights/gas-engine- /insights/gas-engine-availability-headline-percentage/ 301
 /insights/data-center-captive-gas-power- /insights/data-center-captive-gas-power-engines/ 301
 
+/services/remote-gas-engine-diagnostics /services/remote-gas-engine-diagnostics/ 301
+/services/remote-gas-engine-diagnostics/ /services/remote-gas-engine-diagnostics/index.html 200
+/ru/services/remote-gas-engine-diagnostics /ru/services/remote-gas-engine-diagnostics/ 301
+/ru/services/remote-gas-engine-diagnostics/ /ru/services/remote-gas-engine-diagnostics/index.html 200
+/case-studies/remote-gas-engine-controller-fault-diagnostics /case-studies/remote-gas-engine-controller-fault-diagnostics/ 301
+/case-studies/remote-gas-engine-controller-fault-diagnostics/ /case-studies/remote-gas-engine-controller-fault-diagnostics/index.html 200
+/ru/case-studies/remote-gas-engine-controller-fault-diagnostics /ru/case-studies/remote-gas-engine-controller-fault-diagnostics/ 301
+/ru/case-studies/remote-gas-engine-controller-fault-diagnostics/ /ru/case-studies/remote-gas-engine-controller-fault-diagnostics/index.html 200
+
 /insights/gas-engine-om-benchmark-2026/ /insights/ 302
 /ru/insights/gas-engine-om-benchmark-2026/ /ru/insights/ 302
