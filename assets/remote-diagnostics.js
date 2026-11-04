@@ -74,7 +74,8 @@
       const value=params.get(key);
       if(value)lines.push(`${key}: ${value}`);
     }
-    lines.push('',russian?'Подтверждение безопасности: удалённые рекомендации будут выполнять только квалифицированные и уполномоченные специалисты площадки с соблюдением правил безопасности.':french?'Confirmation de sécurité : les consignes à distance ne doivent être exécutées que par du personnel qualifié et autorisé, conformément aux procédures du site.':'Safety acknowledgement: The requester confirmed that remote instructions must only be performed by appropriately qualified and authorised site personnel under site safety procedures.');
+    const safetyField=russian?'Подтверждение безопасности':french?'Confirmation de sécurité':'Safety acknowledgement';
+    if(data.get(safetyField))lines.push('',russian?'Подтверждение безопасности: удалённые рекомендации будут выполнять только квалифицированные и уполномоченные специалисты площадки с соблюдением правил безопасности.':french?'Confirmation de sécurité : les consignes à distance ne doivent être exécutées que par du personnel qualifié et autorisé, conformément aux procédures du site.':'Safety acknowledgement: The requester confirmed that remote instructions must only be performed by appropriately qualified and authorised site personnel under site safety procedures.');
     track('diagnostic_case_email_draft',{location:'diagnostic-form',form_destination:'email_draft'});
     const subject=russian?'K4 — заявка на удалённую диагностику':french?'K4 — demande de diagnostic à distance':'K4 Remote Diagnostics — Diagnostic Case';
     const href=`mailto:ceo@k4-technology.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`;
