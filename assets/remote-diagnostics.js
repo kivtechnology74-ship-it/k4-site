@@ -33,6 +33,18 @@
   if(servicePage)track('remote_diagnostics_view',{service_slug:'remote-gas-engine-diagnostics'});
   if(casePage)track('diagnostic_case_study_view',{case_slug:'remote-gas-engine-controller-fault-diagnostics'});
   if(!form)return;
+  const contactField=form.querySelector('[data-contact-field]');
+  const validateContact=()=>{
+    if(!contactField)return true;
+    const value=contactField.value.trim();
+    const validEmail=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    const digits=value.replace(/\D/g,'').length;
+    const validPhone=/^\+?[\d\s().-]+$/.test(value)&&digits>=7&&digits<=15;
+    const message=russian?'Укажите действующий e-mail или номер телефона / WhatsApp.':french?'Indiquez une adresse e-mail ou un numéro de téléphone / WhatsApp valide.':'Enter a valid email address or phone / WhatsApp number.';
+    contactField.setCustomValidity(validEmail||validPhone?'':message);
+    return validEmail||validPhone;
+  };
+  if(contactField)contactField.addEventListener('input',validateContact);
   let started=false;
   const start=()=>{
     if(started)return;
@@ -44,6 +56,7 @@
   form.addEventListener('submit',event=>{
     event.preventDefault();
     start();
+    validateContact();
     if(!form.reportValidity())return;
     const data=new FormData(form);
     const params=new URLSearchParams(location.search);
@@ -62,7 +75,7 @@
       if(value)lines.push(`${key}: ${value}`);
     }
     lines.push('',russian?'Подтверждение безопасности: удалённые рекомендации будут выполнять только квалифицированные и уполномоченные специалисты площадки с соблюдением правил безопасности.':french?'Confirmation de sécurité : les consignes à distance ne doivent être exécutées que par du personnel qualifié et autorisé, conformément aux procédures du site.':'Safety acknowledgement: The requester confirmed that remote instructions must only be performed by appropriately qualified and authorised site personnel under site safety procedures.');
-    track('diagnostic_case_submit',{location:'diagnostic-form',form_destination:'email_draft'});
+    track('diagnostic_case_email_draft',{location:'diagnostic-form',form_destination:'email_draft'});
     const subject=russian?'K4 — заявка на удалённую диагностику':french?'K4 — demande de diagnostic à distance':'K4 Remote Diagnostics — Diagnostic Case';
     const href=`mailto:ceo@k4-technology.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`;
     const status=document.getElementById('diagnostic-status');
