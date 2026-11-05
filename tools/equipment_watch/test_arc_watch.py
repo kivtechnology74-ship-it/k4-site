@@ -22,6 +22,8 @@ DETAIL = """
 <tr><td>Manufacturer</td><td>Jenbacher</td></tr>
 <tr><td>Model</td><td>J416GS</td></tr>
 <tr><td>Year</td><td>2012</td></tr>
+<tr><td>Operating Hours</td><td>17,000</td></tr>
+<tr><td>Condition</td><td>Used</td></tr>
 <tr><td>Stock Number</td><td>ARC1051</td></tr>
 <tr><td>Quantity Available</td><td>Two matching packages</td></tr>
 <tr><td>KW</td><td>1127</td></tr>
@@ -54,8 +56,10 @@ class ArcMonitorTests(unittest.TestCase):
         self.assertEqual(result["quantity"], 2)
         self.assertEqual(result["power_kw"], 1127)
         self.assertEqual(result["frequency_hz"], 60)
+        self.assertEqual(result["operating_hours"], 17000)
+        self.assertEqual(result["condition"], "Used")
         self.assertEqual(result["verification"], "WEB / UNVERIFIED")
-        self.assertEqual(len(row_for(result, "2026-11-05", "2026-11-06")), 22)
+        self.assertEqual(len(row_for(result, "2026-11-05", "2026-11-06")), 24)
 
     def test_pending_sale_is_not_available(self):
         result = parse_detail("8919256", "https://www.arcpowersystems.com/listings/8919256-x", "CAT G3520", PENDING)
