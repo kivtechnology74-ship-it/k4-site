@@ -1,0 +1,44 @@
+name: K4 Equipment Watch — ARC pilot
+
+on:
+  pull_request:
+    paths:
+      - 'tools/equipment_watch/**'
+      - '.github/workflows/k4-arc-equipment-watch.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */12 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: k4-arc-equipment-watch
+  cancel-in-progress: false
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      K4_EQUIPMENT_SHEET_ID: ${{ vars.K4_EQUIPMENT_SHEET_ID }}
+      GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.K4_EQUIPMENT_SERVICE_ACCOUNT_JSON }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Dependencies
+        run: python -m pip install -r tools/equipment_watch/requirements.txt
+      - name: Offline parser regression tests
+        run: python -m unittest discover -s tools/equipment_watch -p 'test_*.py' -v
+      - name: Scan ARC and write to private Sheet when configured
+        if: github.event_name != 'pull_request'
+        run: |
+          if [ -n "$K4_EQUIPMENT_SHEET_ID" ] && [ -n "$GOOGLE_SERVICE_ACCOUNT_JSON" ]; then
+            python tools/equipment_watch/arc_watch.py --write
+          else
+            echo "::warning::Google Sheets secret/variable not configured. Dry-run only; no Sheets were modified."
+            python tools/equipment_watch/arc_watch.py
+          fi
