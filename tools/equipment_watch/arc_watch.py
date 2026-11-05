@@ -321,7 +321,7 @@ def sync_sheets(records: list[dict], sheet_id: str, credentials_json: str) -> di
                 "range": f"'{RAW_TAB}'!A{row_number}:X{row_number}",
                 "majorDimension": "ROWS", "values": [new_row],
             })
-            if fingerprint_before != record["fingerprint"]:
+            if fingerprint_before and fingerprint_before != record["fingerprint"]:
                 changed = [RAW_HEADERS[j] for j in (2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17)
                            if (previous[j] if len(previous) > j else "") != (new_row[j] if new_row[j] is not None else "")]
                 histories.append([observed, SOURCE, record["listing_id"], "CHANGED", status_before,
