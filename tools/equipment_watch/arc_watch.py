@@ -28,7 +28,7 @@ SOURCES_TAB = "Source Registry"
 
 RAW_HEADERS = [
     "Source", "Listing ID", "Stock ID", "Title", "Manufacturer", "Model",
-    "Quantity", "Power kW", "Year", "Voltage", "Frequency Hz", "Fuel",
+    "Quantity", "Power kW", "Year", "Operating Hours", "Condition", "Voltage", "Frequency Hz", "Fuel",
     "Price", "Currency", "Location", "Seller Status", "Verification",
     "Source URL", "First Seen UTC", "Last Seen UTC", "Fingerprint", "Notes",
 ]
@@ -40,7 +40,7 @@ SOURCES_HEADERS = [
     "Source", "Catalog URL", "Frequency", "Status", "Last Successful Check UTC", "Notes",
 ]
 MATERIAL_KEYS = [
-    "stock_id", "manufacturer", "model", "quantity", "power_kw", "year", "voltage",
+    "stock_id", "manufacturer", "model", "quantity", "power_kw", "year", "operating_hours", "condition", "voltage",
     "frequency_hz", "fuel", "price", "currency", "location", "seller_status",
 ]
 NUMBER_WORDS = {
@@ -192,7 +192,8 @@ def parse_detail(listing_id: str, url: str, catalog_title: str, html: str) -> di
     result = {
         "source": SOURCE, "listing_id": listing_id, "stock_id": stock, "title": title,
         "manufacturer": manufacturer, "model": model, "quantity": qty, "power_kw": power,
-        "year": year, "voltage": voltage, "frequency_hz": frequency,
+        "year": year, "operating_hours": first_number(get_spec(specs, "operating hours", "running hours", "engine hours", "hours")),
+        "condition": get_spec(specs, "condition detail", "condition"), "voltage": voltage, "frequency_hz": frequency,
         "fuel": get_spec(specs, "fuel type", "fuel") or "Natural Gas (per listing)",
         "price": price, "currency": "USD" if price is not None else "",
         "location": location, "seller_status": status,
@@ -236,14 +237,15 @@ def crawl(max_details: int, delay: float) -> list[dict]:
 
 
 def row_for(record: dict, first_seen: str, seen: str) -> list:
-    return [
+    row = [
         record["source"], record["listing_id"], record["stock_id"], record["title"],
         record["manufacturer"], record["model"], record["quantity"], record["power_kw"],
-        record["year"], record["voltage"], record["frequency_hz"], record["fuel"],
+        record["year"], record["operating_hours"], record["condition"], record["voltage"], record["frequency_hz"], record["fuel"],
         record["price"], record["currency"], record["location"], record["seller_status"],
         record["verification"], record["url"], first_seen, seen,
         record["fingerprint"], record["notes"],
     ]
+    return [v if v is not None else "" for v in row]
 
 
 def send_json(session, method: str, url: str, body: dict | None = None) -> dict:
@@ -285,9 +287,9 @@ def sync_sheets(records: list[dict], sheet_id: str, credentials_json: str) -> di
         url = api + "/values/" + requests.utils.quote(f"'{tab}'!A:Z", safe="!:'") + ":append?valueInputOption=RAW&insertDataOption=INSERT_ROWS"
         send_json(session, "POST", url, {"majorDimension": "ROWS", "values": values})
 
-    raw = get_values(RAW_TAB, "A1:V5000")
+    raw = get_values(RAW_TAB, "A1:X5000")
     if not raw:
-        update_values(RAW_TAB, "A1:V1", [RAW_HEADERS])
+        update_values(RAW_TAB, "A1:X1", [RAW_HEADERS])
         raw = [RAW_HEADERS]
     if raw[0] != RAW_HEADERS:
         raise RuntimeError("Raw Listings header does not match expected schema. Refusing to overwrite.")
@@ -311,16 +313,16 @@ def sync_sheets(records: list[dict], sheet_id: str, credentials_json: str) -> di
         old = by_key.get(key)
         if old:
             row_number, previous = old
-            first_seen = previous[18] if len(previous) > 18 else observed
-            status_before = previous[15] if len(previous) > 15 else ""
-            fingerprint_before = previous[20] if len(previous) > 20 else ""
+            first_seen = previous[20] if len(previous) > 20 else observed
+            status_before = previous[17] if len(previous) > 17 else ""
+            fingerprint_before = previous[22] if len(previous) > 22 else ""
             new_row = row_for(record, first_seen, observed)
             updates.append({
-                "range": f"'{RAW_TAB}'!A{row_number}:V{row_number}",
+                "range": f"'{RAW_TAB}'!A{row_number}:X{row_number}",
                 "majorDimension": "ROWS", "values": [new_row],
             })
             if fingerprint_before != record["fingerprint"]:
-                changed = [RAW_HEADERS[j] for j in (2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
+                changed = [RAW_HEADERS[j] for j in (2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17)
                            if (previous[j] if len(previous) > j else "") != (new_row[j] if new_row[j] is not None else "")]
                 histories.append([observed, SOURCE, record["listing_id"], "CHANGED", status_before,
                                   record["seller_status"], ", ".join(changed), record["url"]])
