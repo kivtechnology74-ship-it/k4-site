@@ -119,6 +119,7 @@
   form.addEventListener('submit',async event=>{
     event.preventDefault();
     start();
+    status?.classList.add('rd-hidden');
     validateContact();
     if(!form.reportValidity())return;
     const data=new FormData(form);
@@ -144,7 +145,6 @@
       website:trap.value
     };
     if(submitButton){submitButton.disabled=true;submitButton.textContent=copy.sending;}
-    status?.classList.add('rd-hidden');
     track('diagnostic_case_submit_attempt',{location:'diagnostic-form',form_destination:'server'});
     try{
       const response=await fetch(apiEndpoint,{
