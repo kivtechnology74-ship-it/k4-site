@@ -41,9 +41,7 @@
   const status=document.getElementById('diagnostic-status');
   const statusTitle=status?.querySelector('h3');
   const statusMessage=status?.querySelector('p');
-  const apiEndpoint=location.hostname.endsWith('.pages.dev')
-    ?'https://k4-remote-diagnostics.kiv-technology74.workers.dev/submit'
-    :'/api/remote-diagnostics';
+  const apiEndpoint='/api/remote-diagnostics';
   const copy=russian?{
     invalidContact:'Укажите действующий e-mail или номер телефона / WhatsApp.',
     sending:'Отправляем…',
