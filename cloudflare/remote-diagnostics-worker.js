@@ -127,6 +127,8 @@ async function handleSubmission(request, env) {
   }
   const length = Number(request.headers.get("content-length") || 0);
   if (length > 30000) return json({ success: false, error: "Request is too large." }, 413, origin);
+  const rateLimit = await env.SUBMIT_RATE_LIMIT.limit({ key: request.headers.get("cf-connecting-ip") || "unknown" });
+  if (!rateLimit.success) return json({ success: false, error: "Too many requests. Please try again later." }, 429, origin);
 
   let input;
   try {
