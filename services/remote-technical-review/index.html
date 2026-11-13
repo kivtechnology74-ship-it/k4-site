@@ -187,19 +187,20 @@
           </div>
         </div>
 
-        <form class="card review-form section-anchor" id="review-form" data-lead-form data-location="remote-review-form" data-form-title="K4 remote technical review request" data-form-subject="Remote gas engine technical review request">
+        <form class="card review-form section-anchor" id="review-form" data-lead-form data-server-lead-form data-form-type="technical_review" data-location="remote-review-form" data-form-title="K4 remote technical review request" data-form-subject="Remote gas engine technical review request">
           <h3>Review request</h3>
           <div class="form-grid">
-            <div class="field"><label for="review-name">Name</label><input id="review-name" name="Name" autocomplete="name" required></div>
-            <div class="field"><label for="review-company">Company</label><input id="review-company" name="Company" autocomplete="organization" required></div>
-            <div class="field"><label for="review-email">Business email</label><input id="review-email" name="Business email" type="email" autocomplete="email" required></div>
-            <div class="field"><label for="review-country">Country</label><input id="review-country" name="Country" autocomplete="country-name" required></div>
-            <div class="field full"><label for="review-type">Review type</label><select id="review-type" name="Review type" data-review-type-field required><option value="not_sure">Not sure</option><option value="quick">Quick Review — $450</option><option value="full">Full Remote Review — $950</option><option value="financial_model">Financial Model Review</option></select></div>
+            <div class="field full"><label for="review-contact">Phone / WhatsApp or email</label><input id="review-contact" name="Contact" data-contact-field type="text" autocomplete="off" maxlength="254" required><p class="fine">A phone number is enough to send your request. All review details are optional.</p></div>
+                        <div class="field"><label for="review-name">Name</label><input id="review-name" name="Name" autocomplete="name"></div>
+            <div class="field"><label for="review-company">Company</label><input id="review-company" name="Company" autocomplete="organization"></div>
+            <div class="field"><label for="review-email">Business email</label><input id="review-email" name="Business email" type="email" autocomplete="email"></div>
+            <div class="field"><label for="review-country">Country</label><input id="review-country" name="Country" autocomplete="country-name"></div>
+            <div class="field full"><label for="review-type">Review type</label><select id="review-type" name="Review type" data-review-type-field><option value="not_sure">Not sure</option><option value="quick">Quick Review — $450</option><option value="full">Full Remote Review — $950</option><option value="financial_model">Financial Model Review</option></select></div>
             <div class="field"><label for="review-model">Equipment model <span aria-hidden="true">(optional)</span></label><input id="review-model" name="Equipment model" autocomplete="off"></div>
             <div class="field full"><label for="review-description">Equipment / project description <span aria-hidden="true">(optional)</span></label><textarea id="review-description" name="Equipment / project description"></textarea></div>
           </div>
           <div class="actions"><button class="button dark" type="submit">Request a Review</button></div>
-          <p class="fine">Submitting the form opens a prepared email to <a href="mailto:ceo@k4-technology.com">ceo@k4-technology.com</a>. After submitting the request, you can send available documents, photos and operating data by email. No engagement is created until scope and commercial terms are confirmed.</p>
+          <p class="fine">Submitting sends your request securely to K4 and stores it with a reference number. You can send documents, photos and operating data by email after submitting. No engagement is created until scope and commercial terms are confirmed.</p>
         </form>
 
         <div class="limitation-box">
@@ -219,5 +220,6 @@
     </div>
   </footer>
   <script src="/assets/intelligence.js?v=20261026-1" defer></script>
+  <script src="/assets/lead-intake.js?v=20261113" defer></script>
 </body>
 </html>
