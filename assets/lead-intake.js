@@ -45,10 +45,11 @@
     const originalLabel=submit?.textContent||submit?.value||'';
     const status=findStatus(form);
     const show=(title,body,isError=false)=>{
-      const heading=status.querySelector('h3');
-      const paragraph=status.querySelector('p');
-      if(heading)heading.textContent=title;else status.textContent='';
-      if(paragraph)paragraph.textContent=body;else status.append(document.createTextNode(`${title}. ${body}`));
+      const heading=document.createElement('h3');
+      heading.textContent=title;
+      const paragraph=document.createElement('p');
+      paragraph.textContent=body;
+      status.replaceChildren(heading,paragraph);
       status.classList.remove('rd-hidden');
       status.dataset.state=isError?'error':'success';
       status.focus();
