@@ -257,7 +257,7 @@
   }));
 
   const form=document.querySelector('[data-lead-form]');
-  if(form){
+  if(form&&!form.hasAttribute('data-server-lead-form')){
     let started=false;
     const reviewLabels={
       quick:'Quick Review — USD 450',
