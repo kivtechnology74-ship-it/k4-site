@@ -835,6 +835,7 @@
 
   .projects-poster{position:relative;display:block;width:100%;height:100%;overflow:hidden;color:#fff;text-decoration:none}.projects-poster img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .35s ease,filter .35s ease}.projects-poster::after{position:absolute;inset:0;background:linear-gradient(180deg,transparent 48%,rgba(2,8,16,.7));content:""}.projects-play{position:absolute;z-index:1;top:50%;left:50%;display:grid;width:72px;height:72px;place-items:center;border:1px solid rgba(255,255,255,.5);border-radius:50%;background:rgba(31,111,235,.94);box-shadow:0 14px 44px rgba(0,0,0,.35);font-size:25px;line-height:1;transform:translate(-50%,-50%);transition:transform .2s ease,background .2s ease}.projects-watch{position:absolute;z-index:1;right:18px;bottom:16px;padding:9px 13px;border:1px solid rgba(255,255,255,.3);border-radius:100px;background:rgba(3,11,21,.75);backdrop-filter:blur(8px);font-size:12px;font-weight:700;letter-spacing:.02em}.projects-poster:hover img,.projects-poster:focus-visible img{transform:scale(1.018);filter:brightness(.9)}.projects-poster:hover .projects-play,.projects-poster:focus-visible .projects-play{background:#2f7df4;transform:translate(-50%,-50%) scale(1.07)}@media(max-width:640px){.projects-play{width:58px;height:58px;font-size:20px}.projects-watch{right:12px;bottom:10px;padding:7px 10px;font-size:10px}}
   </style>
+  <link rel="stylesheet" href="/assets/lead-intake.css?v=20261116-1">
 </head>
 
 <body>
@@ -1206,7 +1207,20 @@
         <div class="eyebrow">Start with the decision</div>
         <h2 class="contact-heading" id="contact-title">Show us the project before you commit to it.</h2>
         <a class="contact-email" href="mailto:ceo@k4-technology.com?subject=K4-Technology%20initial%20project%20assessment" data-event="lead_contact_click" data-channel="email" data-location="homepage-contact" data-language="en">ceo@k4-technology.com</a>
-        <div class="contact-messengers" aria-label="Messaging contacts"><a class="contact-chip" href="https://wa.me/998970575996?text=Hello%20K4-Technology.%20I%20would%20like%20to%20discuss%20a%20gas-engine%20project." target="_blank" rel="noopener noreferrer" data-event="lead_contact_click" data-channel="whatsapp" data-location="homepage-contact" data-language="en">WhatsApp</a><a class="contact-chip" href="https://t.me/k4_technology" target="_blank" rel="noopener noreferrer" data-event="lead_contact_click" data-channel="telegram" data-location="homepage-contact" data-language="en">Telegram</a><span class="contact-message-note">+998 97 057 59 96 · messages only</span></div>
+        <form class="contact-lead-form" id="homepage-project-inquiry" data-lead-form data-server-lead-form data-form-type="power_project_inquiry" data-location="homepage-project-contact" data-form-title="Project inquiry" data-form-subject="Project inquiry" method="post" action="/api/remote-diagnostics">
+          <h3>Project inquiry</h3>
+          <div class="contact-lead-form-grid">
+            <div class="field full"><label for="homepage-project-inquiry-contact">Phone number <span>(required)</span></label><input id="homepage-project-inquiry-contact" name="Contact" data-contact-field type="tel" autocomplete="tel" maxlength="254" required><p class="contact-lead-hint">A phone number is enough to send your request. Project details are optional.</p></div>
+            <div class="field"><label for="homepage-project-inquiry-name">Name (optional)</label><input id="homepage-project-inquiry-name" name="Name" autocomplete="name"></div>
+            <div class="field"><label for="homepage-project-inquiry-company">Company (optional)</label><input id="homepage-project-inquiry-company" name="Company" autocomplete="organization"></div>
+            <div class="field"><label for="homepage-project-inquiry-country">Country (optional)</label><input id="homepage-project-inquiry-country" name="Country" autocomplete="country-name"></div>
+            <div class="field"><label for="homepage-project-inquiry-capacity">Target capacity (optional)</label><input id="homepage-project-inquiry-capacity" name="Target capacity" autocomplete="off"></div>
+            <div class="field full"><label for="homepage-project-inquiry-description">Project details (optional)</label><textarea id="homepage-project-inquiry-description" name="Project description" rows="4"></textarea></div>
+          </div>
+          <div class="actions"><button class="contact-lead-submit" type="submit">Send project inquiry</button></div>
+          <p class="contact-lead-note">Submitting sends your request securely to K4 and stores it with a reference number. K4 will follow up by email.</p>
+          <p class="contact-lead-fallback">Prefer email? Write to K4 directly. <a href="mailto:ceo@k4-technology.com?subject=Project%20inquiry">ceo@k4-technology.com</a></p>
+        </form>
         <p class="contact-help">Send a gas analysis, site and load profile, supplier quotation or asset documents. We will identify the decision to make, the missing evidence and the smallest useful scope.</p>
       </div>
     </section>
@@ -1257,5 +1271,6 @@
     })();
   </script>
   <script src="/assets/intelligence.js?v=20261026-1" defer></script>
+  <script src="/assets/lead-intake.js?v=20261116-2" defer></script>
 </body>
 </html>
