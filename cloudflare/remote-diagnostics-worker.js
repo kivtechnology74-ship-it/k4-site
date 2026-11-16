@@ -65,8 +65,11 @@ function cleanAttribution(value) {
 }
 
 function safeLanguage(value) {
-  const language = cleanText(value, 10).toLowerCase();
-  return ["en", "ru", "fr", "zh", "es", "pt-br"].includes(language) ? language : "en";
+  const language = cleanText(value, 20).toLowerCase().replace(/_/g, "-");
+  if (language.startsWith("zh")) return "zh";
+  if (language.startsWith("pt")) return "pt-br";
+  const baseLanguage = language.split("-")[0];
+  return ["en", "ru", "fr", "es"].includes(baseLanguage) ? baseLanguage : "en";
 }
 
 function reference(id) {
