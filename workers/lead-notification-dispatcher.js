@@ -84,24 +84,56 @@ async function markDlqFailure(message, env) {
   message.ack();
 }
 
-async function dispatch(batch) {
-  for (const message of batch.messages) {
-    const { callbackUrl, leadId, dispatchToken } = message.body || {};
-    if (!isAllowedCallback(callbackUrl) || !/^[a-zA-Z0-9_-]{16,80}$/.test(String(leadId || '')) || String(dispatchToken || '').length < 32) {
-      message.ack();
-      continue;
-    }
-    try {
-      const response = await fetch(callbackUrl, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ leadId, dispatchToken }),
-      });
-      if (!response.ok) message.retry({ delaySeconds: RETRY_DELAY_SECONDS });
-      else message.ack();
-    } catch {
-      message.retry({ delaySeconds: RETRY_DELAY_SECONDS });
-    }
+async function dispatchLead(message, env) {
+  const { callbackUrl, leadId, dispatchToken } = message.body || {};
+  if (!isAllowedCallback(callbackUrl) || !/^[a-zA-Z0-9_-]{16,80}$/.test(String(leadId || '')) || String(dispatchToken || '').length < 32) {
+    message.ack();
+    return;
+  }
+  const db = databaseFor(callbackUrl, env);
+  if (!db || !env.EMAIL_DELIVERY_WORKER || !env.LEAD_DISPATCH_SECRET) {
+    message.retry({ delaySeconds: RETRY_DELAY_SECONDS });
+    return;
+  }
+  const job = await db.prepare('SELECT status FROM lead_notification_jobs WHERE lead_id = ? AND dispatch_token = ?').bind(leadId, dispatchToken).first();
+  if (!job || job.status === 'failed' || job.status === 'sent') { message.ack(); return; }
+  const now = new Date().toISOString();
+  const staleBefore = new Date(Date.now() - 5 * 60_000).toISOString();
+  const claim = await db.prepare(`UPDATE lead_notification_jobs
+    SET status = 'processing', attempts = attempts + 1, updated_at = ?
+    WHERE lead_id = ? AND dispatch_token = ?
+      AND (status = 'pending' OR (status = 'processing' AND updated_at < ?))`)
+    .bind(now, leadId, dispatchToken, staleBefore).run();
+  if (!claim.meta?.changes) { message.retry({ delaySeconds: RETRY_DELAY_SECONDS }); return; }
+  const lead = await db.prepare('SELECT * FROM site_leads WHERE id = ?').bind(leadId).first();
+  if (!lead) {
+    await db.prepare("UPDATE lead_notification_jobs SET status = 'failed', last_error = 'Lead record is missing.', failure_reason = 'Lead record is missing.', updated_at = ? WHERE lead_id = ?").bind(now, leadId).run();
+    message.ack();
+    return;
+  }
+  if (lead.email_status === 'sent') {
+    await db.prepare("UPDATE lead_notification_jobs SET status = 'sent', last_error = NULL, updated_at = ? WHERE lead_id = ?").bind(now, leadId).run();
+    message.ack();
+    return;
+  }
+  try {
+    const response = await env.EMAIL_DELIVERY_WORKER.fetch(new Request('https://k4-internal/_internal/k4-lead-email', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-k4-dispatch-secret': env.LEAD_DISPATCH_SECRET },
+      body: JSON.stringify({ lead })
+    }));
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || result.ok !== true) throw new Error('Email relay delivery failed.');
+    const sentAt = new Date().toISOString();
+    await db.prepare("UPDATE site_leads SET email_status = 'sent', email_attempts = email_attempts + 1, email_error = NULL, updated_at = ? WHERE id = ?").bind(sentAt, leadId).run();
+    await db.prepare("UPDATE lead_notification_jobs SET status = 'sent', last_error = NULL, failure_reason = NULL, updated_at = ? WHERE lead_id = ?").bind(sentAt, leadId).run();
+    message.ack();
+  } catch {
+    const retryAt = new Date(Date.now() + RETRY_DELAY_SECONDS * 1000).toISOString();
+    const reason = 'Email relay delivery failed; Queue will retry.';
+    await db.prepare("UPDATE site_leads SET email_status = 'pending', email_attempts = email_attempts + 1, email_error = ?, next_attempt_at = ?, updated_at = ? WHERE id = ?").bind(reason, retryAt, new Date().toISOString(), leadId).run();
+    await db.prepare("UPDATE lead_notification_jobs SET status = 'pending', last_error = ?, updated_at = ? WHERE lead_id = ?").bind(reason, new Date().toISOString(), leadId).run();
+    message.retry({ delaySeconds: RETRY_DELAY_SECONDS });
   }
 }
 
@@ -111,7 +143,7 @@ export default {
       for (const message of batch.messages) await markDlqFailure(message, env);
       return;
     }
-    await dispatch(batch);
+    for (const message of batch.messages) await dispatchLead(message, env);
   },
   async scheduled(_event, env, ctx) {
     ctx.waitUntil(Promise.all([
