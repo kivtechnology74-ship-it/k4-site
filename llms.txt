@@ -56,3 +56,4 @@ Contact: ceo@k4-technology.com · WhatsApp +998 97 057 59 96 · Telegram @k4_tec
 
 - Diagnostic à distance K4 (français) — localisation de pannes de moteurs à gaz à partir de preuves et mesures de terrain : https://k4-technology.com/fr/services/remote-gas-engine-diagnostics/
 - Étude de cas en français — plusieurs alarmes de contrôleurs, un défaut électrique, avec la limite résiduelle C105–C106 explicitée : https://k4-technology.com/fr/case-studies/remote-gas-engine-controller-fault-diagnostics/
+- K4 Power Decisions — Can I Rent a Gas Generator for Six Months? A project-specific framework for comparing gas and diesel rental by delivered cost per kWh, including fuel route, site readiness, operating hours and rental term: https://k4-technology.com/insights/six-month-gas-generator-rental/
