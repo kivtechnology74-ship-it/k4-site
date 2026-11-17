@@ -32,7 +32,7 @@ const boot=(href,storedInternal=false,{elements=[],form=null}={})=>{
       return null;
     },
     querySelectorAll(selector){return selector==='a[href], [data-event]'?elements:[];},
-    createElement(){return {dataset:{}};},
+    createElement(){return {dataset:{},style:{},setAttribute(){},append(){},addEventListener(){},classList:{add(){},remove(){}},textContent:'',hidden:false};},
     addEventListener(){}
   };
   const location={
@@ -51,6 +51,10 @@ const boot=(href,storedInternal=false,{elements=[],form=null}={})=>{
     },
     requestAnimationFrame(){},
     CustomEvent:class{constructor(type,options){this.type=type;this.detail=options?.detail;}},
+    sessionStorage:{getItem:key=>storage.get(key)||null,setItem:(key,value)=>storage.set(key,value),removeItem:key=>storage.delete(key)},
+    crypto:{randomUUID:()=> '01234567-89ab-cdef-0123-456789abcdef'},
+    fetch:async()=>({ok:true,json:async()=>({success:true,stored:true,reference:'test-reference'})}),
+    Intl,
     FormData:class{entries(){return [];}}
   };
   window.window=window;
@@ -144,20 +148,23 @@ assert.ok(validateCampaignUrl('https://k4-technology.com/?utm_medium=email&utm_c
   const form={
     dataset:{location:'remote-review-form'},
     addEventListener(type,listener){listeners[type]=listener;},
-    querySelector(){return null;}
+    querySelector(){return null;},
+    append(){},
+    reset(){},
+    reportValidity(){return true;}
   };
   const result=boot('https://k4-technology.com/services/remote-technical-review/',false,{form});
   listeners.input();
   listeners.input();
-  listeners.submit({preventDefault(){}});
+  await listeners.submit({preventDefault(){}});
   const events=result.dataLayer.filter(args=>args[0]==='event').map(args=>args[1]);
-  assert.deepEqual(events,['lead_form_start','lead_form_mailto_open']);
+  assert.deepEqual(events,['lead_form_start','lead']);
 }
 
 assert.equal(source.includes("track('equipment_form_submit'"),false);
 assert.equal(source.includes("track('lead_form_submit_success'"),false);
 assert.equal(source.includes("track('generate_lead'"),false);
-assert.match(source,/track\('lead_form_mailto_open'/);
+assert.match(source,/track\('lead'/);
 assert.match(source,/const trackedThisGesture=new Set\(\)/);
 
 console.log('Analytics contract tests passed.');

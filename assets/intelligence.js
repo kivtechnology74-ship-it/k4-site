@@ -257,7 +257,7 @@
   }));
 
   const form=document.querySelector('[data-lead-form]');
-  if(form&&!form.hasAttribute('data-server-lead-form')){
+  if(form){
     let started=false;
     const reviewLabels={
       quick:'Quick Review — USD 450',
@@ -278,22 +278,74 @@
         track('lead_form_start',formDetails());
       }
     });
-    form.addEventListener('submit',event=>{
+    const status=document.createElement('p');
+    status.className='contact-lead-note';
+    status.setAttribute('role','status');
+    status.setAttribute('aria-live','polite');
+    status.hidden=true;
+    form.append(status);
+    const trap=document.createElement('input');
+    trap.type='text';
+    trap.name='website';
+    trap.tabIndex=-1;
+    trap.autocomplete='off';
+    trap.setAttribute('aria-hidden','true');
+    trap.style.cssText='position:absolute;left:-10000px;width:1px;height:1px;';
+    form.append(trap);
+    const idKey=`k4-lead-request:${location.pathname}`;
+    const fingerprintKey=`${idKey}:payload`;
+    const requestId=fingerprint=>{
+      try{
+        let id=sessionStorage.getItem(idKey)||'';
+        const previous=sessionStorage.getItem(fingerprintKey)||'';
+        if(!id||previous!==fingerprint){id=crypto.randomUUID().replaceAll('-','');sessionStorage.setItem(idKey,id);sessionStorage.setItem(fingerprintKey,fingerprint);}
+        return id;
+      }catch{return crypto.randomUUID().replaceAll('-','');}
+    };
+    form.addEventListener('submit',async event=>{
       event.preventDefault();
+      if(!form.reportValidity())return;
       const data=new FormData(form);
-      const lines=[
-        form.dataset.formTitle||'K4 gas engine review request',
-        '',
-        ...Array.from(data.entries())
-          .filter(([key,value])=>key!=='files'&&String(value).trim())
-          .map(([key,value])=>`${key}: ${key==='Review type'?(reviewLabels[value]||value):value}`),
-        '',
-        'Submitting this information does not create an engagement.'
-      ];
+      const fields={};
+      for(const [key,value] of data.entries()){
+        if(key==='website')continue;
+        if(fields[key])fields[key]=Array.isArray(fields[key])?[...fields[key],String(value)]:[fields[key],String(value)];
+        else fields[key]=String(value);
+      }
       const details=formDetails();
-      track('lead_form_mailto_open',{...details,channel:'email',contact_type:'email'});
-      const subject=form.dataset.formSubject||'Gas engine technical review';
-      location.href=`mailto:ceo@k4-technology.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`;
+      const formType=form.dataset.formType||'remote_technical_review';
+      const language=document.documentElement.lang||'en';
+      const sourceUrl=location.href;
+      const attribution=Object.fromEntries([...new URLSearchParams(location.search)].filter(([key])=>['utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id','gclid','fbclid'].includes(key)));
+      const fingerprint=JSON.stringify({fields,formType,language,sourceUrl});
+      const button=form.querySelector('[type="submit"]');
+      if(button)button.disabled=true;
+      status.hidden=false;
+      status.textContent='Sending your request securely…';
+      try{
+        const response=await fetch('/api/leads',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({
+          requestId:requestId(fingerprint),formType,language,fields,sourceUrl,timezone:Intl.DateTimeFormat().resolvedOptions().timeZone,attribution
+        })});
+        const result=await response.json().catch(()=>({}));
+        if(!response.ok||!result.success||result.stored!==true)throw new Error('storage');
+        status.textContent=`Request received. Reference: ${result.reference}.`;
+        try{
+          const eventKey=`k4-lead-event:${result.reference}`;
+          if(!sessionStorage.getItem(eventKey)){
+            track('lead',{...details,form_type:formType});
+            sessionStorage.setItem(eventKey,'1');
+          }
+        }catch{track('lead',{...details,form_type:formType});}
+        try{sessionStorage.removeItem(idKey);sessionStorage.removeItem(fingerprintKey);}catch{}
+        form.reset();
+      }catch(error){
+        const lang=(document.documentElement.lang||'en').toLowerCase();
+        status.textContent=lang.startsWith('ru')
+          ?'Не удалось сохранить заявку. Повторите попытку или напишите на ceo@k4-technology.com.'
+          :lang.startsWith('fr')
+            ?'Impossible d’enregistrer la demande. Réessayez ou écrivez à ceo@k4-technology.com.'
+            :'We could not save your request. Please try again or email ceo@k4-technology.com.';
+      }finally{if(button)button.disabled=false;}
     });
   }
 

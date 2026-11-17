@@ -39,7 +39,7 @@ ALLOWED_ANALYTICS_EVENTS = {
     "engaged_60s",
     "file_download",
     "lead_contact_click",
-    "lead_form_mailto_open",
+    "lead",
     "lead_form_start",
     "lifecycle_reliability_click",
     "not_found_cta_click",
@@ -389,7 +389,7 @@ def main() -> int:
         "file_url",
         "link_url",
         "lead_form_start",
-        "lead_form_mailto_open",
+        "lead",
         "lead_contact_click",
         "engaged_30s",
         "engaged_60s",
@@ -406,7 +406,7 @@ def main() -> int:
     for event_name in re.findall(r"track(?:Once)?\(\s*['\"]([^'\"]+)['\"]", intelligence):
         if event_name not in ALLOWED_ANALYTICS_EVENTS:
             errors.append(f"unknown analytics event in intelligence.js: {event_name}")
-    for false_lead_event in ["equipment_form_submit", "lead_form_submit_success", "generate_lead"]:
+    for false_lead_event in ["equipment_form_submit", "lead_form_submit_success", "generate_lead", "lead_form_mailto_open"]:
         if false_lead_event in intelligence:
             errors.append(f"mailto flow must not claim successful lead event: {false_lead_event}")
     for file in html_files:
