@@ -20,8 +20,8 @@ Audit scope: repository snapshot `2d5dc09` and the connected Cloudflare Pages/Wo
 
 - Telegram delivery is not configured. Bot token and chat ID must be added as protected Cloudflare secrets before Telegram can be claimed as a working channel.
 - Preview email delivery and retry have not been connected to an isolated preview worker. The existing email relay secret is unavailable for reading/copying, and production credentials must not be attached to preview or exercised by a test request.
-- A preview test still needs to verify a marked request is stored once after a repeated submission, and to verify notification delivery. The storage test must use only the preview binding. Production deploy and merge remain out of scope.
+- Cloudflare preview commit `7306e82` built successfully with Pages Functions enabled. A marked test request returned a reference and was confirmed as one row in preview D1. The row is intentionally retained with `email_status='pending'` for notification acceptance after an isolated preview mailer is configured. A live duplicate POST and actual notification receipt remain unverified; the duplicate path passed the local endpoint harness.
 
 ## QA limits
 
-The previous release QA run covered the static HTML in the initial branch. Cloudflare preview success proves Pages built the prior commit; it does not verify this new Pages Function or preview D1 binding. No desktop/mobile visual review is claimed. A successful D1 write alone is not a successful notification or a complete lead-to-opportunity process.
+Release QA passed after the form changes. Cloudflare preview commit `7306e82` built successfully with `uses_functions=true`; the marked preview submission confirmed the D1 binding and persistence path. The desktop request form was visually inspected during submission; mobile layout has not been reviewed. A successful D1 write alone is not a successful notification or a complete lead-to-opportunity process.
