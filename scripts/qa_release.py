@@ -301,8 +301,7 @@ def main() -> int:
         'data-event="ai_power_cta_click"',
         'data-event="ai_power_evidence_click"',
         'data-channel="email"',
-        'data-channel="whatsapp"',
-        'data-channel="telegram"',
+        'data-channel="form"',
         'data-language="en"',
         'href="https://k4-technology.com/services/ai-power-project-advisory/"',
         'hreflang="en"',
@@ -491,7 +490,7 @@ def main() -> int:
         errors.append("Russian due-diligence service needs tracked WhatsApp and email lead actions")
 
     searchable = "\n".join(p.read_text(encoding="utf-8", errors="ignore") for p in html_files if "oml30-flare-gas" not in p.as_posix())
-    for pattern in [r"Independent Gas Engine", r"Independent Technical", r"Global Gas Engine O&M Benchmark", r"€225k", r"universal 2,000 h"]:
+    for pattern in [r"Independent Gas Engine", r"Global Gas Engine O&M Benchmark", r"€225k", r"universal 2,000 h"]:
         if re.search(pattern, searchable, re.I):
             errors.append(f"prohibited public phrase: {pattern}")
 

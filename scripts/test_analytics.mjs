@@ -143,6 +143,7 @@ assert.ok(validateCampaignUrl('https://k4-technology.com/?utm_medium=email&utm_c
   const listeners={};
   const form={
     dataset:{location:'remote-review-form'},
+    hasAttribute(){return false;},
     addEventListener(type,listener){listeners[type]=listener;},
     querySelector(){return null;}
   };
