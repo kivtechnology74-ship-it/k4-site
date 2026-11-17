@@ -1,7 +1,7 @@
-import { sendEmailThroughRelay, sendTelegram } from '../../_shared/notifications.js';
+import { sendEmailThroughRelay } from '../../_shared/notifications.js';
 
 function json(status, body) {
-  return new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json; charset=utf-8' } });
+  return new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' } });
 }
 
 export async function onRequestPost({ request, env }) {
@@ -15,11 +15,11 @@ export async function onRequestPost({ request, env }) {
   const job = await env.LEADS_DB.prepare('SELECT status, attempts FROM lead_notification_jobs WHERE lead_id = ? AND dispatch_token = ?').bind(leadId, token).first();
   if (!job) return json(404, { error: 'Notification job not found.' });
   if (job.status === 'sent') return json(200, { success: true, duplicate: true });
-  const now = new Date();
-  const nowIso = now.toISOString();
-  const staleBefore = new Date(now.getTime() - 5 * 60 * 1000).toISOString();
+
+  const nowIso = new Date().toISOString();
+  const staleBefore = new Date(Date.now() - 5 * 60 * 1000).toISOString();
   const claim = await env.LEADS_DB.prepare(`
-    UPDATE lead_notification_jobs SET status = 'processing', updated_at = ?
+    UPDATE lead_notification_jobs SET status = 'processing', attempts = attempts + 1, updated_at = ?
     WHERE lead_id = ? AND dispatch_token = ?
       AND (status = 'pending' OR (status = 'processing' AND updated_at < ?))
   `).bind(nowIso, leadId, token, staleBefore).run();
@@ -29,25 +29,36 @@ export async function onRequestPost({ request, env }) {
       ? json(200, { success: true, duplicate: true })
       : json(503, { error: 'Notification is already being processed.' });
   }
-  const lead = await env.LEADS_DB.prepare('SELECT * FROM site_leads WHERE id = ?').bind(leadId).first();
-  if (!lead) return json(404, { error: 'Lead not found.' });
 
-  const attempts = Number(job.attempts || 0) + 1;
+  const lead = await env.LEADS_DB.prepare('SELECT * FROM site_leads WHERE id = ?').bind(leadId).first();
+  if (!lead) {
+    await env.LEADS_DB.prepare("UPDATE lead_notification_jobs SET status = 'failed', last_error = 'Lead record is missing.', updated_at = ? WHERE lead_id = ?").bind(nowIso, leadId).run();
+    return json(404, { error: 'Lead record is missing.' });
+  }
+
   try {
-    if (env.LEAD_EMAIL_MODE === 'direct' && lead.email_status !== 'sent') {
-      if (!env.GMAIL_RELAY_URL || !env.GMAIL_RELAY_SECRET) throw new Error('Email relay is not configured.');
-      await sendEmailThroughRelay(lead, env);
-      await env.LEADS_DB.prepare("UPDATE site_leads SET email_status = 'sent', email_attempts = email_attempts + 1, email_error = NULL, updated_at = ? WHERE id = ?").bind(nowIso, leadId).run();
+    if (lead.email_status !== 'sent') {
+      if (env.LEAD_EMAIL_MODE === 'direct') {
+        if (!env.GMAIL_RELAY_URL || !env.GMAIL_RELAY_SECRET) throw new Error('Email relay is not configured.');
+        await sendEmailThroughRelay(lead, env);
+        await env.LEADS_DB.prepare("UPDATE site_leads SET email_status = 'sent', email_attempts = email_attempts + 1, email_error = NULL, updated_at = ? WHERE id = ?").bind(new Date().toISOString(), leadId).run();
+      } else {
+        throw new Error('Email is pending delivery by the existing scheduled mailer.');
+      }
     }
-    if (lead.telegram_status !== 'sent') {
-      if (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_CHAT_ID) throw new Error('Telegram is not configured.');
-      await sendTelegram(lead, env);
-      await env.LEADS_DB.prepare("UPDATE site_leads SET telegram_status = 'sent', telegram_attempts = telegram_attempts + 1, telegram_error = NULL, updated_at = ? WHERE id = ?").bind(nowIso, leadId).run();
-    }
-    await env.LEADS_DB.prepare("UPDATE lead_notification_jobs SET status = 'sent', attempts = ?, last_error = NULL, updated_at = ? WHERE lead_id = ?").bind(attempts, nowIso, leadId).run();
+    await env.LEADS_DB.prepare("UPDATE lead_notification_jobs SET status = 'sent', last_error = NULL, updated_at = ? WHERE lead_id = ?").bind(new Date().toISOString(), leadId).run();
     return json(200, { success: true });
-  } catch {
-    await env.LEADS_DB.prepare("UPDATE lead_notification_jobs SET status = 'pending', attempts = ?, last_error = 'Delivery failed.', updated_at = ? WHERE lead_id = ?").bind(attempts, nowIso, leadId).run();
-    return json(503, { error: 'Notification delivery failed; queued retry.' });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Email delivery failed.';
+    const reason = message.includes('not configured')
+      ? message
+      : message.includes('pending delivery')
+        ? message
+        : 'Email relay delivery failed.';
+    await env.LEADS_DB.prepare("UPDATE site_leads SET email_status = 'pending', email_attempts = email_attempts + ?, email_error = ?, next_attempt_at = ?, updated_at = ? WHERE id = ?")
+      .bind(env.LEAD_EMAIL_MODE === 'direct' ? 1 : 0, reason, new Date(Date.now() + 5 * 60 * 1000).toISOString(), new Date().toISOString(), leadId).run();
+    await env.LEADS_DB.prepare("UPDATE lead_notification_jobs SET status = 'pending', last_error = ?, updated_at = ? WHERE lead_id = ?")
+      .bind(reason, new Date().toISOString(), leadId).run();
+    return json(503, { error: 'Email delivery is pending retry.' });
   }
 }
