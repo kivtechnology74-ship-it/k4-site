@@ -77,21 +77,17 @@
       })});
       const result=await response.json();
       if(!response.ok||!result.success||!result.stored)throw new Error(result.error||'Request could not be stored.');
-      const emailStatus=result.notifications?.email||'pending';
-      const telegramStatus=result.notifications?.telegram||'pending';
-      status.querySelector('h3').textContent=russian?'Заявка сохранена':french?'Demande enregistrée':'Request saved';
-      status.querySelector('p').textContent=russian?`Номер ${result.reference}. Email: ${emailStatus}; Telegram: ${telegramStatus}.`:french?`Référence ${result.reference}. Email : ${emailStatus} ; Telegram : ${telegramStatus}.`:`Reference ${result.reference}. Email: ${emailStatus}; Telegram: ${telegramStatus}.`;
+      status.querySelector('h3').textContent=russian?'Заявка получена':french?'Demande reçue':'Request received';
+      status.querySelector('p').textContent=russian?`Номер заявки: ${result.reference}.`:french?`Référence : ${result.reference}.`:`Reference: ${result.reference}.`;
       try{
         const eventKey=`k4-lead-event:${result.reference}`;
         if(!sessionStorage.getItem(eventKey)){track('lead',{location:'diagnostic-form',form_type:'remote_diagnostics'});sessionStorage.setItem(eventKey,'1');}
       }catch{track('lead',{location:'diagnostic-form',form_type:'remote_diagnostics'});}
-      if(emailStatus==='sent'&&telegramStatus==='sent'){
-        try{sessionStorage.removeItem(requestKey);}catch{}
-        form.reset();
-      }
+      try{sessionStorage.removeItem(requestKey);}catch{}
+      form.reset();
     }catch(error){
-      status.querySelector('h3').textContent=russian?'Не удалось отправить заявку':french?'Échec de l’envoi':'Request not sent';
-      status.querySelector('p').textContent=error instanceof Error?error.message:'Please try again or contact K4 directly.';
+      status.querySelector('h3').textContent=russian?'Не удалось сохранить заявку':french?'Impossible d’enregistrer la demande':'Request could not be saved';
+      status.querySelector('p').textContent=russian?'Повторите попытку или напишите на ceo@k4-technology.com.':french?'Réessayez ou écrivez à ceo@k4-technology.com.':'Please try again or email ceo@k4-technology.com.';
     }finally{if(button)button.disabled=false;}
     status.focus();
   });
