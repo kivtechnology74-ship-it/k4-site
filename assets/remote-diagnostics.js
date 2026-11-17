@@ -73,8 +73,8 @@
         sessionStorage.setItem(fingerprintKey,payloadFingerprint);
       }
     }catch{requestId=crypto.randomUUID();}
-    const attribution={};
-    for(const key of attributionKeys){const value=new URLSearchParams(location.search).get(key)||attribution[key];if(value)attribution[key]=value;}
+    const submissionAttribution={};
+    for(const key of attributionKeys){const value=new URLSearchParams(location.search).get(key)||attribution[key];if(value)submissionAttribution[key]=value;}
     if(button)button.disabled=true;
     status.classList.remove('rd-hidden');
     status.querySelector('h3').textContent=copy.sending;
@@ -82,7 +82,7 @@
     try{
       const response=await fetch('/api/leads',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({
         requestId,formType,language:currentLanguage,fields,sourceUrl:location.href,
-        timezone:Intl.DateTimeFormat().resolvedOptions().timeZone||'unknown',attribution,
+        timezone:Intl.DateTimeFormat().resolvedOptions().timeZone||'unknown',attribution:submissionAttribution,
         safetyAck:Object.keys(fields).some(key=>/safety|sécurité|безопасност/i.test(key)),
         website:form.querySelector('[name="website"]')?.value||''
       })});
