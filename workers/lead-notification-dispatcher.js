@@ -1,4 +1,4 @@
-const RETRY_DELAY_SECONDS = 60;
+const RETRY_DELAY_SECONDS = 300;
 
 function isAllowedCallback(value) {
   let url;
