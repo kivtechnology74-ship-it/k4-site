@@ -199,6 +199,7 @@
     @media(max-width:720px){.projects-actions{align-items:stretch;flex-direction:column}.projects-link{width:100%}}
 
   </style>
+  <link rel="stylesheet" href="/assets/lead-intake.css?v=20261116-1">
 </head>
 
 <body>
@@ -351,7 +352,21 @@
     </section>
 
     <section class="section contact" id="contact" aria-labelledby="contact-title">
-      <div class="shell"><div class="eyebrow">Comece por uma decisão concreta</div><h2 class="contact-heading" id="contact-title">Mostre o projeto antes de se comprometer.</h2><a class="contact-email" href="mailto:ceo@k4-technology.com?subject=Avalia%C3%A7%C3%A3o%20inicial%20de%20projeto%20no%20Brasil" data-event="lead_contact_click" data-channel="email" data-location="homepage-contact" data-language="pt-br">ceo@k4-technology.com</a><div class="contact-messengers" aria-label="Contatos de mensagens"><a class="contact-chip" href="https://wa.me/998970575996" target="_blank" rel="noopener noreferrer" data-event="lead_contact_click" data-channel="whatsapp" data-location="homepage-contact" data-language="pt-br">WhatsApp</a><a class="contact-chip" href="https://t.me/k4_technology" target="_blank" rel="noopener noreferrer" data-event="lead_contact_click" data-channel="telegram" data-location="homepage-contact" data-language="pt-br">Telegram</a><span class="contact-message-note">+998 97 057 59 96 · somente mensagens</span></div><p class="contact-help">Envie uma análise do gás, perfil de carga, dados do local, proposta de fornecedor ou documentos do ativo. Identificaremos a decisão, a evidência que falta e o menor escopo útil.</p></div>
+      <div class="shell"><div class="eyebrow">Comece por uma decisão concreta</div><h2 class="contact-heading" id="contact-title">Mostre o projeto antes de se comprometer.</h2><a class="contact-email" href="mailto:ceo@k4-technology.com?subject=Avalia%C3%A7%C3%A3o%20inicial%20de%20projeto%20no%20Brasil" data-event="lead_contact_click" data-channel="email" data-location="homepage-contact" data-language="pt-br">ceo@k4-technology.com</a>
+        <form class="contact-lead-form" id="homepage-project-inquiry-pt-br" data-lead-form data-server-lead-form data-form-type="power_project_inquiry" data-location="homepage-project-contact" data-form-title="Consulta sobre o projeto" data-form-subject="Consulta sobre o projeto" method="post" action="/api/remote-diagnostics">
+          <h3>Consulta sobre o projeto</h3>
+          <div class="contact-lead-form-grid">
+            <div class="field full"><label for="homepage-project-inquiry-pt-br-contact">Número de telefone <span>(obrigatório)</span></label><input id="homepage-project-inquiry-pt-br-contact" name="Contact" data-contact-field type="tel" autocomplete="tel" maxlength="254" required><p class="contact-lead-hint">Basta informar um número de telefone. Os detalhes do projeto são opcionais.</p></div>
+            <div class="field"><label for="homepage-project-inquiry-pt-br-name">Nome (opcional)</label><input id="homepage-project-inquiry-pt-br-name" name="Name" autocomplete="name"></div>
+            <div class="field"><label for="homepage-project-inquiry-pt-br-company">Empresa (opcional)</label><input id="homepage-project-inquiry-pt-br-company" name="Company" autocomplete="organization"></div>
+            <div class="field"><label for="homepage-project-inquiry-pt-br-country">País (opcional)</label><input id="homepage-project-inquiry-pt-br-country" name="Country" autocomplete="country-name"></div>
+            <div class="field"><label for="homepage-project-inquiry-pt-br-capacity">Potência prevista (opcional)</label><input id="homepage-project-inquiry-pt-br-capacity" name="Target capacity" autocomplete="off"></div>
+            <div class="field full"><label for="homepage-project-inquiry-pt-br-description">Detalhes do projeto (opcional)</label><textarea id="homepage-project-inquiry-pt-br-description" name="Project description" rows="4"></textarea></div>
+          </div>
+          <div class="actions"><button class="contact-lead-submit" type="submit">Enviar consulta sobre o projeto</button></div>
+          <p class="contact-lead-note">A solicitação será enviada com segurança à K4 e salva com um número de referência. A K4 responderá por e-mail.</p>
+          <p class="contact-lead-fallback">Prefere enviar um e-mail? Fale diretamente com a K4. <a href="mailto:ceo@k4-technology.com?subject=Consulta%20sobre%20o%20projeto">ceo@k4-technology.com</a></p>
+        </form><p class="contact-help">Envie uma análise do gás, perfil de carga, dados do local, proposta de fornecedor ou documentos do ativo. Identificaremos a decisão, a evidência que falta e o menor escopo útil.</p></div>
     </section>
   </main>
 
@@ -361,5 +376,6 @@
     (()=>{const button=document.querySelector('.menu-toggle');const menu=document.querySelector('.nav-links');if(!button||!menu)return;const closeMenu=()=>{button.setAttribute('aria-expanded','false');button.setAttribute('aria-label','Abrir menu');menu.classList.remove('is-open');document.body.classList.remove('menu-open')};button.addEventListener('click',()=>{const isOpen=button.getAttribute('aria-expanded')==='true';if(isOpen){closeMenu();return}button.setAttribute('aria-expanded','true');button.setAttribute('aria-label','Fechar menu');menu.classList.add('is-open');document.body.classList.add('menu-open')});menu.querySelectorAll('a').forEach(link=>link.addEventListener('click',closeMenu));document.addEventListener('keydown',event=>{if(event.key==='Escape'){closeMenu();button.focus()}});window.matchMedia('(min-width: 721px)').addEventListener('change',closeMenu)})();
   </script>
   <script defer src="/assets/intelligence.js?v=20261026-1"></script>
+  <script src="/assets/lead-intake.js?v=20261116-2" defer></script>
 </body>
 </html>
