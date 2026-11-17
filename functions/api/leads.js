@@ -44,79 +44,6 @@ function safeAttribution(input) {
   return output;
 }
 
-async function sendEmailThroughRelay(row, env) {
-  const lead = {
-    id: row.id, created_at: row.created_at, language: row.language, form_type: row.form_type,
-    contact: row.contact, message: row.message, details: JSON.parse(row.details_json || '[]'),
-    source_url: row.source_url, timezone: row.timezone || '',
-    attribution: JSON.parse(row.attribution_json || '{}'),
-    safety_ack: row.safety_ack === true || row.safety_ack === 1,
-  };
-  const timestamp = String(Date.now());
-  const canonical = `${timestamp}.${JSON.stringify(lead)}`;
-  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(env.GMAIL_RELAY_SECRET), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
-  const signatureBytes = new Uint8Array(await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(canonical)));
-  let binary = '';
-  for (const byte of signatureBytes) binary += String.fromCharCode(byte);
-  const signature = btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  const response = await fetch(env.GMAIL_RELAY_URL, {
-    method: 'POST', headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ timestamp, lead, signature }),
-  });
-  const result = await response.json().catch(() => ({}));
-  if (!response.ok || result.ok !== true) throw new Error('Email relay delivery failed.');
-}
-
-function telegramMessage(row) {
-  const details = JSON.parse(row.details_json || '[]').map(item => `${item.name}: ${item.value}`).join('\n');
-  return [
-    `K4 website lead (${row.language}, ${row.form_type})`, `Reference: ${row.id}`,
-    `Contact: ${row.contact}`, `Page: ${row.source_url}`, row.message, details,
-  ].filter(Boolean).join('\n').slice(0, 3800);
-}
-
-async function sendTelegram(row, env) {
-  const response = await fetch(`https://api.telegram.org/bot${env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
-    method: 'POST', headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ chat_id: env.TELEGRAM_CHAT_ID, text: telegramMessage(row), disable_web_page_preview: true }),
-  });
-  const result = await response.json().catch(() => ({}));
-  if (!response.ok || result.ok !== true) throw new Error('Telegram delivery failed.');
-}
-
-async function retryDelivery(deliver, recordAttempt, maxAttempts = 3) {
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    try {
-      await deliver();
-      await recordAttempt(attempt, true);
-      return 'sent';
-    } catch {
-      await recordAttempt(attempt, false);
-      if (attempt < maxAttempts) await new Promise(resolve => setTimeout(resolve, 500 * 2 ** (attempt - 1)));
-    }
-  }
-  return 'pending';
-}
-
-async function dispatchNotifications(env, row) {
-  const status = { email: row.email_status || 'pending', telegram: row.telegram_status || 'pending' };
-  if (env.LEAD_EMAIL_MODE === 'direct' && status.email !== 'sent' && env.GMAIL_RELAY_URL && env.GMAIL_RELAY_SECRET) {
-    const previousAttempts = Number(row.email_attempts || 0);
-    status.email = await retryDelivery(() => sendEmailThroughRelay(row, env), async (attempt, sent) => {
-      await env.LEADS_DB.prepare('UPDATE site_leads SET email_status = ?, email_attempts = ?, email_error = ?, updated_at = ? WHERE id = ?')
-        .bind(sent ? 'sent' : 'pending', previousAttempts + attempt, sent ? null : 'Email delivery failed.', new Date().toISOString(), row.id).run();
-    });
-  }
-  if (status.telegram !== 'sent' && env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_CHAT_ID) {
-    const previousAttempts = Number(row.telegram_attempts || 0);
-    status.telegram = await retryDelivery(() => sendTelegram(row, env), async (attempt, sent) => {
-      await env.LEADS_DB.prepare('UPDATE site_leads SET telegram_status = ?, telegram_attempts = ?, telegram_error = ?, updated_at = ? WHERE id = ?')
-        .bind(sent ? 'sent' : 'pending', previousAttempts + attempt, sent ? null : 'Telegram delivery failed.', new Date().toISOString(), row.id).run();
-    });
-  }
-  return status;
-}
-
 export async function onRequestPost({ request, env }) {
   if (!env.LEADS_DB) return response(503, { error: 'Lead storage is unavailable.' });
   const contentLength = Number(request.headers.get('content-length') || 0);
@@ -212,11 +139,28 @@ export async function onRequestPost({ request, env }) {
     VALUES (?, ?, 'pending', 0, ?, ?)
     ON CONFLICT(lead_id) DO NOTHING
   `).bind(id, dispatchToken, createdAt, createdAt).run();
-  const notifications = await dispatchNotifications(env, stored);
-  const jobStatus = notifications.email === 'sent' && notifications.telegram === 'sent' ? 'sent' : 'pending';
-  await env.LEADS_DB.prepare('UPDATE lead_notification_jobs SET status = ?, attempts = ?, last_error = ?, updated_at = ? WHERE lead_id = ?')
-    .bind(jobStatus, Number(stored.email_attempts || 0) + Number(stored.telegram_attempts || 0), jobStatus === 'sent' ? null : 'One or more notifications are pending.', new Date().toISOString(), id).run();
-  return response(200, { success: true, stored: true, reference: id, notifications });
+  const job = await env.LEADS_DB.prepare('SELECT dispatch_token, status FROM lead_notification_jobs WHERE lead_id = ?').bind(id).first();
+  let scheduled = job.status === 'sent';
+  if (!scheduled && env.LEAD_NOTIFICATIONS) {
+    try {
+      await env.LEAD_NOTIFICATIONS.send({
+        callbackUrl: `${origin}/api/notifications/dispatch`,
+        leadId: id,
+        dispatchToken: job.dispatch_token,
+      });
+      scheduled = true;
+      await env.LEADS_DB.prepare("UPDATE lead_notification_jobs SET last_error = NULL, updated_at = ? WHERE lead_id = ?").bind(new Date().toISOString(), id).run();
+    } catch {
+      await env.LEADS_DB.prepare("UPDATE lead_notification_jobs SET status = 'pending', last_error = 'Queue scheduling failed.', updated_at = ? WHERE lead_id = ?").bind(new Date().toISOString(), id).run();
+    }
+  }
+  return response(200, {
+    success: true,
+    stored: true,
+    reference: id,
+    notifications: { email: stored.email_status || 'pending', telegram: stored.telegram_status || 'pending' },
+    notificationScheduled: scheduled,
+  });
 }
 
 export async function onRequestOptions() {
