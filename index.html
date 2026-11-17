@@ -493,6 +493,14 @@
     .proof-item p { color: var(--steel-500); }
 
     .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .decision-routes { padding: clamp(30px, 5vw, 58px) 0; background: var(--paper, #f3f5f7); }
+    .decision-routes-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .decision-route { display: flex; min-height: 250px; flex-direction: column; align-items: flex-start; padding: 26px; border: 1px solid var(--line-light); background: #fff; }
+    .decision-route .eyebrow { margin-bottom: 18px; }
+    .decision-route h2 { margin: 0 0 12px; font-size: clamp(1.25rem, 2vw, 1.65rem); line-height: 1.15; }
+    .decision-route p { margin: 0 0 14px; color: var(--steel-500); }
+    .decision-route .proof-link { margin-top: auto; padding-top: 6px; color: var(--blue-500); font-size: 13px; font-weight: 650; }
+    .decision-route .route-cta { display: inline-flex; gap: 8px; margin-top: 14px; color: var(--ink); font-weight: 700; text-decoration-thickness: 1px; text-underline-offset: 4px; }
     .service-card {
       min-height: 430px;
       display: flex;
@@ -710,6 +718,7 @@
     @media (max-width: 940px) {
       .hero-status, .compute-flow, .principles { grid-template-columns: repeat(2, 1fr); }
       .services-grid { grid-template-columns: 1fr; }
+      .decision-routes-grid { grid-template-columns: 1fr; }
       .service-card { min-height: 360px; }
       .status-cell:nth-child(3) { border-left: 0; border-top: 1px solid var(--line-dark); }
       .status-cell:nth-child(4) { border-top: 1px solid var(--line-dark); }
@@ -835,7 +844,6 @@
 
   .projects-poster{position:relative;display:block;width:100%;height:100%;overflow:hidden;color:#fff;text-decoration:none}.projects-poster img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .35s ease,filter .35s ease}.projects-poster::after{position:absolute;inset:0;background:linear-gradient(180deg,transparent 48%,rgba(2,8,16,.7));content:""}.projects-play{position:absolute;z-index:1;top:50%;left:50%;display:grid;width:72px;height:72px;place-items:center;border:1px solid rgba(255,255,255,.5);border-radius:50%;background:rgba(31,111,235,.94);box-shadow:0 14px 44px rgba(0,0,0,.35);font-size:25px;line-height:1;transform:translate(-50%,-50%);transition:transform .2s ease,background .2s ease}.projects-watch{position:absolute;z-index:1;right:18px;bottom:16px;padding:9px 13px;border:1px solid rgba(255,255,255,.3);border-radius:100px;background:rgba(3,11,21,.75);backdrop-filter:blur(8px);font-size:12px;font-weight:700;letter-spacing:.02em}.projects-poster:hover img,.projects-poster:focus-visible img{transform:scale(1.018);filter:brightness(.9)}.projects-poster:hover .projects-play,.projects-poster:focus-visible .projects-play{background:#2f7df4;transform:translate(-50%,-50%) scale(1.07)}@media(max-width:640px){.projects-play{width:58px;height:58px;font-size:20px}.projects-watch{right:12px;bottom:10px;padding:7px 10px;font-size:10px}}
   </style>
-  <link rel="stylesheet" href="/assets/lead-intake.css?v=20261116-1">
 </head>
 
 <body>
@@ -862,8 +870,8 @@
         <div class="hero-copy">
           <div class="eyebrow">Independent gas-engine technical advisory</div>
           <a class="hero-ai-signal" href="/services/ai-power-project-advisory/" data-event="ai_power_cta_click" data-channel="service" data-location="homepage-hero-signal" data-language="en"><span>AI / Compute Infrastructure</span><strong>Compute demand → dependable MW</strong></a>
-          <h1 id="hero-title">Gas-engine expertise <span>for power developers and asset owners.</span></h1>
-          <p class="hero-lead">Equipment selection, new-versus-pre-owned strategy, lifecycle economics, reliability engineering and owner-side technical due diligence for distributed and behind-the-meter power projects.</p>
+          <h1 id="hero-title">Independent gas-engine engineering <span>before you commit capital.</span></h1>
+          <p class="hero-lead">Select equipment, verify supplier claims and understand dependable output, maintenance exposure and lifecycle costs before an expensive decision is locked in.</p>
           <div class="hero-actions">
             <a data-channel="internal_navigation" class="button button-primary" href="/services/gas-engine-advisory-for-power-developers/#discuss-project" data-event="power_project_cta_click" data-location="homepage-hero" data-language="en">Discuss a power project <span class="button-arrow" aria-hidden="true">→</span></a>
             <a data-channel="internal_navigation" class="button button-secondary" href="/services/gas-engine-technical-due-diligence/" data-event="service_review_cta_click" data-location="homepage-hero" data-language="en">Technical due diligence</a>
@@ -890,6 +898,32 @@
             <div class="status-label">Independent advice<br>with disclosed roles</div>
           </div>
         </div>
+      </div>
+    </section>
+
+    <section class="decision-routes" aria-label="Choose the decision K4 can support">
+      <div class="shell decision-routes-grid">
+        <article class="decision-route">
+          <div class="eyebrow">Develop a power project</div>
+          <h2>Set the technical basis before procurement.</h2>
+          <p>Compare project assumptions, gas-engine architecture, fleet sizing and owner-side engineering needs.</p>
+          <a class="proof-link" href="/case-studies/six-jenbacher-j612-pre-commissioning-technical-audit/">Evidence: six J612 pre-commissioning audit</a>
+          <a class="route-cta" href="/services/gas-engine-advisory-for-power-developers/" data-channel="internal_navigation" data-event="developer_advisory_click" data-location="homepage-decision-routes" data-language="en">Explore project advisory <span aria-hidden="true">→</span></a>
+        </article>
+        <article class="decision-route">
+          <div class="eyebrow">Buy or verify equipment</div>
+          <h2>Check the exact asset before purchase.</h2>
+          <p>Review identity, configuration, operating history, condition evidence and remaining lifecycle exposure.</p>
+          <a class="proof-link" href="/case-studies/used-jenbacher-j320-lifecycle-verification/">Evidence: used J320 lifecycle verification</a>
+          <a class="route-cta" href="/services/gas-engine-technical-due-diligence/" data-channel="internal_navigation" data-event="service_review_cta_click" data-location="homepage-decision-routes" data-language="en">Explore technical due diligence <span aria-hidden="true">→</span></a>
+        </article>
+        <article class="decision-route">
+          <div class="eyebrow">Operate or improve an asset</div>
+          <h2>Test the fleet against required output.</h2>
+          <p>Assess operating evidence, maintenance and overhaul exposure, redundancy and lifecycle assumptions.</p>
+          <a class="proof-link" href="/case-studies/j320-303-days-operating-data/">Evidence: three J320 engines across 303 reporting dates</a>
+          <a class="route-cta" href="/services/gas-engine-lifecycle-reliability/" data-channel="internal_navigation" data-event="lifecycle_reliability_click" data-location="homepage-decision-routes" data-language="en">Explore lifecycle advisory <span aria-hidden="true">→</span></a>
+        </article>
       </div>
     </section>
 
@@ -1070,7 +1104,7 @@
           </article>
         </div>
         <div class="hero-actions" style="margin-top:32px">
-          <a class="button button-primary" href="#contact" data-event="lead_contact_click" data-channel="form" data-location="homepage-cta" data-language="en">Send a project inquiry</a>
+          <a class="button button-primary" href="https://wa.me/998970575996?text=Hello%20K4-Technology.%20I%20would%20like%20a%20gas%20engine%20technical%20review." target="_blank" rel="noopener noreferrer" data-event="lead_contact_click" data-channel="whatsapp" data-location="homepage-cta" data-language="en">Discuss on WhatsApp <span class="button-arrow" aria-hidden="true">↗</span></a>
           <a class="button button-outline-dark" href="/services/gas-engine-technical-due-diligence/">View scope and pricing</a>
           <a class="button button-outline-dark" href="/insights/">Explore Gas Engine Intelligence</a>
           <a data-channel="internal_navigation" class="button button-outline-dark" href="/insights/gas-engine-project-checklist-purchase-operations/" data-event="checklist_landing_click" data-location="homepage-due-diligence" data-language="en">Free project checklist</a>
@@ -1207,20 +1241,7 @@
         <div class="eyebrow">Start with the decision</div>
         <h2 class="contact-heading" id="contact-title">Show us the project before you commit to it.</h2>
         <a class="contact-email" href="mailto:ceo@k4-technology.com?subject=K4-Technology%20initial%20project%20assessment" data-event="lead_contact_click" data-channel="email" data-location="homepage-contact" data-language="en">ceo@k4-technology.com</a>
-        <form class="contact-lead-form" id="homepage-project-inquiry" data-lead-form data-server-lead-form data-form-type="power_project_inquiry" data-location="homepage-project-contact" data-form-title="Project inquiry" data-form-subject="Project inquiry" method="post" action="/api/remote-diagnostics">
-          <h3>Project inquiry</h3>
-          <div class="contact-lead-form-grid">
-            <div class="field full"><label for="homepage-project-inquiry-contact">Phone number <span>(required)</span></label><input id="homepage-project-inquiry-contact" name="Contact" data-contact-field type="tel" autocomplete="tel" maxlength="254" required><p class="contact-lead-hint">A phone number is enough to send your request. Project details are optional.</p></div>
-            <div class="field"><label for="homepage-project-inquiry-name">Name (optional)</label><input id="homepage-project-inquiry-name" name="Name" autocomplete="name"></div>
-            <div class="field"><label for="homepage-project-inquiry-company">Company (optional)</label><input id="homepage-project-inquiry-company" name="Company" autocomplete="organization"></div>
-            <div class="field"><label for="homepage-project-inquiry-country">Country (optional)</label><input id="homepage-project-inquiry-country" name="Country" autocomplete="country-name"></div>
-            <div class="field"><label for="homepage-project-inquiry-capacity">Target capacity (optional)</label><input id="homepage-project-inquiry-capacity" name="Target capacity" autocomplete="off"></div>
-            <div class="field full"><label for="homepage-project-inquiry-description">Project details (optional)</label><textarea id="homepage-project-inquiry-description" name="Project description" rows="4"></textarea></div>
-          </div>
-          <div class="actions"><button class="contact-lead-submit" type="submit">Send project inquiry</button></div>
-          <p class="contact-lead-note">Submitting sends your request securely to K4 and stores it with a reference number. K4 will follow up by email.</p>
-          <p class="contact-lead-fallback">Prefer email? Write to K4 directly. <a href="mailto:ceo@k4-technology.com?subject=Project%20inquiry">ceo@k4-technology.com</a></p>
-        </form>
+        <div class="contact-messengers" aria-label="Messaging contacts"><a class="contact-chip" href="https://wa.me/998970575996?text=Hello%20K4-Technology.%20I%20would%20like%20to%20discuss%20a%20gas-engine%20project." target="_blank" rel="noopener noreferrer" data-event="lead_contact_click" data-channel="whatsapp" data-location="homepage-contact" data-language="en">WhatsApp</a><a class="contact-chip" href="https://t.me/k4_technology" target="_blank" rel="noopener noreferrer" data-event="lead_contact_click" data-channel="telegram" data-location="homepage-contact" data-language="en">Telegram</a><span class="contact-message-note">+998 97 057 59 96 · messages only</span></div>
         <p class="contact-help">Send a gas analysis, site and load profile, supplier quotation or asset documents. We will identify the decision to make, the missing evidence and the smallest useful scope.</p>
       </div>
     </section>
@@ -1271,6 +1292,5 @@
     })();
   </script>
   <script src="/assets/intelligence.js?v=20261026-1" defer></script>
-  <script src="/assets/lead-intake.js?v=20261116-2" defer></script>
 </body>
 </html>
