@@ -21,13 +21,14 @@ export async function sendEmailThroughRelay(row, env) {
   const signature = btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
   const response = await fetch(env.GMAIL_RELAY_URL, {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    headers: { 'content-type': 'application/json', 'idempotency-key': `k4-lead-${row.id}` },
     body: JSON.stringify({ timestamp, lead, signature }),
   });
   const result = await response.json().catch(() => ({}));
   if (!response.ok || result.ok !== true) throw new Error('Email relay delivery failed.');
 }
 
+// Retained as an optional future channel; email delivery does not call or depend on it.
 export async function sendTelegram(row, env) {
   const details = JSON.parse(row.details_json || '[]').map(item => `${item.name}: ${item.value}`).join('\n');
   const text = [
