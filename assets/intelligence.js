@@ -293,10 +293,12 @@
     trap.style.cssText='position:absolute;left:-10000px;width:1px;height:1px;';
     form.append(trap);
     const idKey=`k4-lead-request:${location.pathname}`;
-    const requestId=()=>{
+    const fingerprintKey=`${idKey}:payload`;
+    const requestId=fingerprint=>{
       try{
-        let id=sessionStorage.getItem(idKey);
-        if(!id){id=crypto.randomUUID().replaceAll('-','');sessionStorage.setItem(idKey,id);}
+        let id=sessionStorage.getItem(idKey)||'';
+        const previous=sessionStorage.getItem(fingerprintKey)||'';
+        if(!id||previous!==fingerprint){id=crypto.randomUUID().replaceAll('-','');sessionStorage.setItem(idKey,id);sessionStorage.setItem(fingerprintKey,fingerprint);}
         return id;
       }catch{return crypto.randomUUID().replaceAll('-','');}
     };
@@ -311,34 +313,38 @@
         else fields[key]=String(value);
       }
       const details=formDetails();
+      const formType=form.dataset.formType||'remote_technical_review';
+      const language=document.documentElement.lang||'en';
+      const sourceUrl=location.href;
+      const attribution=Object.fromEntries([...new URLSearchParams(location.search)].filter(([key])=>['utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id','gclid','fbclid'].includes(key)));
+      const fingerprint=JSON.stringify({fields,formType,language,sourceUrl});
       const button=form.querySelector('[type="submit"]');
       if(button)button.disabled=true;
       status.hidden=false;
       status.textContent='Sending your request securely…';
       try{
         const response=await fetch('/api/leads',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({
-          requestId:requestId(),formType:form.dataset.formType||'remote_technical_review',language:document.documentElement.lang||'en',
-          fields,sourceUrl:location.href,timezone:Intl.DateTimeFormat().resolvedOptions().timeZone,
-          attribution:Object.fromEntries([...new URLSearchParams(location.search)].filter(([key])=>['utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id','gclid','fbclid'].includes(key)))
+          requestId:requestId(fingerprint),formType,language,fields,sourceUrl,timezone:Intl.DateTimeFormat().resolvedOptions().timeZone,attribution
         })});
-        const result=await response.json();
-        if(!response.ok||!result.success||!result.stored)throw new Error(result.error||'Request could not be stored.');
-        const emailStatus=result.notifications?.email||'pending';
-        const telegramStatus=result.notifications?.telegram||'pending';
-        status.textContent=`Your request is saved. Reference: ${result.reference}. Email: ${emailStatus}; Telegram: ${telegramStatus}.`;
+        const result=await response.json().catch(()=>({}));
+        if(!response.ok||!result.success||result.stored!==true)throw new Error('storage');
+        status.textContent=`Request received. Reference: ${result.reference}.`;
         try{
           const eventKey=`k4-lead-event:${result.reference}`;
           if(!sessionStorage.getItem(eventKey)){
-            track('lead',{...details,form_type:form.dataset.formType||'remote_technical_review'});
+            track('lead',{...details,form_type:formType});
             sessionStorage.setItem(eventKey,'1');
           }
-        }catch{track('lead',{...details,form_type:form.dataset.formType||'remote_technical_review'});}
-        if(emailStatus==='sent'&&telegramStatus==='sent'){
-          try{sessionStorage.removeItem(idKey);}catch{}
-          form.reset();
-        }
+        }catch{track('lead',{...details,form_type:formType});}
+        try{sessionStorage.removeItem(idKey);sessionStorage.removeItem(fingerprintKey);}catch{}
+        form.reset();
       }catch(error){
-        status.textContent=error instanceof Error?error.message:'We could not send your request. Please try again or email K4 directly.';
+        const lang=(document.documentElement.lang||'en').toLowerCase();
+        status.textContent=lang.startsWith('ru')
+          ?'Не удалось сохранить заявку. Повторите попытку или напишите на ceo@k4-technology.com.'
+          :lang.startsWith('fr')
+            ?'Impossible d’enregistrer la demande. Réessayez ou écrivez à ceo@k4-technology.com.'
+            :'We could not save your request. Please try again or email ceo@k4-technology.com.';
       }finally{if(button)button.disabled=false;}
     });
   }
