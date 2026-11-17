@@ -32,5 +32,77 @@
   };
   if(servicePage)track('remote_diagnostics_view',{service_slug:'remote-gas-engine-diagnostics'});
   if(casePage)track('diagnostic_case_study_view',{case_slug:'remote-gas-engine-controller-fault-diagnostics'});
-  // Form submission is owned by assets/lead-intake.js so each submit has one idempotency key and one D1 write.
+  if(!form)return;
+  if(!form.querySelector('[name="website"]')){
+    const trap=document.createElement('input');
+    trap.type='text';trap.name='website';trap.tabIndex=-1;trap.autocomplete='off';
+    trap.setAttribute('aria-hidden','true');trap.style.cssText='position:absolute;left:-10000px;width:1px;height:1px;';
+    form.append(trap);
+  }
+  const requestKey=`k4-diagnostic-request:${location.pathname}`;
+  const fingerprintKey=`${requestKey}:payload`;
+  const button=form.querySelector('[type="submit"]');
+  const status=document.getElementById('diagnostic-status');
+  const language=(document.documentElement.lang||'en').toLowerCase();
+  const copy=language.startsWith('ru')
+    ?{sending:'Сохраняем заявку…',received:'Заявка получена. Номер: ',error:'Не удалось сохранить заявку. Повторите попытку или напишите на ceo@k4-technology.com.'}
+    :language.startsWith('fr')
+      ?{sending:'Enregistrement…',received:'Demande reçue. Référence : ',error:'Impossible d’enregistrer la demande. Réessayez ou écrivez à ceo@k4-technology.com.'}
+      :{sending:'Saving your request…',received:'Request received. Reference: ',error:'We could not save your request. Please try again or email ceo@k4-technology.com.'};
+  form.addEventListener('submit',async event=>{
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    if(!form.reportValidity())return;
+    const data=new FormData(form);
+    const fields={};
+    for(const [key,value] of data.entries()){
+      if(key==='website')continue;
+      if(fields[key])fields[key]=Array.isArray(fields[key])?[...fields[key],String(value)]:[fields[key],String(value)];
+      else fields[key]=String(value);
+    }
+    const sourceUrl=`${location.pathname}${location.search}`;
+    const formType='remote_diagnostics';
+    const currentLanguage=document.documentElement.lang||'en';
+    const payloadFingerprint=JSON.stringify({fields,sourceUrl,formType,language:currentLanguage});
+    let requestId='';
+    try{
+      requestId=sessionStorage.getItem(requestKey)||'';
+      if(!requestId||sessionStorage.getItem(fingerprintKey)!==payloadFingerprint){
+        requestId=crypto.randomUUID();
+        sessionStorage.setItem(requestKey,requestId);
+        sessionStorage.setItem(fingerprintKey,payloadFingerprint);
+      }
+    }catch{requestId=crypto.randomUUID();}
+    const attribution={};
+    for(const key of attributionKeys){const value=new URLSearchParams(location.search).get(key)||attribution[key];if(value)attribution[key]=value;}
+    if(button)button.disabled=true;
+    status.classList.remove('rd-hidden');
+    status.querySelector('h3').textContent=copy.sending;
+    status.querySelector('p').textContent=copy.sending;
+    try{
+      const response=await fetch('/api/leads',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({
+        requestId,formType,language:currentLanguage,fields,sourceUrl:location.href,
+        timezone:Intl.DateTimeFormat().resolvedOptions().timeZone||'unknown',attribution,
+        safetyAck:Object.keys(fields).some(key=>/safety|sécurité|безопасност/i.test(key)),
+        website:form.querySelector('[name="website"]')?.value||''
+      })});
+      const result=await response.json().catch(()=>({}));
+      if(!response.ok||result.success!==true||result.stored!==true)throw new Error('storage');
+      status.querySelector('h3').textContent=language.startsWith('ru')?'Заявка получена':language.startsWith('fr')?'Demande reçue':'Request received';
+      status.querySelector('p').textContent=`${copy.received}${result.reference}.`;
+      try{
+        const eventKey=`k4-lead-event:${result.reference}`;
+        if(!sessionStorage.getItem(eventKey)){
+          track('lead',{location:'diagnostic-form',form_type:formType});
+          sessionStorage.setItem(eventKey,'1');
+        }
+      }catch{track('lead',{location:'diagnostic-form',form_type:formType});}
+      try{sessionStorage.removeItem(requestKey);sessionStorage.removeItem(fingerprintKey);}catch{}
+      form.reset();
+    }catch{
+      status.querySelector('h3').textContent=language.startsWith('ru')?'Не удалось сохранить заявку':language.startsWith('fr')?'Impossible d’enregistrer la demande':'Request could not be saved';
+      status.querySelector('p').textContent=copy.error;
+    }finally{if(button)button.disabled=false;}
+    status.focus();
+  });
 })();
