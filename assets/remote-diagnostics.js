@@ -77,11 +77,18 @@
       })});
       const result=await response.json();
       if(!response.ok||!result.success||!result.stored)throw new Error(result.error||'Request could not be stored.');
-      try{sessionStorage.removeItem(requestKey);}catch{}
-      status.querySelector('h3').textContent=russian?'Заявка получена':french?'Demande reçue':'Diagnostic request received';
-      status.querySelector('p').textContent=russian?`K4 получила заявку. Номер: ${result.reference}`:french?`K4 a reçu votre demande. Référence : ${result.reference}`:`K4 has received your request. Reference: ${result.reference}`;
-      track('lead',{location:'diagnostic-form',form_type:'remote_diagnostics'});
-      form.reset();
+      const emailStatus=result.notifications?.email||'pending';
+      const telegramStatus=result.notifications?.telegram||'pending';
+      status.querySelector('h3').textContent=russian?'Заявка сохранена':french?'Demande enregistrée':'Request saved';
+      status.querySelector('p').textContent=russian?`Номер ${result.reference}. Email: ${emailStatus}; Telegram: ${telegramStatus}.`:french?`Référence ${result.reference}. Email : ${emailStatus} ; Telegram : ${telegramStatus}.`:`Reference ${result.reference}. Email: ${emailStatus}; Telegram: ${telegramStatus}.`;
+      try{
+        const eventKey=`k4-lead-event:${result.reference}`;
+        if(!sessionStorage.getItem(eventKey)){track('lead',{location:'diagnostic-form',form_type:'remote_diagnostics'});sessionStorage.setItem(eventKey,'1');}
+      }catch{track('lead',{location:'diagnostic-form',form_type:'remote_diagnostics'});}
+      if(emailStatus==='sent'&&telegramStatus==='sent'){
+        try{sessionStorage.removeItem(requestKey);}catch{}
+        form.reset();
+      }
     }catch(error){
       status.querySelector('h3').textContent=russian?'Не удалось отправить заявку':french?'Échec de l’envoi':'Request not sent';
       status.querySelector('p').textContent=error instanceof Error?error.message:'Please try again or contact K4 directly.';

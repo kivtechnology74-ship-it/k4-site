@@ -323,10 +323,20 @@
         })});
         const result=await response.json();
         if(!response.ok||!result.success||!result.stored)throw new Error(result.error||'Request could not be stored.');
-        try{sessionStorage.removeItem(idKey);}catch{}
-        status.textContent=`Thank you. K4 has received your request. Reference: ${result.reference}`;
-        track('lead',{...details,form_type:form.dataset.formType||'remote_technical_review'});
-        form.reset();
+        const emailStatus=result.notifications?.email||'pending';
+        const telegramStatus=result.notifications?.telegram||'pending';
+        status.textContent=`Your request is saved. Reference: ${result.reference}. Email: ${emailStatus}; Telegram: ${telegramStatus}.`;
+        try{
+          const eventKey=`k4-lead-event:${result.reference}`;
+          if(!sessionStorage.getItem(eventKey)){
+            track('lead',{...details,form_type:form.dataset.formType||'remote_technical_review'});
+            sessionStorage.setItem(eventKey,'1');
+          }
+        }catch{track('lead',{...details,form_type:form.dataset.formType||'remote_technical_review'});}
+        if(emailStatus==='sent'&&telegramStatus==='sent'){
+          try{sessionStorage.removeItem(idKey);}catch{}
+          form.reset();
+        }
       }catch(error){
         status.textContent=error instanceof Error?error.message:'We could not send your request. Please try again or email K4 directly.';
       }finally{if(button)button.disabled=false;}
