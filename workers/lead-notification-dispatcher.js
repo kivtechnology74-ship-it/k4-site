@@ -32,10 +32,10 @@ async function recoverPending(db, isPreview, env) {
     SELECT lead_id, dispatch_token, callback_url, status, last_enqueued_at
     FROM lead_notification_jobs
     WHERE status = 'pending'
-      AND (last_enqueued_at IS NULL OR last_enqueued_at <= datetime('now', ?))
+      AND (last_enqueued_at IS NULL OR last_enqueued_at <= ?)
     ORDER BY updated_at
     LIMIT 50
-  `).bind(`-${RECOVERY_INTERVAL_MINUTES} minutes`).all();
+  `).bind(new Date(Date.now() - RECOVERY_INTERVAL_MINUTES * 60_000).toISOString()).all();
   let enqueued = 0;
   for (const row of result.results || []) {
     const callbackUrl = callbackFor(row, isPreview);
