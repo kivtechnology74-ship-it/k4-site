@@ -257,7 +257,7 @@
   }));
 
   const form=document.querySelector('[data-lead-form]');
-  if(form&&!form.hasAttribute('data-server-lead-form')){
+  if(form){
     let started=false;
     const reviewLabels={
       quick:'Quick Review — USD 450',
@@ -278,22 +278,58 @@
         track('lead_form_start',formDetails());
       }
     });
-    form.addEventListener('submit',event=>{
+    const status=document.createElement('p');
+    status.className='contact-lead-note';
+    status.setAttribute('role','status');
+    status.setAttribute('aria-live','polite');
+    status.hidden=true;
+    form.append(status);
+    const trap=document.createElement('input');
+    trap.type='text';
+    trap.name='website';
+    trap.tabIndex=-1;
+    trap.autocomplete='off';
+    trap.setAttribute('aria-hidden','true');
+    trap.style.cssText='position:absolute;left:-10000px;width:1px;height:1px;';
+    form.append(trap);
+    const idKey=`k4-lead-request:${location.pathname}`;
+    const requestId=()=>{
+      try{
+        let id=sessionStorage.getItem(idKey);
+        if(!id){id=crypto.randomUUID().replaceAll('-','');sessionStorage.setItem(idKey,id);}
+        return id;
+      }catch{return crypto.randomUUID().replaceAll('-','');}
+    };
+    form.addEventListener('submit',async event=>{
       event.preventDefault();
+      if(!form.reportValidity())return;
       const data=new FormData(form);
-      const lines=[
-        form.dataset.formTitle||'K4 gas engine review request',
-        '',
-        ...Array.from(data.entries())
-          .filter(([key,value])=>key!=='files'&&String(value).trim())
-          .map(([key,value])=>`${key}: ${key==='Review type'?(reviewLabels[value]||value):value}`),
-        '',
-        'Submitting this information does not create an engagement.'
-      ];
+      const fields={};
+      for(const [key,value] of data.entries()){
+        if(key==='website')continue;
+        if(fields[key])fields[key]=Array.isArray(fields[key])?[...fields[key],String(value)]:[fields[key],String(value)];
+        else fields[key]=String(value);
+      }
       const details=formDetails();
-      track('lead_form_mailto_open',{...details,channel:'email',contact_type:'email'});
-      const subject=form.dataset.formSubject||'Gas engine technical review';
-      location.href=`mailto:ceo@k4-technology.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`;
+      const button=form.querySelector('[type="submit"]');
+      if(button)button.disabled=true;
+      status.hidden=false;
+      status.textContent='Sending your request securely…';
+      try{
+        const response=await fetch('/api/leads',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({
+          requestId:requestId(),formType:form.dataset.formType||'remote_technical_review',language:document.documentElement.lang||'en',
+          fields,sourceUrl:location.href,timezone:Intl.DateTimeFormat().resolvedOptions().timeZone,
+          attribution:Object.fromEntries([...new URLSearchParams(location.search)].filter(([key])=>['utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id','gclid','fbclid'].includes(key)))
+        })});
+        const result=await response.json();
+        if(!response.ok||!result.success||!result.stored)throw new Error(result.error||'Request could not be stored.');
+        try{sessionStorage.removeItem(idKey);}catch{}
+        status.textContent=`Thank you. K4 has received your request. Reference: ${result.reference}`;
+        track('lead',{...details,form_type:form.dataset.formType||'remote_technical_review'});
+        form.reset();
+      }catch(error){
+        status.textContent=error instanceof Error?error.message:'We could not send your request. Please try again or email K4 directly.';
+      }finally{if(button)button.disabled=false;}
     });
   }
 

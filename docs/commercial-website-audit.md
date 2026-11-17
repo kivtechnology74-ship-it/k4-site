@@ -1,29 +1,27 @@
-# K4 website modernization — initial audit
+# K4 website modernization and lead intake
 
-Audit scope: local `origin/main` snapshot (`2d5dc09`, 17 November 2026). The working tree used for this audit is an isolated branch. Production and the pre-existing local checkout were not changed.
+Audit scope: repository snapshot `2d5dc09` and the connected Cloudflare Pages/Workers/D1 configuration, reviewed 17 November 2026. This branch is a draft PR; it has not been merged or deployed to production.
 
-## Findings
+## Architecture found
 
-| Priority | Finding | Commercial effect | Proposed response | Risk / dependency |
-| --- | --- | --- | --- | --- |
-| P0 | The static site has no server-side lead endpoint or persistent lead store. The technical review and remote diagnostics forms construct a `mailto:` link; the visitor must send it themselves. | K4 cannot verify receipt, recover an unsent request, or report a confirmed lead. | Add a server endpoint, durable database record, notification delivery and retry queue; emit a success event only after the record is committed. | Requires an approved Cloudflare Pages D1 binding, database creation/migration, Telegram bot credentials and recipient configuration. Email needs a configured delivery provider. No credentials or bindings are present in this repository, so delivery cannot be tested here. |
-| P0 | Forms on EN/RU/FR diagnostics and the EN review route are browser-only. No CRM or lead log exists in the checked-in project. | Leads depend on the visitor's mail application and manual follow-through. | Route every form through the same validated endpoint, store attribution and page context, and confirm receipt only after durable storage. | This audit does not claim any delivery integration is operational. |
-| P1 | The English homepage already describes owner-side advisory and three lifecycle capabilities, but the hero leads with a broad expertise statement and its first actions do not directly distinguish project development, equipment purchase and operating assets. | A first-time buyer may need to infer which route matches their decision. | State the pre-capital decision value in the hero and link the three buyer paths to existing service pages. Keep AI/data-center advisory visible as a specific use case. | Copy must remain within the evidence and service scope already published. |
-| P1 | Service and case-study routes already cover gas-engine advisory, due diligence, lifecycle/reliability, AI power and J320/J612 evidence. Independence and evidence limits are stated on relevant pages. | Useful proof exists, but routes and CTA coverage are not yet a consistent end-to-end funnel. | Inventory/link audit should map each service to its cases, technical resources and one next action before adding new content. | Avoid rewriting case data or inferring outcomes not present in source material. |
-| P2 | `assets/intelligence.js` loads GA4 `G-7ZWVHK5XV9`; it records `lead_form_start`, legacy CTA/contact events and `lead_form_mailto_open`. It does not record a server-confirmed submission. | CTA activity can be distinguished from a sent email, but there is no authoritative lead event or opportunity/revenue connection. | Preserve the existing measurement ID; add normalized click events only where the current event model can be retained, then tie success to server storage. Never send form fields to GA4. | No server event should be emitted until the endpoint exists; production analytics configuration cannot be verified from source alone. |
-| P2 | Static HTML/CSS/JS, no package manager/build step; Cloudflare Pages is the documented hosting path. Canonicals, hreflang, sitemap and robots are present. | Low deployment complexity and existing SEO equity should be preserved. | Use additive Pages Functions and D1 only after the Pages project binding is configured; retain current routes and verify with release/live QA. | A local static QA pass cannot prove Cloudflare deployment, D1 binding, email/Telegram receipt, or Core Web Vitals. |
+- Cloudflare already has a `k4-remote-diagnostics` Worker and a D1 database with a `site_leads` table. The Worker has a five-minute scheduled retry for pending email and an existing email relay secret. Existing records show successful email delivery for the site's current `site_leads` intake. A separate diagnostics table has failed email records and exhausted retries; this is an operational follow-up, not evidence that the new route has been exercised.
+- Before this branch, the repository had no Pages Function for the website's general lead forms. The existing Worker handles its own `/api/remote-diagnostics` routes; it was not a shared endpoint wired to the review and new form interfaces.
+- There is no Telegram integration in the inspected Worker. Its secret values are not readable through the Cloudflare API, so a preview notification cannot be tested by copying the production mailer secret.
 
-## Initial implementation in this branch
+## Changes in this branch
 
-- Tighten the English homepage hero around the buyer's decision before capital commitment.
-- Add three explicit routes for power-project development, equipment verification and operating-asset improvement, linking to existing services and corroborating cases.
-- Align the J320 index card with the case study's corrected 21,008.5 engine-hours, add the existing J320 comparison article to the sitemap, and add valid CollectionPage JSON-LD to the French case index.
-- No production deployment, external message, test lead, or credential access was performed.
+- Tighten the English homepage hero around the buyer's decision before capital commitment and link three clear buyer paths to existing service pages.
+- Correct the J320 index to 21,008.5 engine-hours, add the existing J320 comparison article to the sitemap and add CollectionPage JSON-LD to the French case index.
+- Add a same-origin Pages Function at `/api/leads`. It validates form type, locale, contact, payload size and source origin; filters attribution to campaign identifiers; ignores honeypot submissions; rate-limits by a daily IP digest that is purged after three days; and writes an idempotent row before returning success.
+- Route the English homepage, English technical review and EN/RU/FR remote diagnostics forms through the new endpoint. A `lead` GA4 event is sent only after the endpoint confirms the row exists; event parameters contain page/form metadata only, never submitted fields.
+- Add a shared D1 migration compatible with the existing production `site_leads` table. Cloudflare Pages is bound to the existing D1 database in production and a separate empty `k4-site-leads-preview` database in preview. Both schemas have been applied. The existing production Worker is expected to process pending email rows on its schedule.
 
-## Lead delivery acceptance still required
+## Remaining P0 work
 
-1. Create/bind a Cloudflare D1 database for both production and preview environments and apply the lead schema.
-2. Configure Telegram bot token/chat ID as protected secrets and select/configure an email delivery provider for `ceo@k4-technology.com`.
-3. Implement/test idempotent writes, server validation, spam controls, notification retries and retention/access policy.
-4. Submit a clearly marked TEST request on preview; confirm its database record and actual notification receipt before claiming the lead system works.
+- Telegram delivery is not configured. Bot token and chat ID must be added as protected Cloudflare secrets before Telegram can be claimed as a working channel.
+- Preview email delivery and retry have not been connected to an isolated preview worker. The existing email relay secret is unavailable for reading/copying, and production credentials must not be attached to preview or exercised by a test request.
+- A preview test still needs to verify a marked request is stored once after a repeated submission, and to verify notification delivery. The storage test must use only the preview binding. Production deploy and merge remain out of scope.
 
+## QA limits
+
+The previous release QA run covered the static HTML in the initial branch. Cloudflare preview success proves Pages built the prior commit; it does not verify this new Pages Function or preview D1 binding. No desktop/mobile visual review is claimed. A successful D1 write alone is not a successful notification or a complete lead-to-opportunity process.

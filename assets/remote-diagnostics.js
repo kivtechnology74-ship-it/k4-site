@@ -33,18 +33,12 @@
   if(servicePage)track('remote_diagnostics_view',{service_slug:'remote-gas-engine-diagnostics'});
   if(casePage)track('diagnostic_case_study_view',{case_slug:'remote-gas-engine-controller-fault-diagnostics'});
   if(!form)return;
-  const contactField=form.querySelector('[data-contact-field]');
-  const validateContact=()=>{
-    if(!contactField)return true;
-    const value=contactField.value.trim();
-    const validEmail=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-    const digits=value.replace(/\D/g,'').length;
-    const validPhone=/^\+?[\d\s().-]+$/.test(value)&&digits>=7&&digits<=15;
-    const message=russian?'Укажите действующий e-mail или номер телефона / WhatsApp.':french?'Indiquez une adresse e-mail ou un numéro de téléphone / WhatsApp valide.':'Enter a valid email address or phone / WhatsApp number.';
-    contactField.setCustomValidity(validEmail||validPhone?'':message);
-    return validEmail||validPhone;
-  };
-  if(contactField)contactField.addEventListener('input',validateContact);
+  if(!form.querySelector('[name="website"]')){
+    const trap=document.createElement('input');
+    trap.type='text';trap.name='website';trap.tabIndex=-1;trap.autocomplete='off';
+    trap.setAttribute('aria-hidden','true');trap.style.cssText='position:absolute;left:-10000px;width:1px;height:1px;';
+    form.append(trap);
+  }
   let started=false;
   const start=()=>{
     if(started)return;
@@ -53,35 +47,45 @@
   };
   form.addEventListener('focusin',start,{once:true});
   form.addEventListener('input',start,{once:true});
-  form.addEventListener('submit',event=>{
+  form.addEventListener('submit',async event=>{
     event.preventDefault();
     start();
-    validateContact();
     if(!form.reportValidity())return;
     const data=new FormData(form);
-    const params=new URLSearchParams(location.search);
-    const attribution=['utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id','gclid','fbclid'];
-    const lines=[
-      russian?'K4 Remote Diagnostics — заявка на диагностику':french?'K4 — demande de diagnostic à distance':'K4 Remote Diagnostics — Diagnostic Case',
-      '',
-      russian?'Проверьте данные и отправьте это письмо, чтобы передать заявку.':french?'Veuillez vérifier les informations puis envoyer cet e-mail pour transmettre votre demande.':'Please review and send this email to submit the case.'
-    ];
+    const fields={};
     for(const [key,value] of data.entries()){
-      if(['Safety acknowledgement','Подтверждение безопасности','Confirmation de sécurité'].includes(key))continue;
-      if(String(value).trim())lines.push(`${key}: ${String(value).trim()}`);
+      if(key==='website')continue;
+      if(fields[key])fields[key]=Array.isArray(fields[key])?[...fields[key],String(value)]:[fields[key],String(value)];
+      else fields[key]=String(value);
     }
-    for(const key of attribution){
-      const value=params.get(key);
-      if(value)lines.push(`${key}: ${value}`);
-    }
-    const safetyField=russian?'Подтверждение безопасности':french?'Confirmation de sécurité':'Safety acknowledgement';
-    if(data.get(safetyField))lines.push('',russian?'Подтверждение безопасности: удалённые рекомендации будут выполнять только квалифицированные и уполномоченные специалисты площадки с соблюдением правил безопасности.':french?'Confirmation de sécurité : les consignes à distance ne doivent être exécutées que par du personnel qualifié et autorisé, conformément aux procédures du site.':'Safety acknowledgement: The requester confirmed that remote instructions must only be performed by appropriately qualified and authorised site personnel under site safety procedures.');
-    track('diagnostic_case_email_draft',{location:'diagnostic-form',form_destination:'email_draft'});
-    const subject=russian?'K4 — заявка на удалённую диагностику':french?'K4 — demande de diagnostic à distance':'K4 Remote Diagnostics — Diagnostic Case';
-    const href=`mailto:ceo@k4-technology.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(lines.join('\n'))}`;
     const status=document.getElementById('diagnostic-status');
+    const button=form.querySelector('[type="submit"]');
+    const requestKey=`k4-diagnostic-request:${location.pathname}`;
+    let requestId;
+    try{requestId=sessionStorage.getItem(requestKey)||crypto.randomUUID().replaceAll('-','');sessionStorage.setItem(requestKey,requestId);}catch{requestId=crypto.randomUUID().replaceAll('-','');}
+    const attribution={};
+    for(const key of attributionKeys){const value=new URLSearchParams(location.search).get(key)||attribution[key];if(value)attribution[key]=value;}
+    if(button)button.disabled=true;
     status.classList.remove('rd-hidden');
+    status.querySelector('h3').textContent=russian?'Отправка заявки':french?'Envoi de la demande':'Sending your request';
+    status.querySelector('p').textContent=russian?'Сохраняем заявку для команды K4…':french?'Enregistrement de votre demande pour K4…':'Saving your request for the K4 team…';
+    try{
+      const response=await fetch('/api/leads',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({
+        requestId,formType:'remote_diagnostics',language,fields,sourceUrl:location.href,
+        timezone:Intl.DateTimeFormat().resolvedOptions().timeZone,attribution,
+        safetyAck:Object.keys(fields).some(key=>/safety|sécurité|безопасност/i.test(key))
+      })});
+      const result=await response.json();
+      if(!response.ok||!result.success||!result.stored)throw new Error(result.error||'Request could not be stored.');
+      try{sessionStorage.removeItem(requestKey);}catch{}
+      status.querySelector('h3').textContent=russian?'Заявка получена':french?'Demande reçue':'Diagnostic request received';
+      status.querySelector('p').textContent=russian?`K4 получила заявку. Номер: ${result.reference}`:french?`K4 a reçu votre demande. Référence : ${result.reference}`:`K4 has received your request. Reference: ${result.reference}`;
+      track('lead',{location:'diagnostic-form',form_type:'remote_diagnostics'});
+      form.reset();
+    }catch(error){
+      status.querySelector('h3').textContent=russian?'Не удалось отправить заявку':french?'Échec de l’envoi':'Request not sent';
+      status.querySelector('p').textContent=error instanceof Error?error.message:'Please try again or contact K4 directly.';
+    }finally{if(button)button.disabled=false;}
     status.focus();
-    window.location.href=href;
   });
 })();
