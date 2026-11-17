@@ -16,7 +16,6 @@
     sending:'Sending…',saved:'Request received. Reference: ',error:'We could not save your request. Please try again or email ceo@k4-technology.com.'
   };
   const attributionKeys=['utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id','gclid','fbclid'];
-  const apiBase=location.hostname.endsWith('.k4-technology.pages.dev')?'https://k4-technology.com':'';
   let attribution={};
   try{
     attribution={...JSON.parse(sessionStorage.getItem('k4_campaign_attribution')||'{}')};
@@ -79,20 +78,21 @@
       if(!id||fingerprint!==payloadFingerprint){id=requestId();fingerprint=payloadFingerprint;}
       const currentId=id;
       try{sessionStorage.setItem(idKey,id);sessionStorage.setItem(fingerprintKey,fingerprint);}catch(error){/* The server still deduplicates this page session. */}
+      const fields={Contact:contact,Message:message};
+      details.forEach(item=>{fields[item.name]=item.value;});
       const payload={
-        requestId:currentId,contact,message,formType,
+        requestId:currentId,fields,formType,
         language:document.documentElement.lang||'en',
         sourceUrl:location.href,
         timezone:Intl.DateTimeFormat().resolvedOptions().timeZone||'unknown',
         attribution,
-        details,
-        safetyAcknowledged:entries.some(([name])=>/safety|sécurité|безопас/i.test(name)),
+        safetyAck:entries.some(([name])=>/safety|sécurité|безопас/i.test(name)),
         website:trap.value
       };
       if(submit){submit.disabled=true;if(submit.tagName==='INPUT')submit.value=copy.sending;else submit.textContent=copy.sending;}
       track('lead_form_submit_attempt',{form_type:formType,form_location:form.dataset.location||'form'});
       try{
-        const response=await fetch(`${apiBase}/api/remote-diagnostics`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+        const response=await fetch('/api/leads',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
         const result=await response.json().catch(()=>({}));
         if(!response.ok||result.stored!==true)throw new Error(result.error||`HTTP ${response.status}`);
         show('K4',`${copy.saved}${result.reference||''}`);
