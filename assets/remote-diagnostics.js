@@ -43,10 +43,10 @@
   const fingerprintKey=`${requestKey}:payload`;
   const button=form.querySelector('[type="submit"]');
   const status=document.getElementById('diagnostic-status');
-  const language=(document.documentElement.lang||'en').toLowerCase();
-  const copy=language.startsWith('ru')
+  const formLanguage=(document.documentElement.lang||'en').toLowerCase();
+  const copy=formLanguage.startsWith('ru')
     ?{sending:'Сохраняем заявку…',received:'Заявка получена. Номер: ',error:'Не удалось сохранить заявку. Повторите попытку или напишите на ceo@k4-technology.com.'}
-    :language.startsWith('fr')
+    :formLanguage.startsWith('fr')
       ?{sending:'Enregistrement…',received:'Demande reçue. Référence : ',error:'Impossible d’enregistrer la demande. Réessayez ou écrivez à ceo@k4-technology.com.'}
       :{sending:'Saving your request…',received:'Request received. Reference: ',error:'We could not save your request. Please try again or email ceo@k4-technology.com.'};
   form.addEventListener('submit',async event=>{
@@ -88,7 +88,7 @@
       })});
       const result=await response.json().catch(()=>({}));
       if(!response.ok||result.success!==true||result.stored!==true)throw new Error('storage');
-      status.querySelector('h3').textContent=language.startsWith('ru')?'Заявка получена':language.startsWith('fr')?'Demande reçue':'Request received';
+      status.querySelector('h3').textContent=formLanguage.startsWith('ru')?'Заявка получена':language.startsWith('fr')?'Demande reçue':'Request received';
       status.querySelector('p').textContent=`${copy.received}${result.reference}.`;
       try{
         const eventKey=`k4-lead-event:${result.reference}`;
