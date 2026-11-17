@@ -134,32 +134,33 @@ export async function onRequestPost({ request, env }) {
   const stored = await env.LEADS_DB.prepare('SELECT * FROM site_leads WHERE id = ?').bind(id).first();
   if (!stored) return response(503, { error: 'We could not save the request. Please try again.' });
   const dispatchToken = crypto.randomUUID();
+  const callbackUrl = `${origin}/api/notifications/dispatch`;
   await env.LEADS_DB.prepare(`
-    INSERT INTO lead_notification_jobs (lead_id, dispatch_token, status, attempts, created_at, updated_at)
-    VALUES (?, ?, 'pending', 0, ?, ?)
+    INSERT INTO lead_notification_jobs
+      (lead_id, dispatch_token, status, attempts, callback_url, created_at, updated_at)
+    VALUES (?, ?, 'pending', 0, ?, ?, ?)
     ON CONFLICT(lead_id) DO NOTHING
-  `).bind(id, dispatchToken, createdAt, createdAt).run();
-  const job = await env.LEADS_DB.prepare('SELECT dispatch_token, status FROM lead_notification_jobs WHERE lead_id = ?').bind(id).first();
+  `).bind(id, dispatchToken, callbackUrl, createdAt, createdAt).run();
+  const job = await env.LEADS_DB.prepare('SELECT dispatch_token, status, callback_url FROM lead_notification_jobs WHERE lead_id = ?').bind(id).first();
   let scheduled = job.status === 'sent';
   if (!scheduled && env.LEAD_NOTIFICATIONS) {
     try {
       await env.LEAD_NOTIFICATIONS.send({
-        callbackUrl: `${origin}/api/notifications/dispatch`,
+        callbackUrl: job.callback_url || callbackUrl,
         leadId: id,
         dispatchToken: job.dispatch_token,
       });
       scheduled = true;
-      await env.LEADS_DB.prepare("UPDATE lead_notification_jobs SET last_error = NULL, updated_at = ? WHERE lead_id = ?").bind(new Date().toISOString(), id).run();
+      await env.LEADS_DB.prepare("UPDATE lead_notification_jobs SET last_error = NULL, last_enqueued_at = ?, updated_at = ? WHERE lead_id = ?").bind(new Date().toISOString(), new Date().toISOString(), id).run();
     } catch {
-      await env.LEADS_DB.prepare("UPDATE lead_notification_jobs SET status = 'pending', last_error = 'Queue scheduling failed.', updated_at = ? WHERE lead_id = ?").bind(new Date().toISOString(), id).run();
+      await env.LEADS_DB.prepare("UPDATE lead_notification_jobs SET status = 'pending', last_error = 'Queue scheduling failed; scheduled recovery will retry.', updated_at = ? WHERE lead_id = ?").bind(new Date().toISOString(), id).run();
     }
   }
   return response(200, {
     success: true,
     stored: true,
     reference: id,
-    notifications: { email: stored.email_status || 'pending', telegram: stored.telegram_status || 'pending' },
-    notificationScheduled: scheduled,
+
   });
 }
 
