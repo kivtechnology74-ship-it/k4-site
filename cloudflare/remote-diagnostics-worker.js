@@ -120,7 +120,7 @@ async function deliverEmail(row, env) {
   const signature = btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
   const response = await fetch(env.GMAIL_RELAY_URL, {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", "idempotency-key": `k4-lead-${row.id}` },
     body: JSON.stringify({ timestamp, lead, signature })
   });
   const result = await response.json().catch(() => ({}));
@@ -255,9 +255,39 @@ async function retryLegacyDiagnostics(env) {
   }
 }
 
+
+async function dispatchQueuedLead(request, env) {
+  if (!env.LEAD_DISPATCH_SECRET) return json({ ok: false, error: "Email dispatch is unavailable." }, 503, "");
+  const supplied = request.headers.get("x-k4-dispatch-secret") || "";
+  const [expectedHash, suppliedHash] = await Promise.all([
+    crypto.subtle.digest("SHA-256", new TextEncoder().encode(env.LEAD_DISPATCH_SECRET)),
+    crypto.subtle.digest("SHA-256", new TextEncoder().encode(supplied))
+  ]);
+  let mismatch = 0;
+  const expectedBytes = new Uint8Array(expectedHash);
+  const suppliedBytes = new Uint8Array(suppliedHash);
+  for (let i = 0; i < expectedBytes.length; i++) mismatch |= expectedBytes[i] ^ suppliedBytes[i];
+  if (mismatch !== 0) return json({ ok: false, error: "Unauthorized." }, 401, "");
+
+  let payload;
+  try { payload = await request.json(); } catch { return json({ ok: false, error: "Invalid request." }, 400, ""); }
+  const lead = payload?.lead;
+  if (!lead || !/^[a-zA-Z0-9_-]{16,80}$/.test(String(lead.id || "")) ||
+      typeof lead.contact !== "string" || typeof lead.message !== "string") {
+    return json({ ok: false, error: "Invalid lead payload." }, 400, "");
+  }
+  try {
+    await deliverEmail(lead, env);
+    return json({ ok: true }, 200, "");
+  } catch {
+    return json({ ok: false, error: "Email relay delivery failed." }, 503, "");
+  }
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (request.method === 'POST' && url.pathname === '/_internal/k4-lead-email') return dispatchQueuedLead(request, env);
     const origin = request.headers.get("origin") || "";
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders(origin) });
     if (request.method === "GET" && url.pathname.endsWith("/health")) {
