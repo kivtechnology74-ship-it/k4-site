@@ -118,10 +118,21 @@ function initProfiles(){
 }
 let activeProfile=null;
 function setLoadOptions(p){const select=$('load');select.innerHTML='';const pts=p?loadPoints(p):[100,75,50];(pts.length?pts:[100]).forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v+'%';select.appendChild(o)});}
+function fuelPriceUnitKey(p){
+ if(!p)return '';
+ let unit=p.mode==='specific_mj'?'МДж':p.mode==='thermal_kw'?'кВт·ч тепла':p.mode==='manual'?$('manualFuelUnit').value:p.unit||'';
+ return String(unit).trim().replace(/\\s*\\/\\s*(ч|h)$/i,'').replace(/\\s+/g,'').toLowerCase();
+}
 function chooseProfile(){
  const v=$('profile').value;
- if(v==='custom'){const previousLoad=$('load').value;activeProfile={id:'custom',mode:'manual',unit:'ед./ч',model:'Свой профиль',engine:'',fuel:'природный газ',rating:'проектные данные пользователя',status:'пользовательский ввод',samples:{},isCustom:true};setLoadOptions(activeProfile);const availableLoads=[...$('load').options].map(o=>o.value);$('load').value=availableLoads.includes(previousLoad)?previousLoad:'100';$('power').value='';$('fuelRate').value='';$('heatPower').value='';$('manualUnitWrap').classList.remove('hidden');$('manualFuelUnit').value='';$('customModelWrap').classList.remove('hidden');$('customModel').value='';$('fuelUnitHint').textContent='Введите расход и его единицу из паспорта/КП именно при выбранной нагрузке. При смене нагрузки расход очищается — укажите значение для нового режима.';$('profileWarning').classList.remove('hidden');$('profileWarning').textContent='Ручной профиль. Введите модель, мощность и расход из источника.';update();return}
- activeProfile=(v!==''?PROFILES[Number(v)]:null);
+ const previousUnitKey=fuelPriceUnitKey(activeProfile);
+ if(v==='custom'){
+  if(previousUnitKey)$('fuelPrice').value='';
+ const previousLoad=$('load').value;activeProfile={id:'custom',mode:'manual',unit:'ед./ч',model:'Свой профиль',engine:'',fuel:'природный газ',rating:'проектные данные пользователя',status:'пользовательский ввод',samples:{},isCustom:true};setLoadOptions(activeProfile);const availableLoads=[...$('load').options].map(o=>o.value);$('load').value=availableLoads.includes(previousLoad)?previousLoad:'100';$('power').value='';$('fuelRate').value='';$('heatPower').value='';$('manualUnitWrap').classList.remove('hidden');$('manualFuelUnit').value='';$('customModelWrap').classList.remove('hidden');$('customModel').value='';$('fuelUnitHint').textContent='Введите расход и его единицу из паспорта/КП именно при выбранной нагрузке. При смене нагрузки расход очищается — укажите значение для нового режима.';$('profileWarning').classList.remove('hidden');$('profileWarning').textContent='Ручной профиль. Введите модель, мощность и расход из источника.';update();return}
+ const nextProfile=(v!==''?PROFILES[Number(v)]:null);
+ const nextUnitKey=fuelPriceUnitKey(nextProfile);
+ if(previousUnitKey&&nextUnitKey&&previousUnitKey!==nextUnitKey)$('fuelPrice').value='';
+ activeProfile=nextProfile;
  if(!activeProfile){$('profileWarning').classList.add('hidden');$('manualUnitWrap').classList.add('hidden');$('customModelWrap').classList.add('hidden');$('fuelUnitHint').textContent='Сначала выберите модель или свой профиль.';$('fuelPriceLabel').textContent='Топливо, ₽ / единицу расхода';update();return}
  $('customModelWrap').classList.add('hidden');$('power').value=activeProfile.power;$('heatPower').value=activeProfile.heat_kw_100||'';
  $('manualUnitWrap').classList.toggle('hidden',activeProfile.mode==='manual'&&!activeProfile.isExample);$('manualFuelUnit').value=activeProfile.mode==='manual'&&!activeProfile.isExample?'':'';
