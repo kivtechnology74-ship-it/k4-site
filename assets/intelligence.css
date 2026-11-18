@@ -55,3 +55,14 @@
 @media(max-width:720px){.table-wrap{margin-inline:-14px;border-inline:0}}
 @media(min-width:721px) and (max-width:860px){.nav{min-height:64px}.menu{display:block}.nav-links{position:absolute;inset:64px 0 auto;display:none;align-items:stretch;flex-direction:column;gap:0;padding:10px 16px 18px;border-bottom:1px solid var(--line-dark);background:rgba(7,11,16,.99)}.nav-links.open{display:flex}.nav-links a{min-height:46px;display:flex;align-items:center;border-bottom:1px solid rgba(255,255,255,.08);font-size:15px}.nav-links .lang{border:0;border-radius:0}.nav-links .nav-cta{justify-content:center;margin-top:10px}}
 @media print{.table-wrap{overflow:visible;border-color:#999}}
+
+/* Pass 3 visual polish: separate decorative rules from text and make
+   light-surface labels readable without changing dark-surface accents. */
+.ai-power-hero:after{display:none}
+.ai-system-map>p{display:grid;grid-template-columns:max-content minmax(0,1fr);align-items:start;gap:8px 12px;margin:0;padding:14px 18px;color:var(--steel);font-size:.82rem}
+.ai-system-map .badge{margin:0;white-space:nowrap}
+.case-card h2{padding-top:12px}
+.case-card .label,.knowledge-cluster .label{color:#1b5fc4}
+.decision-pill{color:#1b5fc4;border-color:rgba(47,125,244,.45)}
+.planned-grid .insight-card{padding-left:30px}
+@media(max-width:720px){.ai-system-map>p{grid-template-columns:1fr}.ai-system-map .badge{justify-self:start}.planned-grid .insight-card{padding:22px 18px 24px;border-left:0}}
