@@ -123,7 +123,7 @@ function setLoadOptions(p){const select=$('load');select.innerHTML='';const pts=
 function fuelPriceUnitKey(p){
  if(!p)return '';
  let unit=p.mode==='specific_mj'?'МДж':p.mode==='thermal_kw'?'кВт·ч тепла':p.mode==='manual'?$('manualFuelUnit').value:p.unit||'';
- return String(unit).trim().replace(/\\s*\\/\\s*(ч|h)$/i,'').replace(/\\s+/g,'').toLowerCase();
+ return String(unit).trim().replace(/\s*\/\s*(ч|h)$/i,'').replace(/\s+/g,'').toLowerCase();
 }
 function chooseProfile(){
  const v=$('profile').value;
