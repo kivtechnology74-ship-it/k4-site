@@ -137,6 +137,79 @@ async function dispatchLead(message, env) {
   }
 }
 
+const SLA_STAGES = [
+  { key: '15m', minutes: 15 },
+  { key: '2h', minutes: 120 },
+  { key: '24h', minutes: 1440 },
+];
+
+async function sendSlaReminder(db, lead, stage, env) {
+  const now = new Date().toISOString();
+  await db.prepare(`INSERT OR IGNORE INTO lead_sla_notifications
+    (lead_id, stage, status, attempts, created_at, updated_at)
+    VALUES (?, ?, 'pending', 0, ?, ?)`).bind(lead.id, stage.key, now, now).run();
+
+  const staleBefore = new Date(Date.now() - 5 * 60_000).toISOString();
+  const claim = await db.prepare(`UPDATE lead_sla_notifications
+    SET status = 'processing', attempts = attempts + 1, updated_at = ?
+    WHERE lead_id = ? AND stage = ?
+      AND ((status = 'pending' AND (next_attempt_at IS NULL OR next_attempt_at <= ?))
+        OR (status = 'processing' AND updated_at < ?))`)
+    .bind(now, lead.id, stage.key, now, staleBefore).run();
+  if (!claim.meta?.changes) return;
+
+  const current = await db.prepare('SELECT workflow_status, is_test FROM site_leads WHERE id = ?').bind(lead.id).first();
+  if (!current || current.workflow_status !== 'NEW' || current.is_test) {
+    await db.prepare("UPDATE lead_sla_notifications SET status = 'cancelled', updated_at = ? WHERE lead_id = ? AND stage = ? AND status = 'processing'")
+      .bind(now, lead.id, stage.key).run();
+    return;
+  }
+
+  try {
+    const leadForEmail = {
+      ...lead,
+      reference: lead.id,
+      delivery_id: `${lead.id}:sla:${stage.key}`,
+      notification_type: `sla_${stage.key}`,
+    };
+    const response = await env.EMAIL_DELIVERY_WORKER.fetch(new Request('https://k4-internal/_internal/k4-lead-email', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-k4-dispatch-secret': env.LEAD_DISPATCH_SECRET },
+      body: JSON.stringify({ lead: leadForEmail }),
+    }));
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || result.ok !== true) throw new Error('Email relay delivery failed.');
+    await db.prepare("UPDATE lead_sla_notifications SET status = 'sent', last_error = NULL, next_attempt_at = NULL, updated_at = ? WHERE lead_id = ? AND stage = ?")
+      .bind(new Date().toISOString(), lead.id, stage.key).run();
+  } catch {
+    const job = await db.prepare('SELECT attempts FROM lead_sla_notifications WHERE lead_id = ? AND stage = ?').bind(lead.id, stage.key).first();
+    const attempts = Number(job?.attempts || 1);
+    const failed = attempts >= 12;
+    const delayMinutes = Math.min(60, 5 * (2 ** Math.min(attempts - 1, 4)));
+    const retryAt = new Date(Date.now() + delayMinutes * 60_000).toISOString();
+    await db.prepare(`UPDATE lead_sla_notifications
+      SET status = ?, last_error = 'SLA reminder delivery failed; bounded retry scheduled.',
+          next_attempt_at = ?, updated_at = ?
+      WHERE lead_id = ? AND stage = ?`)
+      .bind(failed ? 'failed' : 'pending', failed ? null : retryAt, new Date().toISOString(), lead.id, stage.key).run();
+  }
+}
+
+async function runLeadSla(db, env) {
+  if (!db || !env.EMAIL_DELIVERY_WORKER || !env.LEAD_DISPATCH_SECRET) return;
+  const rows = await db.prepare(`SELECT * FROM site_leads
+    WHERE workflow_status = 'NEW' AND is_test = 0 AND sla_started_at IS NOT NULL
+    ORDER BY sla_started_at ASC LIMIT 100`).all();
+  const now = Date.now();
+  for (const lead of rows.results || []) {
+    const started = Date.parse(lead.sla_started_at);
+    if (!Number.isFinite(started)) continue;
+    for (const stage of SLA_STAGES) {
+      if (now - started >= stage.minutes * 60_000) await sendSlaReminder(db, lead, stage, env);
+    }
+  }
+}
+
 export default {
   async queue(batch, env) {
     if (batch.queue === 'k4-site-lead-notifications-dlq') {
@@ -149,6 +222,8 @@ export default {
     ctx.waitUntil(Promise.all([
       recoverPending(env.PREVIEW_LEADS_DB, true, env),
       recoverPending(env.PRODUCTION_LEADS_DB, false, env),
+      runLeadSla(env.PREVIEW_LEADS_DB, env),
+      runLeadSla(env.PRODUCTION_LEADS_DB, env),
     ]));
   },
 };
