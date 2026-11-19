@@ -103,6 +103,8 @@ async function deliverEmail(row, env) {
     reference: row.reference || row.id,
     notification_type: row.notification_type || "new_lead",
     delivery_id: row.delivery_id || row.id,
+    workflow_status: row.workflow_status || 'NEW',
+    is_test: row.is_test === true || row.is_test === 1,
     created_at: row.created_at,
     language: row.language,
     form_type: row.form_type,
