@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>K4 Lead Inbox</title>
+  <style>
+    :root{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#172033;background:#f4f6fa}
+    body{margin:0}.wrap{max-width:1100px;margin:0 auto;padding:32px 20px}header{display:flex;gap:16px;align-items:center;justify-content:space-between}
+    h1{font-size:28px;margin:0}.muted{color:#58657a}.toolbar{display:flex;gap:12px;align-items:center}
+    select,button{font:inherit;border:1px solid #cbd3df;border-radius:8px;padding:10px 12px;background:#fff}
+    button{cursor:pointer}button.primary{background:#173b69;color:#fff;border-color:#173b69}
+    .notice{margin:18px 0;padding:12px 14px;background:#fff;border-radius:8px}.notice.error{color:#8a1e24;background:#fff0f0}
+    .lead{background:#fff;border:1px solid #e1e6ef;border-radius:12px;margin:14px 0;padding:18px}
+    .top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.ref{font-family:ui-monospace,monospace;font-weight:700}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px 20px;margin:14px 0}
+    .detail{white-space:pre-wrap;overflow-wrap:anywhere;background:#f7f8fb;padding:12px;border-radius:8px}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}small{color:#647188}
+  </style>
+</head>
+<body>
+<main class="wrap">
+  <header><div><h1>K4 Lead Inbox</h1><p class="muted">Private workflow view · mail status does not mark a lead as handled.</p></div>
+    <div class="toolbar"><select id="filter"><option value="">All active leads</option><option>NEW</option><option>ACKNOWLEDGED</option><option>CONTACTED</option><option>QUALIFIED</option><option>PROPOSAL</option><option>WON</option><option>LOST</option><option>SPAM</option><option>TEST</option></select><button id="refresh">Refresh</button></div>
+  </header>
+  <div id="notice" class="notice" role="status">Loading leads…</div>
+  <section id="leads" aria-live="polite"></section>
+</main>
+<script>
+const statuses=['ACKNOWLEDGED','CONTACTED','QUALIFIED','PROPOSAL','WON','LOST','SPAM'];
+const labels={ACKNOWLEDGED:'Take lead',CONTACTED:'Mark contacted',QUALIFIED:'Qualify',PROPOSAL:'Proposal',WON:'Won',LOST:'Lost',SPAM:'Spam'};
+const notice=document.querySelector('#notice'), list=document.querySelector('#leads');
+const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text)n.textContent=text;if(cls)n.className=cls;return n};
+async function load(){
+  notice.className='notice';notice.textContent='Loading leads…';list.replaceChildren();
+  try{
+    const status=document.querySelector('#filter').value;
+    const response=await fetch('/api/admin/leads'+(status?'?status='+encodeURIComponent(status):''),{credentials:'same-origin',cache:'no-store'});
+    const data=await response.json();
+    if(!response.ok)throw new Error(data.error||'Could not load leads.');
+    notice.textContent=data.leads.length+' leads';
+    for(const lead of data.leads){
+      const card=el('article',null,'lead'), top=el('div',null,'top');
+      const title=el('div',lead.id+' · '+lead.workflow_status+' · '+lead.form_type,'ref');
+      const date=el('div',new Date(lead.created_at).toLocaleString()+' · email '+lead.email_status,'muted');
+      top.append(title,date);card.append(top);
+      const grid=el('div',null,'grid');
+      for(const [label,value] of [['Contact',lead.contact],['Language',lead.language],['Page',lead.source_url],['Acknowledged by',lead.acknowledged_by||'—']]){
+        const item=el('div');item.append(el('small',label),el('div',value||'—'));grid.append(item);
+      }
+      card.append(grid,el('div',lead.message||'No project details','detail'));
+      if(lead.is_test||lead.workflow_status==='TEST'){card.append(el('strong','[K4 TEST — DO NOT PROCESS]'));list.append(card);continue;}
+      const next=statuses.filter(s=>({
+        NEW:['ACKNOWLEDGED','SPAM'],ACKNOWLEDGED:['CONTACTED','QUALIFIED','PROPOSAL','LOST','SPAM'],
+        CONTACTED:['QUALIFIED','PROPOSAL','LOST','SPAM'],QUALIFIED:['PROPOSAL','WON','LOST','SPAM'],
+        PROPOSAL:['WON','LOST','SPAM']
+      }[lead.workflow_status]||[]).includes(s));
+      const actions=el('div',null,'actions');
+      for(const status of next){
+        const button=el('button',labels[status]);if(status==='ACKNOWLEDGED')button.className='primary';
+        button.addEventListener('click',()=>update(lead.id,status,button));actions.append(button);
+      }
+      card.append(actions);list.append(card);
+    }
+    if(!data.leads.length)notice.textContent='No leads found.';
+  }catch(error){notice.className='notice error';notice.textContent=error.message;list.replaceChildren();}
+}
+async function update(leadId,status,button){
+  button.disabled=true;
+  try{
+    const response=await fetch('/api/admin/leads',{method:'POST',credentials:'same-origin',headers:{'content-type':'application/json'},body:JSON.stringify({leadId,status})});
+    const data=await response.json();if(!response.ok)throw new Error(data.error||'Update failed.');
+    await load();
+  }catch(error){notice.className='notice error';notice.textContent=error.message;button.disabled=false;}
+}
+document.querySelector('#refresh').addEventListener('click',load);
+document.querySelector('#filter').addEventListener('change',load);
+load();
+</script>
+</body></html>
