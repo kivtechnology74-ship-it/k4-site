@@ -22,7 +22,7 @@
 <body>
 <main class="wrap">
   <header><div><h1>K4 Lead Inbox</h1><p class="muted">Private workflow view · mail status does not mark a lead as handled.</p></div>
-    <div class="toolbar"><select id="filter"><option value="">All active leads</option><option>NEW</option><option>ACKNOWLEDGED</option><option>CONTACTED</option><option>QUALIFIED</option><option>PROPOSAL</option><option>WON</option><option>LOST</option><option>SPAM</option><option>TEST</option></select><button id="refresh">Refresh</button></div>
+    <div class="toolbar"><select id="filter"><option value="">All leads</option><option value="overdue">Overdue more than 24h</option><option>NEW</option><option>ACKNOWLEDGED</option><option>CONTACTED</option><option>QUALIFIED</option><option>PROPOSAL</option><option>WON</option><option>LOST</option><option>SPAM</option><option>TEST</option></select><button id="refresh">Refresh</button></div>
   </header>
   <div id="notice" class="notice" role="status">Loading leads…</div>
   <section id="leads" aria-live="polite"></section>
@@ -36,7 +36,8 @@ async function load(){
   notice.className='notice';notice.textContent='Loading leads…';list.replaceChildren();
   try{
     const status=document.querySelector('#filter').value;
-    const response=await fetch('/api/admin/leads'+(status?'?status='+encodeURIComponent(status):''),{credentials:'same-origin',cache:'no-store'});
+    const query=status==='overdue'?'?overdue=true':(status?'?status='+encodeURIComponent(status):'');
+    const response=await fetch('/api/admin/leads'+query,{credentials:'same-origin',cache:'no-store'});
     const data=await response.json();
     if(!response.ok)throw new Error(data.error||'Could not load leads.');
     notice.textContent=data.leads.length+' leads';
@@ -44,7 +45,7 @@ async function load(){
       const card=el('article',null,'lead'), top=el('div',null,'top');
       const title=el('div',lead.id+' · '+lead.workflow_status+' · '+lead.form_type,'ref');
       const date=el('div',new Date(lead.created_at).toLocaleString()+' · email '+lead.email_status,'muted');
-      top.append(title,date);card.append(top);
+      top.append(title,date);if(lead.overdue_24h)top.append(el('strong','OVERDUE · 24h'));card.append(top);
       const grid=el('div',null,'grid');
       for(const [label,value] of [['Contact',lead.contact],['Language',lead.language],['Page',lead.source_url],['Acknowledged by',lead.acknowledged_by||'—']]){
         const item=el('div');item.append(el('small',label),el('div',value||'—'));grid.append(item);
@@ -61,6 +62,7 @@ async function load(){
         const button=el('button',labels[status]);if(status==='ACKNOWLEDGED')button.className='primary';
         button.addEventListener('click',()=>update(lead.id,status,button));actions.append(button);
       }
+      if(lead.sla_failed_count)card.append(el('small','SLA email retry failed: '+lead.sla_failed_count));
       card.append(actions);list.append(card);
     }
     if(!data.leads.length)notice.textContent='No leads found.';
