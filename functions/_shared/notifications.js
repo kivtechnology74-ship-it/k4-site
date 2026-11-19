@@ -1,6 +1,11 @@
 export async function sendEmailThroughRelay(row, env) {
   const lead = {
     id: row.id,
+    reference: row.id,
+    notification_type: row.notification_type || 'new_lead',
+    delivery_id: row.delivery_id || row.id,
+    workflow_status: row.workflow_status || 'NEW',
+    is_test: row.is_test === true || row.is_test === 1,
     created_at: row.created_at,
     language: row.language,
     form_type: row.form_type,
@@ -21,7 +26,7 @@ export async function sendEmailThroughRelay(row, env) {
   const signature = btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
   const response = await fetch(env.GMAIL_RELAY_URL, {
     method: 'POST',
-    headers: { 'content-type': 'application/json', 'idempotency-key': `k4-lead-${row.id}` },
+    headers: { 'content-type': 'application/json', 'idempotency-key': `k4-lead-${lead.delivery_id}` },
     body: JSON.stringify({ timestamp, lead, signature }),
   });
   const result = await response.json().catch(() => ({}));
