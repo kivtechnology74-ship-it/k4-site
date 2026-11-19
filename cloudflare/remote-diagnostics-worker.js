@@ -100,6 +100,9 @@ async function deliverEmail(row, env) {
   if (!env.GMAIL_RELAY_URL || !env.GMAIL_RELAY_SECRET) throw new Error("Email relay is not configured.");
   const lead = {
     id: row.id,
+    reference: row.reference || row.id,
+    notification_type: row.notification_type || "new_lead",
+    delivery_id: row.delivery_id || row.id,
     created_at: row.created_at,
     language: row.language,
     form_type: row.form_type,
@@ -120,7 +123,7 @@ async function deliverEmail(row, env) {
   const signature = btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
   const response = await fetch(env.GMAIL_RELAY_URL, {
     method: "POST",
-    headers: { "content-type": "application/json", "idempotency-key": `k4-lead-${row.id}` },
+    headers: { "content-type": "application/json", "idempotency-key": `k4-lead-${lead.delivery_id}` },
     body: JSON.stringify({ timestamp, lead, signature })
   });
   const result = await response.json().catch(() => ({}));
