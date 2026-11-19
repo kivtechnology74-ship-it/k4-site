@@ -114,8 +114,13 @@ export async function onRequest({ request, env }) {
        WHERE id = ? AND workflow_status = ? AND is_test = 0`).bind(next, now, leadId, current.workflow_status).run();
   if (!result.meta?.changes) return reply(409, { error: 'The lead changed in another session. Reload and try again.' });
 
-  await env.LEADS_DB.prepare(`INSERT INTO lead_workflow_events
-    (lead_id, from_status, to_status, actor_email, note, created_at)
-    VALUES (?, ?, ?, ?, ?, ?)`).bind(leadId, current.workflow_status, next, actor, note || null, now).run();
+  await env.LEADS_DB.batch([
+    env.LEADS_DB.prepare(`INSERT INTO lead_workflow_events
+      (lead_id, from_status, to_status, actor_email, note, created_at)
+      VALUES (?, ?, ?, ?, ?, ?)`).bind(leadId, current.workflow_status, next, actor, note || null, now),
+    env.LEADS_DB.prepare(`UPDATE lead_sla_notifications
+      SET status = 'cancelled', next_attempt_at = NULL, updated_at = ?
+      WHERE lead_id = ? AND status = 'pending'`).bind(now, leadId),
+  ]);
   return reply(200, { success: true, leadId, status: next, actor, updatedAt: now });
 }
