@@ -114,18 +114,22 @@ export async function onRequestPost({ request, env }) {
   const safeSourceUrl = `${parsedUrl.pathname}${sourceParams.size ? `?${sourceParams}` : ''}`;
   const timezone = cleanText(payload.timezone, 80);
   const message = details.map(({ name, value }) => `${name}: ${value}`).join('\n').slice(0, 12_000);
+  const searchable = `${id} ${contact} ${Object.entries(fields).map(([key, value]) => `${key}: ${value}`).join(' ')}`;
+  const isTest = payload.isTest === true || /K4\\s*TEST|codex-test@example\\.invalid|TEST-INBOX-/i.test(searchable);
+  const workflowStatus = isTest ? 'TEST' : 'NEW';
   try {
     await env.LEADS_DB.prepare(`
       INSERT INTO site_leads
         (id, created_at, language, form_type, contact, message, details_json, source_url,
          timezone, attribution_json, safety_ack, email_status, email_attempts, email_error,
-         next_attempt_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', 0, NULL, ?, ?)
+         next_attempt_at, updated_at, workflow_status, is_test, sla_started_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', 0, NULL, ?, ?, ?, ?, ?)
       ON CONFLICT(id) DO NOTHING
     `).bind(
       id, createdAt, language, formType, contact, message, JSON.stringify(details),
       safeSourceUrl, timezone, JSON.stringify(attribution),
-      (payload.safetyAck || Object.keys(fields).some(key => /safety|sécurité|безопасност/i.test(key))) ? 1 : 0, createdAt, createdAt,
+      (payload.safetyAck || Object.keys(fields).some(key => /safety|sécurité|безопасност/i.test(key))) ? 1 : 0,
+      createdAt, createdAt, workflowStatus, isTest ? 1 : 0, isTest ? null : createdAt,
     ).run();
   } catch {
     return response(503, { error: 'We could not save the request. Please try again.' });
