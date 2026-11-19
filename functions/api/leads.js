@@ -115,7 +115,7 @@ export async function onRequestPost({ request, env }) {
   const timezone = cleanText(payload.timezone, 80);
   const message = details.map(({ name, value }) => `${name}: ${value}`).join('\n').slice(0, 12_000);
   const searchable = `${id} ${contact} ${Object.entries(fields).map(([key, value]) => `${key}: ${value}`).join(' ')}`;
-  const isTest = payload.isTest === true || /K4\\s*TEST|codex-test@example\\.invalid|TEST-INBOX-/i.test(searchable);
+  const isTest = payload.isTest === true || /K4\s*TEST|codex-test@example\.invalid|TEST-INBOX-/i.test(searchable);
   const workflowStatus = isTest ? 'TEST' : 'NEW';
   try {
     await env.LEADS_DB.prepare(`
