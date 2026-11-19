@@ -38,7 +38,8 @@ async function accessIdentity(request, env) {
   try { header = decodePart(parts[0]); claims = decodePart(parts[1]); } catch { return null; }
   if (header.alg !== 'RS256' || typeof header.kid !== 'string') return null;
   const now = Math.floor(Date.now() / 1000);
-  if (claims.iss !== 'https://' + domain || !Array.isArray(claims.aud) || !claims.aud.includes(aud) ||
+  const audiences = Array.isArray(claims.aud) ? claims.aud : [claims.aud];
+  if (claims.iss !== 'https://' + domain || !audiences.includes(aud) ||
       !Number.isFinite(claims.exp) || claims.exp <= now || (claims.nbf && claims.nbf > now)) return null;
 
   try {
@@ -70,16 +71,23 @@ export async function onRequest({ request, env }) {
     const url = new URL(request.url);
     const status = url.searchParams.get('status') || '';
     if (status && !STATUSES.has(status)) return reply(400, { error: 'Invalid workflow status.' });
-    const limit = Math.max(1, Math.min(100, Number(url.searchParams.get('limit') || 50)));
+    const requestedLimit = Number.parseInt(url.searchParams.get('limit') || '50', 10);
+    const limit = Number.isFinite(requestedLimit) ? Math.max(1, Math.min(100, requestedLimit)) : 50;
+    const overdueOnly = url.searchParams.get('overdue') === 'true';
     const rows = await env.LEADS_DB.prepare(`
       SELECT id, created_at, language, form_type, contact, message, details_json, source_url,
              workflow_status, is_test, acknowledged_by, acknowledged_at, email_status,
-             email_attempts, email_error, updated_at
+             email_attempts, email_error, updated_at,
+             CASE WHEN workflow_status = 'NEW' AND is_test = 0 AND sla_started_at IS NOT NULL
+                       AND julianday(sla_started_at) <= julianday('now', '-24 hours') THEN 1 ELSE 0 END AS overdue_24h,
+             (SELECT COUNT(*) FROM lead_sla_notifications n WHERE n.lead_id = site_leads.id AND n.status = 'failed') AS sla_failed_count
       FROM site_leads
       WHERE (? = '' OR workflow_status = ?)
+        AND (? = 0 OR (workflow_status = 'NEW' AND is_test = 0 AND sla_started_at IS NOT NULL
+                       AND julianday(sla_started_at) <= julianday('now', '-24 hours')))
       ORDER BY created_at DESC
       LIMIT ?
-    `).bind(status, status, limit).all();
+    `).bind(status, status, overdueOnly ? 1 : 0, limit).all();
     return reply(200, { leads: rows.results || [] });
   }
 
