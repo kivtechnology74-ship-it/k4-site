@@ -23,12 +23,13 @@ CREATE INDEX IF NOT EXISTS lead_workflow_events_lead
 CREATE TABLE IF NOT EXISTS lead_sla_notifications (
   lead_id TEXT NOT NULL REFERENCES site_leads(id),
   stage TEXT NOT NULL CHECK (stage IN ('15m','2h','24h')),
-  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','processing','sent','failed')),
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','processing','sent','failed','cancelled')),
   attempts INTEGER NOT NULL DEFAULT 0,
   last_error TEXT,
+  next_attempt_at TEXT,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL,
   PRIMARY KEY (lead_id, stage)
 );
 CREATE INDEX IF NOT EXISTS lead_sla_notifications_status
-  ON lead_sla_notifications(status, updated_at);
+  ON lead_sla_notifications(status, next_attempt_at, updated_at);
