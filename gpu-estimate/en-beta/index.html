@@ -116,7 +116,7 @@ function loadPoints(p){if(p?.isCustom)return [100,95,90,85,80,75,70,65,60,55,50]
 function profileBrandGroup(brand){if(/^mtu(?:\s|$)/i.test(brand))return 'MTU';if(/^mwm(?:\s|$)/i.test(brand))return 'MWM';return brand}
 function normalizeProfileSearch(value){return String(value??'').normalize('NFKC').toLocaleLowerCase('en').replace(/[\s\u00a0\u202f]/g,'')}
 function profileDisplayBrand(p){const b=String(p.brand||'').trim();if(/^caterpillar/i.test(b))return 'CAT';if(/^mwm/i.test(b))return 'MWM';if(/^mtu/i.test(b))return 'MTU';return b.replace(/\s*\([^)]*\)\s*$/,'').trim()||'Power plant'}
-function profileDisplayModel(p){const model=String(p.model||'').trim();if(!model||/^not specified/i.test(model))return String(p.engine||'Model not specified').trim();return model}
+function profileDisplayModel(p){let model=String(p.model||'').trim();if(!model||/^not specified/i.test(model))model=String(p.engine||'Model not specified').trim();return model.replace(/^mtu(?=\s)/i,'MTU')}
 function profileSearchAliases(p){const aliases=[];if(p.id==='example_J320')aliases.push('Jenbacher','INNIO');if(p.id==='r5_42')aliases.push('Weichai');return aliases}
 function profileSearchText(p){return normalizeProfileSearch([p.brand,p.engine,p.model,p.power,fmt(p.power),p.freq,p.fuel,p.rating,p.status,...profileSearchAliases(p)].join(' '))}
 function profileSearchRank(p,q){const model=normalizeProfileSearch(profileDisplayModel(p));const engine=normalizeProfileSearch(p.engine);const brand=normalizeProfileSearch(profileDisplayBrand(p));if(model===q)return 0;if(model.startsWith(q))return 1;if(engine===q)return 2;if(engine.startsWith(q))return 3;if(model.includes(q))return 4;if(engine.includes(q))return 5;if(brand===q||brand.startsWith(q))return 6;return 7}
