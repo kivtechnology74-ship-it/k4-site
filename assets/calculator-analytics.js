@@ -79,7 +79,7 @@
   model={...selectedModel()};
   send('calculator_page_view');
   modelSelect?.addEventListener('change',event=>{if(event.isTrusted)window.K4CalculatorAnalytics.modelSelected();});
-  document.addEventListener('input',event=>{if(event.isTrusted&&event.target.closest('.panel'))window.K4CalculatorAnalytics.changed();},true);
+  document.addEventListener('input',event=>{if(event.isTrusted&&event.target!==modelSelect&&event.target.closest('.panel'))window.K4CalculatorAnalytics.changed();},true);
   document.addEventListener('change',event=>{if(event.isTrusted&&event.target.closest('.panel')&&event.target!==modelSelect)window.K4CalculatorAnalytics.changed();},true);
   contact?.addEventListener('click',event=>{
     if(!validCurrent)return;
