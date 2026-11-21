@@ -1,37 +1,55 @@
 # K4 Free Power Screening — development status
 
-- Version: 0.2.0 preview candidate
-- Branch: `codex/free-power-screening-20261121` (updates are made through GitHub API; source workspace remains untouched)
-- Deployment: preview only; production is unchanged
-- Product KPI: number of qualified commercial inquiries for K4 Independent Power Analysis; `project_inquiry_submitted` is the confirmed-submission count proxy, and qualification is reviewed by K4 after receipt.
-- Public-launch readiness: implementation candidate; final preview review remains required. No production deployment was performed.
+- Version: 0.2.0 — functionality frozen
+- Branch: `codex/free-power-screening-20261121` (GitHub API updates; original local workspace untouched)
+- Latest HTTPS preview reviewed: https://1b875439.k4-technology.pages.dev/gpu-estimate-hybrid-ru/
+- Production: unchanged; no production deployment performed
+- Readiness: NOT READY for public production launch. SEO/indexability and live analytics verification remain open.
+- Product KPI: qualified commercial inquiries for K4 Independent Power Analysis.
 
-## Completed changes
+## Frozen functionality
 
-- English and Russian entry pages share `gpu-estimate-hybrid-ru/screening-engine.js` and `screening-ui.js`; English is the primary international version.
-- Removed default power, PUE, utilization, tariff, currency, grid capacity, date, project type, and location values. Empty is unknown; explicit valid zero stays zero; invalid values block a valid result and are labeled separately.
-- Grid adequacy compares nominal facility peak demand after PUE, separately from average annual load.
-- Added optional project type (AI Data Center, Mining/HPC, Industrial, Other) and country, region, city to the explicit inquiry form.
-- Added user-triggered summary copy and a separate user-triggered action to include the summary in the inquiry draft. Only the final form submit transmits fields to K4.
-- Main CTA is “Request Independent Power Analysis”. Grid energy cost is labeled “Energy Charge Only”.
-- Existing analytics events are used; only page path and language are sent by screening-specific events. Project submission is recorded only after the existing lead-intake script receives a server response with `stored: true` and emits `lead_form_submit_success` for `power_screening_inquiry`. Email clicks are excluded.
-- Gas estimation remains unavailable with a reason. No Solar/BESS/hybrid dispatch work was added.
+Bilingual English/Russian Free Power Screening remains a simple annual screening. No new functions or calculation modules were added during final audit. EN and RU use the same calculation engine. The user-entered nominal peak (including PUE for IT Load) is checked against grid capacity; annual energy, average load and equivalent full-load hours are calculated separately. Tariffs, PUE, utilization, capacity and location are not silently defaulted. Gas generation stays unavailable without an applicable confirmed OEM curve and project gas price with units and LHV/HHV basis.
 
-## Formula and source basis
+The primary CTA is “Request Independent Power Analysis”. Energy cost is labeled “Energy Charge Only”. Project/contact data is sent to K4 only after an explicit inquiry submission, never through screening analytics. No EPC, equipment sales, Solar/BESS, full dispatch, IRR or payback module is part of this screening.
 
-The screening equations follow the task's definitions and 8,760-hour year. IT Load × user PUE derives nominal facility peak; Total Facility Load is direct. Annual MWh = nominal facility peak MW × 8,760 × utilization fraction. Average MW = annual MWh / 8,760. Equivalent full-load hours = 8,760 × utilization. Energy Charge Only = annual MWh × 1,000 × user tariff per kWh, and is displayed only with tariff and currency. Grid capacity is compared with nominal facility peak. No market tariff or OEM inputs were added.
+## Final pre-publication audit — 2026-11-21
 
-## Verification
+### Test inquiry receipt
 
-- New Free Screening tests: 10 passed (formula, IT vs facility, peak-vs-average grid check, missing/zero/invalid values, currency requirement, optional date, analytics payload privacy, and confirmed inquiry event gate).
-- Existing `cloudflare/remote-diagnostics-worker.test.js`: 8 passed.
-- Existing `scripts/test_analytics.mjs`: passed.
-- JavaScript syntax checks and Python HTML parsing for both language entry pages: passed.
-- Browser verification on HTTPS preview `https://db76353d.k4-technology.pages.dev`: RU control case (1 MW, 100%, USD 0.10/kWh, 1 MW grid) returned 8,760 MWh, USD 876,000 Energy Charge Only, 0 MW deficit; EN Total Facility Load and IT Load calculations were reviewed. Explicit zero utilization/tariff and invalid utilization 101% were exercised; invalid input blocked calculation. Grid check used nominal peak and showed a 1 MW deficit when capacity was 9 MW for a 10 MW facility.
-- Responsive layout was visually checked in Chrome desktop and Responsive mode at 390 × 844 px; summary copy and explicit inquiry-draft inclusion worked. Screenshots were captured during QA.
-- Browser analytics dataLayer showed `screening_started`, `screening_completed`, `grid_capacity_deficit_detected`, and `analysis_cta_clicked` with page/language or safe CTA metadata only. `project_inquiry_submitted` was not end-to-end triggered because preview submits into K4's live lead intake; its confirmed-storage gate is covered by the regression tests.
-- No production code was changed. The live server-backed form was not submitted during tests because it would create a real lead.
+One test request, explicitly marked `INTERNAL TEST`, was submitted through the HTTPS preview. The form confirmed storage with reference `DD4104C1`. The K4 website lead notification was found in the connected K4 inbox, addressed to `ceo@k4-technology.com`, with status NEW, matching reference, form type and INTERNAL TEST marker. No second test request was sent.
 
-## Remaining limitations
+### Analytics
 
-The screen is a simplified annual model and does not confirm a utility offer or connection feasibility. Energy Charge Only excludes demand, connection and other charges. No full CAPEX/OPEX, reliability/outages, fuel logistics, taxes/financing, hourly dispatch, Solar/BESS, IRR or payback is calculated. There is no supported gas estimate without project-specific confirmed OEM curve and gas price with units and LHV/HHV basis. The API-backed inquiry sends user-entered contact and project information to K4 only when the user submits the form; the analytics stream receives no such details. A commercial/owner review of the latest preview is still required before production publication.
+The event code emits `project_inquiry_submitted` only after `lead_form_submit_success` for `power_screening_inquiry` with a server request reference; email clicks and unsuccessful attempts are excluded. This confirmed-storage gate is regression-tested.
+
+The connected GA4 query for 2026-11-21 returned no event rows and indicated cached data without force refresh. Therefore the actual GA4 arrival of this specific submission event is NOT confirmed; verify after the next GA4 data refresh. Analytics payloads contain only page path/language or safe event metadata, not project/contact inputs.
+
+### SEO and indexability
+
+- EN metadata: title “K4 Free Power Screening”; description present.
+- RU metadata: title “K4 Free Power Screening | Предварительная оценка мощности”; description present.
+- Both screening HTML pages currently specify `noindex,follow`; neither has a canonical URL or hreflang links.
+- Production robots.txt allows general search crawling and points to https://k4-technology.com/sitemap.xml.
+- The production sitemap does not list either future screening URL. The current production URL /gpu-estimate-hybrid-en/ returns 404; the production RU route is not live either.
+- Consequently, the screening pages are not currently indexable on production. Before publication, decide production canonical URLs, add reciprocal EN/RU hreflang (and x-default if intended), set production indexing directives, and include both URLs in the sitemap. Keep preview deployment out of the production sitemap.
+- Existing AI Power Project Advisory page has title/description/canonical and EN/x-default hreflang. Its page explicitly says K4 is not the EPC contractor and provides independent owner-side technical advice/review. It discusses new/used equipment selection and supplier proposals as analysis topics; it does not state that K4 sells EPC or equipment. The screening's commercial CTA is analysis-led.
+
+### Regression checks
+
+- Free Screening regression tests: 10 passed.
+- Existing remote diagnostics worker tests: 8 passed.
+- Existing analytics contract: passed.
+- Combined run of the new and existing suites: 28 passed, 0 failed (the Free Screening suite is included twice in the combined command).
+- HTTPS browser smoke: base GPU Estimate page loaded on the latest preview; the “Demonstration example: 10 × J320” action populated the model and produced calculated values, including 82,050,313 kWh/year, 108,091,919 ₽ average annual EBITDA, and 4.2-year simple payback. No edits were made to the base GPU calculator.
+- Commit review confirms Free Screening changes are confined to its bilingual pages/shared engine and UI/tests/documentation; the base `gpu-estimate/` calculator was not modified.
+
+## Commercial wording
+
+The screening describes a preliminary power-demand and grid-capacity check and directs users to “Request Independent Power Analysis.” K4's linked advisory describes independent owner-side technical review and explicitly disclaims EPC delivery. Its references to engines/equipment are framed as selection and proposal review, not equipment sales. No performance, savings, investment-return or availability claims are made by Free Screening.
+
+## Remaining limitations and production gate
+
+This simplified annual screen does not confirm utility availability. Energy Charge Only excludes demand, connection and other charges. Full CAPEX/OPEX, reliability/outages, fuel logistics, taxes/financing, hourly dispatch, Solar/BESS and investment return are excluded. The model is not engineering advice, a feasibility study or an investment recommendation.
+
+Do not publish until production canonical/hreflang/indexing/sitemap handling is prepared and verified, and `project_inquiry_submitted` is observed in refreshed GA4 data. Production remains untouched pending the user's separate publication approval.
