@@ -5,6 +5,8 @@ const ALLOWED_ORIGINS = new Set([
 ]);
 const ATTRIBUTION_KEYS = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "utm_id", "gclid", "fbclid"];
 const MAX_ATTEMPTS = 8;
+const CALCULATOR_EVENTS = new Set(["calculator_page_view", "calculator_started", "calculator_model_selected", "calculator_result_completed", "calculator_pdf_clicked", "calculator_contact_clicked"]);
+const UUID_V4 = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function corsHeaders(origin) {
   const headers = { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", "x-content-type-options": "nosniff" };
@@ -156,6 +158,84 @@ async function deliverPending(env, row) {
   return row;
 }
 
+function calculatorTrafficClass(request, profileType, requestedClass) {
+  const origin = request.headers.get("origin") || "";
+  if (/\.k4-technology\.pages\.dev$/.test(new URL(origin || "https://invalid.local").hostname) || requestedClass === "qa") return "qa";
+  const agent = request.headers.get("user-agent") || "";
+  if (/bot|crawler|spider|headless|lighthouse|pagespeed/i.test(agent)) return "probable_automation";
+  if (profileType === "demo") return "demo";
+  return "production";
+}
+
+function isInternalTraffic(request) {
+  return (request.headers.get("cookie") || "").split(";").some(part => part.trim() === "k4_internal=1");
+}
+
+function safeCalculatorEvent(input, request) {
+  if (!CALCULATOR_EVENTS.has(input?.event_name)) return null;
+  if (!UUID_V4.test(cleanText(input.event_id, 36)) || !UUID_V4.test(cleanText(input.session_id, 36)) || !UUID_V4.test(cleanText(input.calc_id, 36))) return null;
+  const pagePath = cleanText(input.page_path, 100);
+  if (!["/gpu-estimate/", "/gpu-estimate/en-beta/"].includes(pagePath)) return null;
+  const language = cleanText(input.language, 5);
+  const profileType = cleanText(input.profile_type, 12);
+  if (!["ru", "en"].includes(language) || !["oem", "incomplete", "manual", "demo"].includes(profileType)) return null;
+  if (input.event_name === "calculator_result_completed" && profileType === "demo") return null;
+  return {
+    event_id: input.event_id, created_at: new Date().toISOString(), event_name: input.event_name,
+    session_id: input.session_id, calc_id: input.calc_id,
+    brand: cleanText(input.brand, 60) || "unknown", model_id: cleanText(input.model_id, 80) || "unknown",
+    model_name: cleanText(input.model_name, 100) || "unknown", profile_type: profileType, language,
+    calculator_version: cleanText(input.calculator_version, 20) || "unknown", page_path: pagePath,
+    traffic_class: calculatorTrafficClass(request, profileType, input.traffic_class),
+    internal_traffic: isInternalTraffic(request) ? 1 : 0
+  };
+}
+
+async function handleCalculatorEvent(request, env) {
+  const origin = request.headers.get("origin") || "";
+  if (origin && !isAllowedOrigin(origin)) return json({ success: false }, 403, origin);
+  if (!env.LEADS_DB || !env.CALCULATOR_EVENT_RATE_LIMIT) return json({ success: false }, 503, origin);
+  if (Number(request.headers.get("content-length") || 0) > 4000) return json({ success: false }, 413, origin);
+  const limited = await env.CALCULATOR_EVENT_RATE_LIMIT.limit({ key: request.headers.get("cf-connecting-ip") || "unknown" });
+  if (!limited.success) return json({ success: false }, 429, origin);
+  let input;
+  try { input = await request.json(); } catch { return json({ success: false }, 400, origin); }
+  if (new TextEncoder().encode(JSON.stringify(input)).byteLength > 4000) return json({ success: false }, 413, origin);
+  const event = safeCalculatorEvent(input, request);
+  if (!event) return json({ success: false }, 422, origin);
+  try {
+    const statements = [];
+    if (event.event_name === "calculator_result_completed" && event.traffic_class !== "demo") {
+      statements.push(env.LEADS_DB.prepare(`INSERT OR IGNORE INTO calculator_completions
+        (calc_id, created_at, brand, model_id, model_name, profile_type, language, calculator_version, page_path, traffic_class, internal_traffic)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+        .bind(event.calc_id, event.created_at, event.brand, event.model_id, event.model_name, event.profile_type, event.language, event.calculator_version, event.page_path, event.traffic_class, event.internal_traffic));
+    }
+    statements.push(env.LEADS_DB.prepare(`INSERT OR IGNORE INTO calculator_events
+      (event_id, created_at, event_name, session_id, calc_id, brand, model_id, model_name, profile_type, language, calculator_version, page_path, traffic_class, internal_traffic)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+      .bind(event.event_id, event.created_at, event.event_name, event.session_id, event.calc_id, event.brand, event.model_id, event.model_name, event.profile_type, event.language, event.calculator_version, event.page_path, event.traffic_class, event.internal_traffic));
+    const results = await env.LEADS_DB.batch(statements);
+    return json({ success: true, stored: true, duplicate: results.every(result => Number(result.meta?.changes || 0) === 0) }, 202, origin);
+  } catch {
+    return json({ success: false, stored: false }, 503, origin);
+  }
+}
+
+async function recordCalculatorLead(env, leadId, calcId, allowQa = false) {
+  if (!calcId || !UUID_V4.test(calcId)) return false;
+  try {
+    const completion = await env.LEADS_DB.prepare(`SELECT calc_id, brand, model_id, model_name, profile_type, language, calculator_version, page_path
+      FROM calculator_completions WHERE calc_id = ? AND internal_traffic = 0 AND (traffic_class = 'production' OR (? = 1 AND traffic_class = 'qa'))`).bind(calcId, allowQa ? 1 : 0).first();
+    if (!completion) return false;
+    await env.LEADS_DB.prepare(`INSERT OR IGNORE INTO calculator_events
+      (event_id, created_at, event_name, session_id, calc_id, brand, model_id, model_name, profile_type, language, calculator_version, page_path, traffic_class, internal_traffic)
+      VALUES (?, ?, 'generate_lead', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`)
+      .bind(`lead-${leadId}`, new Date().toISOString(), leadId, calcId, completion.brand, completion.model_id, completion.model_name, completion.profile_type, completion.language, completion.calculator_version, completion.page_path, completion.traffic_class).run();
+    return true;
+  } catch { return false; }
+}
+
 async function handleSubmission(request, env) {
   const origin = request.headers.get("origin") || "";
   if (origin && !isAllowedOrigin(origin)) return json({ success: false, error: "Origin not allowed." }, 403, origin);
@@ -173,6 +253,15 @@ async function handleSubmission(request, env) {
   if (!validContact(contact)) return json({ success: false, error: "Enter a valid email address or phone number." }, 422, origin);
   const suppliedId = cleanText(input.requestId, 36);
   const id = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(suppliedId) ? suppliedId : crypto.randomUUID();
+  const suppliedCalcId = cleanText(input.calcId, 36);
+  const calcId = UUID_V4.test(suppliedCalcId) ? suppliedCalcId : null;
+  let validCalcId = null;
+  if (calcId) {
+    try {
+      const completion = await env.LEADS_DB.prepare("SELECT calc_id FROM calculator_completions WHERE calc_id = ? AND internal_traffic = 0 AND (traffic_class = 'production' OR (? = 1 AND traffic_class = 'qa'))").bind(calcId, env.K4_PREVIEW_QA === true ? 1 : 0).first();
+      if (completion) validCalcId = calcId;
+    } catch { /* Missing analytics tables must not block lead storage. */ }
+  }
   const now = new Date().toISOString();
   const sourceUrl = safeSourceUrl(input.sourceUrl);
   if (!sourceUrl) return json({ success: false, error: "Invalid page source." }, 422, origin);
@@ -187,24 +276,27 @@ async function handleSubmission(request, env) {
     source_url: sourceUrl,
     timezone: cleanText(input.timezone, 100),
     attribution_json: JSON.stringify(cleanAttribution(input.attribution)),
+    calc_id: validCalcId,
     safety_ack: input.safetyAcknowledged === true ? 1 : 0,
-    email_status: "pending",
+    email_status: env.K4_PREVIEW_QA === true ? "suppressed" : "pending",
     email_attempts: 0,
     next_attempt_at: now,
     updated_at: now
   };
   try {
     await env.LEADS_DB.prepare(`INSERT INTO site_leads
-      (id, created_at, language, form_type, contact, message, details_json, source_url, timezone, attribution_json, safety_ack, email_status, email_attempts, next_attempt_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', 0, ?, ?)`)
-      .bind(row.id, row.created_at, row.language, row.form_type, row.contact, row.message, row.details_json, row.source_url, row.timezone, row.attribution_json, row.safety_ack, now, now).run();
+      (id, created_at, language, form_type, contact, message, details_json, source_url, timezone, attribution_json, safety_ack, calc_id, email_status, email_attempts, next_attempt_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)`)
+      .bind(row.id, row.created_at, row.language, row.form_type, row.contact, row.message, row.details_json, row.source_url, row.timezone, row.attribution_json, row.safety_ack, row.calc_id, row.email_status, now, now).run();
   } catch {
-    const existing = await env.LEADS_DB.prepare("SELECT id, email_status FROM site_leads WHERE id = ?").bind(id).first();
+    const existing = await env.LEADS_DB.prepare("SELECT id, email_status, calc_id FROM site_leads WHERE id = ?").bind(id).first();
     if (!existing) return json({ success: false, error: "The request could not be saved. Please retry or contact K4 directly." }, 503, origin);
-    return json({ success: true, stored: true, reference: reference(id), emailStatus: existing.email_status }, 200, origin);
+    const calculatorAttributionStored = await recordCalculatorLead(env, id, existing.calc_id, env.K4_PREVIEW_QA === true);
+    return json({ success: true, stored: true, reference: reference(id), emailStatus: existing.email_status, calculatorAttributionStored }, 200, origin);
   }
-  await deliverPending(env, row);
-  return json({ success: true, stored: true, reference: reference(id), emailStatus: row.email_status }, 201, origin);
+  const calculatorAttributionStored = await recordCalculatorLead(env, id, row.calc_id, env.K4_PREVIEW_QA === true);
+  if (env.K4_PREVIEW_QA !== true) await deliverPending(env, row);
+  return json({ success: true, stored: true, reference: reference(id), emailStatus: row.email_status, calculatorAttributionStored }, 201, origin);
 }
 
 async function retryPending(env) {
@@ -264,6 +356,7 @@ export default {
       return json({ ok: true, storage: Boolean(env.LEADS_DB), emailConfigured: Boolean(env.GMAIL_RELAY_URL && env.GMAIL_RELAY_SECRET) }, 200, origin);
     }
     if (request.method !== "POST") return json({ success: false, error: "Method not allowed." }, 405, origin);
+    if (url.pathname.endsWith("/api/calculator-events")) return handleCalculatorEvent(request, env);
     return handleSubmission(request, env);
   },
   async scheduled(_event, env, ctx) {

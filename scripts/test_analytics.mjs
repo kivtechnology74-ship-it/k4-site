@@ -9,30 +9,35 @@ import {buildCampaignUrl,validateCampaign,validateCampaignUrl} from './campaign_
 const ROOT=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const source=await readFile(resolve(ROOT,'assets/intelligence.js'),'utf8');
 
-const boot=(href,storedInternal=false,{elements=[],form=null}={})=>{
+const boot=(href,storedInternal=false,{elements=[],form=null,consent=true}={})=>{
   const pageUrl=new URL(href);
   const storage=new Map(storedInternal?[['k4_internal','true']]:[]);
   const replaced=[];
+  const listeners={};
+  const created=[];const scripts=[];
   const window={
     dataLayer:[],
-    addEventListener(){},
-    dispatchEvent(){},
+    k4AnalyticsConsent:consent,
+    addEventListener(type,listener){listeners[type]=listener;},
+    dispatchEvent(event){listeners[event.type]?.(event);},
     setTimeout(){},
     scrollY:0,
     innerHeight:800
   };
   const document={
-    cookie:storedInternal?'k4_internal=1':'',
+    cookie:[storedInternal?'k4_internal=1':'',consent?'k4_analytics_consent=granted':''].filter(Boolean).join('; '),
     documentElement:{lang:'en',scrollHeight:1000},
-    body:{scrollHeight:1000},
-    head:{appendChild(){}},
+    body:{scrollHeight:1000,appendChild(element){created.push(element);}},
+    head:{appendChild(element){scripts.push(element);}},
     querySelector(selector){
-      if(selector.startsWith('script['))return {};
+      if(selector.startsWith('script['))return scripts.find(script=>selector.includes(script.src||'__none__'))||null;
       if(selector==='[data-lead-form]')return form;
       return null;
     },
     querySelectorAll(selector){return selector==='a[href], [data-event]'?elements:[];},
-    createElement(){return {dataset:{}};},
+    createTextNode(text){return {textContent:String(text)};},
+    createElement(tag){const listeners={};const element={tagName:tag.toUpperCase(),dataset:{},style:{},hidden:false,children:[],addEventListener(type,listener){listeners[type]=listener;},append(...items){this.children.push(...items);},querySelector(selector){return this.children.find(child=>child.id===selector.slice(1))||null;},setAttribute(){},click(type='click'){listeners[type]?.();}};created.push(element);return element;},
+    getElementById(id){return created.find(element=>element.id===id)||null;},
     addEventListener(){}
   };
   const location={
@@ -56,8 +61,26 @@ const boot=(href,storedInternal=false,{elements=[],form=null}={})=>{
   window.window=window;
   vm.runInNewContext(source,context,{filename:'assets/intelligence.js'});
   const config=window.dataLayer.find(args=>args[0]==='config');
-  return {config:config?.[2],replaced,storage,dataLayer:window.dataLayer};
+  return {config:config?.[2],replaced,storage,dataLayer:window.dataLayer,window,document,created,scripts};
 };
+{
+  const result=boot('https://k4-technology.com/',false,{consent:false});
+  assert.equal(result.config,undefined);
+  assert.equal(result.dataLayer.some(args=>args[0]==='config'),false);
+  assert.equal(result.scripts.some(script=>script.src?.includes('googletagmanager.com')),false);
+  const banner=result.created.find(element=>element.id==='k4-consent-banner');
+  assert.ok(banner);
+  assert.equal(banner.hidden,false);
+  assert.deepEqual(banner.children[2].children.map(button=>button.textContent),['Accept analytics','Reject analytics']);
+  const fallbackFooter=result.created.find(element=>element.className==='k4-consent-footer');
+  assert.ok(fallbackFooter,'calculator pages without a site footer still need persistent consent settings');
+  assert.ok(fallbackFooter.children.some(element=>element.id==='k4-privacy-settings'));
+  banner.children[2].children[0].click();
+  assert.equal(result.window.k4AnalyticsConsent,true);
+  assert.ok(result.document.cookie.includes('k4_analytics_consent=granted'));
+  assert.equal(result.scripts.filter(script=>script.src?.includes('googletagmanager.com/gtag/js?id=G-7ZWVHK5XV9')).length,1);
+  assert.equal(result.dataLayer.filter(args=>args[0]==='config').length,1);
+}
 
 const fakeLink=({href,event,channel='internal_navigation'})=>{
   const listeners={};
