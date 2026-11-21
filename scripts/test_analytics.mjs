@@ -80,6 +80,19 @@ const boot=(href,storedInternal=false,{elements=[],form=null,consent=true}={})=>
   assert.ok(result.document.cookie.includes('k4_analytics_consent=granted'));
   assert.equal(result.scripts.filter(script=>script.src?.includes('googletagmanager.com/gtag/js?id=G-7ZWVHK5XV9')).length,1);
   assert.equal(result.dataLayer.filter(args=>args[0]==='config').length,1);
+  const settings=result.created.find(element=>element.className==='k4-consent-footer')
+    .children.find(element=>element.id==='k4-privacy-settings');
+  settings.click();
+  banner.children[2].children[1].click();
+  assert.equal(result.window.k4AnalyticsConsent,false);
+  settings.click();
+  banner.children[2].children[0].click();
+  assert.equal(result.window.k4AnalyticsConsent,true);
+  assert.equal(result.scripts.filter(script=>script.src?.includes('googletagmanager.com/gtag/js?id=G-7ZWVHK5XV9')).length,1);
+  assert.equal(result.dataLayer.filter(args=>args[0]==='config').length,1);
+  assert.deepEqual(result.dataLayer
+    .filter(args=>args[0]==='consent'&&args[1]==='update')
+    .map(args=>args[2].analytics_storage),['granted','denied','granted']);
 }
 
 const fakeLink=({href,event,channel='internal_navigation'})=>{
