@@ -5,7 +5,7 @@ import vm from 'node:vm';
 import {webcrypto} from 'node:crypto';
 
 const source=await readFile(new URL('../assets/calculator-analytics.js',import.meta.url),'utf8');
-function boot({consent=true,ua='Mozilla/5.0',hostname='k4-technology.com'}={}){
+function boot({consent=true,ua='Mozilla/5.0',hostname='k4-technology.com',eventWriteFails=false}={}){
   const eventCalls=[],gaCalls=[],timers=new Map(),inputs=new Map();let timerId=0;
   const profile={dataset:{},value:'2',addEventListener(){}};
   let contactClick;const contact={href:'/services/remote-technical-review/#review-form',addEventListener(type,listener){if(type==='click')contactClick=listener;}};const contactContainer={hidden:true};
@@ -17,7 +17,7 @@ function boot({consent=true,ua='Mozilla/5.0',hostname='k4-technology.com'}={}){
     getElementById(id){return inputs.get(id)||null;}
   };
   const navigations=[];const window={k4AnalyticsConsent:consent,gtag:(...args)=>gaCalls.push(args),location:{assign:url=>navigations.push(url)},setTimeout(fn){const id=++timerId;timers.set(id,fn);return id;},clearTimeout(id){timers.delete(id);}};
-  const context={window,document,location:{pathname:'/gpu-estimate/en-beta/',href:`https://${hostname}/gpu-estimate/en-beta/`,hostname},navigator:{userAgent:ua,doNotTrack:'0'},URL,URLSearchParams,crypto:webcrypto,sessionStorage:{getItem(){return null;},setItem(){}},fetch:(url,options)=>{eventCalls.push(JSON.parse(options.body));return Promise.resolve({ok:true});},CustomEvent:class{},console};
+  const context={window,document,location:{pathname:'/gpu-estimate/en-beta/',href:`https://${hostname}/gpu-estimate/en-beta/`,hostname},navigator:{userAgent:ua,doNotTrack:'0'},URL,URLSearchParams,crypto:webcrypto,sessionStorage:{getItem(){return null;},setItem(){}},fetch:(url,options)=>{eventCalls.push(JSON.parse(options.body));return eventWriteFails?Promise.reject(new Error('synthetic analytics failure')):Promise.resolve({ok:true});},CustomEvent:class{},console};
   vm.runInNewContext(source,context,{filename:'calculator-analytics.js'});
   const flush=()=>{const work=[...timers.values()];timers.clear();work.forEach(fn=>fn());};
   const setInput=(id,value)=>inputs.set(id,{value:String(value)});
@@ -68,11 +68,24 @@ const validProfile={id:'r5_10',brand:'Jenbacher',engine:'J320',status:'OEM confi
   const completions=app.eventCalls.filter(event=>event.event_name==='calculator_result_completed');
   assert.equal(completions.length,2);assert.notEqual(completions[0].calc_id,completions[1].calc_id);
   assert.equal(app.eventCalls.filter(event=>event.event_name==='calculator_model_selected').length,1);
+  assert.equal(app.eventCalls.find(event=>event.event_name==='calculator_model_selected').model_id,'r5_11');
+  app.window.K4CalculatorAnalytics.selected(validProfile);app.window.K4CalculatorAnalytics.modelSelected();
+  assert.equal(app.eventCalls.filter(event=>event.event_name==='calculator_model_selected').at(-1).model_id,'r5_10');
 }
 {
   const app=boot({consent:false});app.window.K4CalculatorAnalytics.selected(validProfile);
   app.window.K4CalculatorAnalytics.changed();app.window.K4CalculatorResult={valid:true};app.flush();
   assert.deepEqual(app.eventCalls,[]);assert.deepEqual(app.gaCalls,[]);
+}
+{
+  const app=boot({eventWriteFails:true});app.window.K4CalculatorAnalytics.selected(validProfile);
+  app.setInput('power',1000);app.window.K4CalculatorAnalytics.changed();app.window.K4CalculatorResult={valid:true};app.flush();
+  assert.equal(app.contactContainer.hidden,false);
+  const pdfDelivery=app.window.K4CalculatorAnalytics.pdfClicked();
+  const pdfGaCall=app.gaCalls.filter(call=>call[1]==='calculator_pdf_clicked').at(-1);
+  pdfGaCall[2].event_callback();
+  assert.equal(await pdfDelivery,true); // GA can receive it even if D1 is unavailable.
+  assert.equal(app.eventCalls.at(-1).event_name,'calculator_pdf_clicked');
 }
 {
   const app=boot({ua:'SyntheticCrawler/1.0'});
