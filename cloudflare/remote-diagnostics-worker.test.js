@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { createHmac } from "node:crypto";
 import worker from "./remote-diagnostics-worker.js";
 import { onRequest as onPreviewCalculatorEvents } from "../functions/api/calculator-events.js";
+import { onRequest as onPreviewRemoteDiagnostics } from "../functions/api/remote-diagnostics.js";
 
 class MemoryD1 {
   rows = new Map();
@@ -14,9 +15,9 @@ class MemoryD1 {
     statement.bind = (...values) => { statement.values = values; return statement; };
     statement.run = async () => {
       if (sql.includes("INSERT INTO site_leads")) {
-        const [id, created_at, language, form_type, contact, message, details_json, source_url, timezone, attribution_json, safety_ack, calc_id, next_attempt_at, updated_at] = statement.values;
+        const [id, created_at, language, form_type, contact, message, details_json, source_url, timezone, attribution_json, safety_ack, calc_id, email_status, next_attempt_at, updated_at] = statement.values;
         if (this.rows.has(id)) throw new Error("UNIQUE constraint failed");
-        this.rows.set(id, { id, created_at, language, form_type, contact, message, details_json, source_url, timezone, attribution_json, safety_ack, calc_id, email_status: "pending", email_attempts: 0, email_error: null, next_attempt_at, updated_at });
+        this.rows.set(id, { id, created_at, language, form_type, contact, message, details_json, source_url, timezone, attribution_json, safety_ack, calc_id, email_status, email_attempts: 0, email_error: null, next_attempt_at, updated_at });
         return { success: true, meta: { changes: 1 } };
       }
       if (sql.includes("INSERT OR IGNORE INTO calculator_completions")) {
@@ -27,7 +28,7 @@ class MemoryD1 {
       }
       if (sql.includes("INSERT OR IGNORE INTO calculator_events")) {
         const [event_id, created_at, event_name, session_id, calc_id, brand, model_id, model_name, profile_type, language, calculator_version, page_path, traffic_class] = sql.includes("'generate_lead'")
-          ? [statement.values[0], statement.values[1], "generate_lead", statement.values[2], ...statement.values.slice(3), "production"]
+          ? [statement.values[0], statement.values[1], "generate_lead", ...statement.values.slice(2)]
           : statement.values;
         const exists = this.events.has(event_id);
         if (!exists) this.events.set(event_id, { event_id, created_at, event_name, session_id, calc_id, brand, model_id, model_name, profile_type, language, calculator_version, page_path, traffic_class });
@@ -61,7 +62,8 @@ class MemoryD1 {
     statement.first = async () => {
       if (sql.includes("FROM calculator_completions")) {
         const completion = this.completions.get(statement.values[0]);
-        return completion && (!sql.includes("traffic_class = 'production'") || completion.traffic_class === "production") ? completion : null;
+        const allowQa = statement.values[1] === 1;
+        return completion && (completion.traffic_class === "production" || (allowQa && completion.traffic_class === "qa")) ? completion : null;
       }
       const row = this.rows.get(statement.values[0]);
       return row ? { id: row.id, email_status: row.email_status, calc_id: row.calc_id } : null;
@@ -130,6 +132,34 @@ test("stores first and sends signed lead data to the Gmail relay", async () => {
   const row = [...db.rows.values()][0];
   assert.equal(row.source_url, "https://k4-technology.com/services/remote-gas-engine-diagnostics/?utm_source=test");
   assert.equal(JSON.parse(row.attribution_json).email, undefined);
+});
+
+test("preview synthetic lead is stored in QA with calculator attribution and email suppressed", async () => {
+  const db = new MemoryD1();
+  db.completions.set(eventPayload().calc_id, { ...eventPayload(), traffic_class: "qa" });
+  let emailCalls = 0;
+  await withRelay(async () => { emailCalls++; return Response.json({ ok: true }); }, async () => {
+    const request = new Request("https://branch.k4-technology.pages.dev/api/remote-diagnostics", {
+      method: "POST", headers: { origin: "https://branch.k4-technology.pages.dev", "content-type": "application/json" },
+      body: JSON.stringify(payload({
+        requestId: "29a292b0-99dc-4d11-84bb-ce431d72b59a",
+        calcId: eventPayload().calc_id,
+        sourceUrl: "https://branch.k4-technology.pages.dev/ru/services/remote-gas-engine-diagnostics/",
+        contact: "synthetic@example.invalid", message: "Synthetic Preview QA only"
+      }))
+    });
+    const response = await onPreviewRemoteDiagnostics({ request, env: makeEnv(db) });
+    assert.equal(response.status, 201);
+    const result = await response.json();
+    assert.equal(result.stored, true);
+    assert.equal(result.emailStatus, "suppressed");
+    assert.equal(result.calculatorAttributionStored, true);
+  });
+  assert.equal(emailCalls, 0);
+  assert.equal([...db.rows.values()][0].email_status, "suppressed");
+  assert.equal([...db.rows.values()][0].calc_id, eventPayload().calc_id);
+  assert.equal([...db.events.values()].filter(event => event.event_name === "generate_lead").length, 1);
+  assert.equal([...db.events.values()].find(event => event.event_name === "generate_lead").traffic_class, "qa");
 });
 
 test("accepts only a phone number with no message", async () => {

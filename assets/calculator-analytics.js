@@ -10,7 +10,7 @@
   const qa=location.hostname.endsWith('.pages.dev')||new URLSearchParams(location.search).has('qa')||new URLSearchParams(location.search).get('utm_source')==='codex_internal_test';
   const automation=/bot|crawler|spider|headless|lighthouse|pagespeed/i.test(navigator.userAgent||'');
   const trafficClass=qa?'qa':automation?'probable_automation':'production';
-  const consentAllowed=()=>!['1','yes'].includes(String(navigator.doNotTrack||'').toLowerCase())&&window.k4AnalyticsConsent!==false;
+  const consentAllowed=()=>!['1','yes'].includes(String(navigator.doNotTrack||'').toLowerCase())&&window.k4AnalyticsConsent===true;
   const id=()=>crypto.randomUUID();
   const base={brand:'k4',language,calculator_version:VERSION,page_path:pagePath};
   let calcId=id();
@@ -20,6 +20,7 @@
   let lastFingerprint='';
   let validCurrent=false;
   let completionPromise=Promise.resolve(false);
+  let contactPromise=Promise.resolve(false);
 
   function selectedModel(profile){
     if(modelSelect?.value==='custom'||profile?.isCustom)return{brand:'custom',model_id:'manual',model_name:'manual profile',profile_type:'manual'};
@@ -50,22 +51,48 @@
     return JSON.stringify([model.model_id,...ids.map(field=>document.getElementById(field)?.value??'')]);
   }
   function context(){return{...base,...model,calc_id:calcId};}
+  function clearContact(){
+    validCurrent=false;
+    if(contactContainer)contactContainer.hidden=true;
+    if(contact){const url=new URL(contact.href,location.href);url.searchParams.delete('calc_id');contact.href=url.href;}
+  }
+  function newScenario(){
+    window.clearTimeout(completeTimer);
+    calcId=id();started=false;validCurrent=false;lastFingerprint='';
+    window.K4CalculatorAnalytics.lastCompleted='';
+    clearContact();
+  }
   window.K4CalculatorAnalytics={
-    selected(profile){const next=selectedModel(profile);if(window.K4CalculatorAnalytics.lastCompleted&&next.model_id!==model.model_id){calcId=id();started=false;validCurrent=false;window.K4CalculatorAnalytics.lastCompleted='';}model={...next};},
-    modelSelected(profile){if(profile){const next=selectedModel(profile);if(window.K4CalculatorAnalytics.lastCompleted&&next.model_id!==model.model_id){calcId=id();started=false;validCurrent=false;window.K4CalculatorAnalytics.lastCompleted='';}model={...next};}start();send('calculator_model_selected');window.clearTimeout(completeTimer);const current=fingerprint();lastFingerprint=current;completeTimer=window.setTimeout(()=>window.K4CalculatorAnalytics.complete(current),650);},
-    changed(){const current=fingerprint();if(window.K4CalculatorAnalytics.lastCompleted===current){lastFingerprint=current;return;}if(window.K4CalculatorAnalytics.lastCompleted&&current!==window.K4CalculatorAnalytics.lastCompleted){calcId=id();started=false;validCurrent=false;window.K4CalculatorAnalytics.lastCompleted='';}start();window.clearTimeout(completeTimer);lastFingerprint=current;validCurrent=false;completeTimer=window.setTimeout(()=>window.K4CalculatorAnalytics.complete(current),650);},
+    selected(profile){
+      const next=selectedModel(profile);
+      if(next.model_id!==model.model_id&&model.model_id!=='unknown')newScenario();
+      model={...next};
+      if(next.model_id==='unknown')clearContact();
+    },
+    modelSelected(profile){
+      if(profile){const next=selectedModel(profile);if(next.model_id!==model.model_id&&model.model_id!=='unknown')newScenario();model={...next};}
+      if(model.model_id==='unknown'){clearContact();return;}
+      start();send('calculator_model_selected');window.clearTimeout(completeTimer);const current=fingerprint();lastFingerprint=current;completeTimer=window.setTimeout(()=>window.K4CalculatorAnalytics.complete(current),650);
+    },
+    changed(){
+      const current=fingerprint();
+      if(window.K4CalculatorAnalytics.lastCompleted===current){lastFingerprint=current;return;}
+      if(window.K4CalculatorAnalytics.lastCompleted&&current!==window.K4CalculatorAnalytics.lastCompleted)newScenario();
+      clearContact();start();window.clearTimeout(completeTimer);lastFingerprint=current;completeTimer=window.setTimeout(()=>window.K4CalculatorAnalytics.complete(current),650);
+    },
     complete(expected){
       if(expected&&expected!==fingerprint())return;
       const values=window.K4CalculatorResult;
-      if(!values||values.valid!==true||model.profile_type==='demo')return;
+      if(!values||values.valid!==true||model.profile_type==='demo'){clearContact();return false;}
       const current=fingerprint();if(current===window.K4CalculatorAnalytics.lastCompleted)return;
-      if(!started)return;
+      if(!started)return false;
       calcId=calcId||id();validCurrent=true;lastFingerprint=current;window.K4CalculatorAnalytics.lastCompleted=current;
       const ctaUrl=new URL(contact.href,location.href);ctaUrl.searchParams.set('calc_id',calcId);contact.href=ctaUrl.href;if(contactContainer)contactContainer.hidden=false;
       completionPromise=send('calculator_result_completed',calcId);
+      return true;
     },
     pdfClicked(){if(!validCurrent||!consentAllowed())return Promise.resolve(false);return send('calculator_pdf_clicked').then(saved=>new Promise(resolve=>window.setTimeout(()=>resolve(saved),350)));},
-    contactClicked(){if(validCurrent)send('calculator_contact_clicked');},
+    contactClicked(){if(validCurrent)contactPromise=send('calculator_contact_clicked');return contactPromise;},
     current(){return validCurrent?context():null;}
   };
   model={...selectedModel()};
@@ -76,9 +103,9 @@
   contact?.addEventListener('click',event=>{
     if(!validCurrent)return;
     event.preventDefault();
-    window.K4CalculatorAnalytics.contactClicked();
+    const contactDelivery=window.K4CalculatorAnalytics.contactClicked();
     const destination=contact.href;
     const fallback=new Promise(resolve=>window.setTimeout(()=>resolve(false),1500));
-    Promise.race([completionPromise,fallback]).finally(()=>window.location.assign(destination));
+    Promise.race([Promise.all([completionPromise,contactDelivery]),fallback]).finally(()=>window.location.assign(destination));
   });
 })();

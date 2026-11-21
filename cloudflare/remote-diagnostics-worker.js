@@ -217,16 +217,16 @@ async function handleCalculatorEvent(request, env) {
   }
 }
 
-async function recordCalculatorLead(env, leadId, calcId) {
+async function recordCalculatorLead(env, leadId, calcId, allowQa = false) {
   if (!calcId || !UUID_V4.test(calcId)) return false;
   try {
     const completion = await env.LEADS_DB.prepare(`SELECT calc_id, brand, model_id, model_name, profile_type, language, calculator_version, page_path
-      FROM calculator_completions WHERE calc_id = ? AND traffic_class = 'production'`).bind(calcId).first();
+      FROM calculator_completions WHERE calc_id = ? AND (traffic_class = 'production' OR (? = 1 AND traffic_class = 'qa'))`).bind(calcId, allowQa ? 1 : 0).first();
     if (!completion) return false;
     await env.LEADS_DB.prepare(`INSERT OR IGNORE INTO calculator_events
       (event_id, created_at, event_name, session_id, calc_id, brand, model_id, model_name, profile_type, language, calculator_version, page_path, traffic_class)
-      VALUES (?, ?, 'generate_lead', ?, ?, ?, ?, ?, ?, ?, ?, ?, 'production')`)
-      .bind(`lead-${leadId}`, new Date().toISOString(), leadId, calcId, completion.brand, completion.model_id, completion.model_name, completion.profile_type, completion.language, completion.calculator_version, completion.page_path).run();
+      VALUES (?, ?, 'generate_lead', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+      .bind(`lead-${leadId}`, new Date().toISOString(), leadId, calcId, completion.brand, completion.model_id, completion.model_name, completion.profile_type, completion.language, completion.calculator_version, completion.page_path, completion.traffic_class).run();
     return true;
   } catch { return false; }
 }
@@ -253,7 +253,7 @@ async function handleSubmission(request, env) {
   let validCalcId = null;
   if (calcId) {
     try {
-      const completion = await env.LEADS_DB.prepare("SELECT calc_id FROM calculator_completions WHERE calc_id = ? AND traffic_class = 'production'").bind(calcId).first();
+      const completion = await env.LEADS_DB.prepare("SELECT calc_id FROM calculator_completions WHERE calc_id = ? AND (traffic_class = 'production' OR (? = 1 AND traffic_class = 'qa'))").bind(calcId, env.K4_PREVIEW_QA === true ? 1 : 0).first();
       if (completion) validCalcId = calcId;
     } catch { /* Missing analytics tables must not block lead storage. */ }
   }
@@ -273,7 +273,7 @@ async function handleSubmission(request, env) {
     attribution_json: JSON.stringify(cleanAttribution(input.attribution)),
     calc_id: validCalcId,
     safety_ack: input.safetyAcknowledged === true ? 1 : 0,
-    email_status: "pending",
+    email_status: env.K4_PREVIEW_QA === true ? "suppressed" : "pending",
     email_attempts: 0,
     next_attempt_at: now,
     updated_at: now
@@ -281,16 +281,16 @@ async function handleSubmission(request, env) {
   try {
     await env.LEADS_DB.prepare(`INSERT INTO site_leads
       (id, created_at, language, form_type, contact, message, details_json, source_url, timezone, attribution_json, safety_ack, calc_id, email_status, email_attempts, next_attempt_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', 0, ?, ?)`)
-      .bind(row.id, row.created_at, row.language, row.form_type, row.contact, row.message, row.details_json, row.source_url, row.timezone, row.attribution_json, row.safety_ack, row.calc_id, now, now).run();
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?)`)
+      .bind(row.id, row.created_at, row.language, row.form_type, row.contact, row.message, row.details_json, row.source_url, row.timezone, row.attribution_json, row.safety_ack, row.calc_id, row.email_status, now, now).run();
   } catch {
     const existing = await env.LEADS_DB.prepare("SELECT id, email_status, calc_id FROM site_leads WHERE id = ?").bind(id).first();
     if (!existing) return json({ success: false, error: "The request could not be saved. Please retry or contact K4 directly." }, 503, origin);
-    const calculatorAttributionStored = await recordCalculatorLead(env, id, existing.calc_id);
+    const calculatorAttributionStored = await recordCalculatorLead(env, id, existing.calc_id, env.K4_PREVIEW_QA === true);
     return json({ success: true, stored: true, reference: reference(id), emailStatus: existing.email_status, calculatorAttributionStored }, 200, origin);
   }
-  const calculatorAttributionStored = await recordCalculatorLead(env, id, row.calc_id);
-  await deliverPending(env, row);
+  const calculatorAttributionStored = await recordCalculatorLead(env, id, row.calc_id, env.K4_PREVIEW_QA === true);
+  if (env.K4_PREVIEW_QA !== true) await deliverPending(env, row);
   return json({ success: true, stored: true, reference: reference(id), emailStatus: row.email_status, calculatorAttributionStored }, 201, origin);
 }
 

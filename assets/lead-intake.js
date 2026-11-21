@@ -16,7 +16,7 @@
     sending:'Sending…',saved:'Request received and saved',savedBody:'K4 received and saved your request. Reference: ',queued:'Your request is saved; the email to K4 will be retried automatically. Reference: ',failed:'Your request is saved, but the email to K4 was not delivered. Contact K4 directly. Reference: ',error:'The request could not be reliably saved. Try again or contact K4 directly.'
   };
   const attributionKeys=['utm_source','utm_medium','utm_campaign','utm_term','utm_content','utm_id','gclid','fbclid'];
-  const apiBase=location.hostname.endsWith('.k4-technology.pages.dev')?'https://k4-technology.com':'';
+  const apiBase=location.hostname==='k4-technology.com'||location.hostname==='www.k4-technology.com'?'https://k4-technology.com':'';
   let attribution={};
   try{
     attribution={...JSON.parse(sessionStorage.getItem('k4_campaign_attribution')||'{}')};
@@ -26,7 +26,7 @@
   }catch(error){/* Attribution must not interrupt submission. */}
   const track=(event,details={})=>{
     const payload={page_path:location.pathname,language,...details};
-    if(typeof window.gtag==='function')window.gtag('event',event,payload);
+    if(window.k4AnalyticsConsent===true&&typeof window.gtag==='function')window.gtag('event',event,payload);
     window.dispatchEvent(new CustomEvent('k4:analytics',{detail:{event,...payload}}));
   };
   const requestId=()=>crypto.randomUUID();

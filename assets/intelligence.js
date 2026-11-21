@@ -79,6 +79,7 @@
   const trafficParams={};
   if(isInternal)trafficParams.traffic_type='internal';
   if(isQa)trafficParams.debug_mode=true;
+  window.k4AnalyticsInternal=isInternal;
 
   const localeSegments=new Set(['en','ru','zh','es','pt-br']);
   const routeInfo=pathname=>{
@@ -113,7 +114,15 @@
   window.dataLayer=window.dataLayer||[];
   window.gtag=window.gtag||function(){window.dataLayer.push(arguments)};
   const analyticsContext=pageContext();
-  const analyticsAllowed=()=>window.k4AnalyticsConsent!==false&&(typeof navigator==='undefined'||!['1','yes'].includes(String(navigator.doNotTrack||'').toLowerCase()));
+  const analyticsAllowed=()=>window.k4AnalyticsConsent===true&&(typeof navigator==='undefined'||!['1','yes'].includes(String(navigator.doNotTrack||'').toLowerCase()));
+  const sanitizedReferrer=()=>{
+    try{
+      if(!document.referrer)return'';
+      const referrer=new URL(document.referrer);
+      for(const key of [...referrer.searchParams.keys()])if(!utmKeys.has(key))referrer.searchParams.delete(key);
+      return referrer.href;
+    }catch(error){return'';}
+  };
   if(analyticsAllowed()){
     window.gtag('set',analyticsContext);
     if(!document.querySelector(`script[src*="googletagmanager.com/gtag/js?id=${gaId}"]`)){
@@ -124,7 +133,7 @@
       document.head.appendChild(script);
     }
     window.gtag('js',new Date());
-    window.gtag('config',gaId,{...analyticsContext,page_location:analyticsPageUrl.href});
+    window.gtag('config',gaId,{...analyticsContext,page_location:analyticsPageUrl.href,page_referrer:sanitizedReferrer()});
   }
   if(analyticsPageUrl.href!==location.href){
     history.replaceState(history.state,'',`${analyticsPageUrl.pathname}${analyticsPageUrl.search}${analyticsPageUrl.hash}`);

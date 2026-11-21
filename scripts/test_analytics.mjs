@@ -9,12 +9,13 @@ import {buildCampaignUrl,validateCampaign,validateCampaignUrl} from './campaign_
 const ROOT=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const source=await readFile(resolve(ROOT,'assets/intelligence.js'),'utf8');
 
-const boot=(href,storedInternal=false,{elements=[],form=null}={})=>{
+const boot=(href,storedInternal=false,{elements=[],form=null,consent=true}={})=>{
   const pageUrl=new URL(href);
   const storage=new Map(storedInternal?[['k4_internal','true']]:[]);
   const replaced=[];
   const window={
     dataLayer:[],
+    k4AnalyticsConsent:consent,
     addEventListener(){},
     dispatchEvent(){},
     setTimeout(){},
@@ -58,6 +59,11 @@ const boot=(href,storedInternal=false,{elements=[],form=null}={})=>{
   const config=window.dataLayer.find(args=>args[0]==='config');
   return {config:config?.[2],replaced,storage,dataLayer:window.dataLayer};
 };
+{
+  const result=boot('https://k4-technology.com/',false,{consent:false});
+  assert.equal(result.config,undefined);
+  assert.equal(result.dataLayer.some(args=>args[0]==='config'),false);
+}
 
 const fakeLink=({href,event,channel='internal_navigation'})=>{
   const listeners={};
