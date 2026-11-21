@@ -123,7 +123,7 @@ const fakeLink=({href,event,channel='internal_navigation'})=>{
 {
   const href='https://k4-technology.com/?utm_source=codex_internal_test&utm_medium=qa&utm_campaign=analytics_validation&utm_content=desktop_en';
   const result=boot(href);
-  assert.equal(result.config.traffic_type,'internal');
+  assert.equal(result.config.traffic_type,undefined,'QA debug events must not match the active Internal Traffic exclusion filter');
   assert.equal(result.config.debug_mode,true);
   assert.equal(result.config.page_location,href);
   assert.deepEqual(result.replaced,[]);
