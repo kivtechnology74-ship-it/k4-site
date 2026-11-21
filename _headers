@@ -5,3 +5,12 @@
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
+
+/assets/intelligence.js
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
+/assets/calculator-analytics.js
+  Cache-Control: no-cache, max-age=0, must-revalidate
+
+/assets/lead-intake.js
+  Cache-Control: no-cache, max-age=0, must-revalidate

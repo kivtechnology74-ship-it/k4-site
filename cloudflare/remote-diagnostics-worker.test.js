@@ -21,17 +21,17 @@ class MemoryD1 {
         return { success: true, meta: { changes: 1 } };
       }
       if (sql.includes("INSERT OR IGNORE INTO calculator_completions")) {
-        const [calc_id, created_at, brand, model_id, model_name, profile_type, language, calculator_version, page_path, traffic_class] = statement.values;
+        const [calc_id, created_at, brand, model_id, model_name, profile_type, language, calculator_version, page_path, traffic_class, internal_traffic] = statement.values;
         const exists = this.completions.has(calc_id);
-        if (!exists) this.completions.set(calc_id, { calc_id, created_at, brand, model_id, model_name, profile_type, language, calculator_version, page_path, traffic_class });
+        if (!exists) this.completions.set(calc_id, { calc_id, created_at, brand, model_id, model_name, profile_type, language, calculator_version, page_path, traffic_class, internal_traffic });
         return { meta: { changes: exists ? 0 : 1 } };
       }
       if (sql.includes("INSERT OR IGNORE INTO calculator_events")) {
-        const [event_id, created_at, event_name, session_id, calc_id, brand, model_id, model_name, profile_type, language, calculator_version, page_path, traffic_class] = sql.includes("'generate_lead'")
-          ? [statement.values[0], statement.values[1], "generate_lead", ...statement.values.slice(2)]
+        const [event_id, created_at, event_name, session_id, calc_id, brand, model_id, model_name, profile_type, language, calculator_version, page_path, traffic_class, internal_traffic] = sql.includes("'generate_lead'")
+          ? [statement.values[0], statement.values[1], "generate_lead", ...statement.values.slice(2), 0]
           : statement.values;
         const exists = this.events.has(event_id);
-        if (!exists) this.events.set(event_id, { event_id, created_at, event_name, session_id, calc_id, brand, model_id, model_name, profile_type, language, calculator_version, page_path, traffic_class });
+        if (!exists) this.events.set(event_id, { event_id, created_at, event_name, session_id, calc_id, brand, model_id, model_name, profile_type, language, calculator_version, page_path, traffic_class, internal_traffic });
         return { meta: { changes: exists ? 0 : 1 } };
       }
       if (sql.includes("UPDATE site_leads SET email_status")) {
@@ -63,7 +63,7 @@ class MemoryD1 {
       if (sql.includes("FROM calculator_completions")) {
         const completion = this.completions.get(statement.values[0]);
         const allowQa = statement.values[1] === 1;
-        return completion && (completion.traffic_class === "production" || (allowQa && completion.traffic_class === "qa")) ? completion : null;
+        return completion && completion.internal_traffic !== 1 && (completion.traffic_class === "production" || (allowQa && completion.traffic_class === "qa")) ? completion : null;
       }
       const row = this.rows.get(statement.values[0]);
       return row ? { id: row.id, email_status: row.email_status, calc_id: row.calc_id } : null;
@@ -273,6 +273,23 @@ test("classifies preview and probable automation separately", async () => {
   assert.equal(qaDemo.status, 202);
   assert.equal([...db.events.values()].at(-1).traffic_class, "qa");
   assert.equal([...db.events.values()].at(-1).profile_type, "demo");
+});
+
+test("stores the internal traffic flag and does not attribute internal leads", async () => {
+  const db = new MemoryD1(), env = makeEnv(db);
+  const internalEvent = new Request("https://k4-technology.com/api/calculator-events", {
+    method: "POST", headers: { origin: "https://k4-technology.com", cookie: "k4_internal=1", "content-type": "application/json" },
+    body: JSON.stringify(eventPayload())
+  });
+  assert.equal((await worker.fetch(internalEvent, env)).status, 202);
+  assert.equal([...db.events.values()][0].internal_traffic, 1);
+  assert.equal([...db.completions.values()][0].internal_traffic, 1);
+  await withRelay(async () => Response.json({ ok: true }), async () => {
+    const response = await worker.fetch(post(payload({ calcId: eventPayload().calc_id })), env);
+    assert.equal(response.status, 201);
+  });
+  assert.equal([...db.rows.values()][0].calc_id, null);
+  assert.equal([...db.events.values()].some(event => event.event_name === "generate_lead"), false);
 });
 
 test("links only a production completion after the lead row is stored", async () => {

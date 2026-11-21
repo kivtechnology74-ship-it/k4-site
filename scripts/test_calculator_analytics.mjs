@@ -16,12 +16,12 @@ function boot({consent=true,ua='Mozilla/5.0',hostname='k4-technology.com',eventW
     addEventListener(type,listener){documentListeners[type]=listener;},
     getElementById(id){return inputs.get(id)||null;}
   };
-  const navigations=[];const window={k4AnalyticsConsent:consent,gtag:(...args)=>gaCalls.push(args),location:{assign:url=>navigations.push(url)},setTimeout(fn){const id=++timerId;timers.set(id,fn);return id;},clearTimeout(id){timers.delete(id);}};
+  const navigations=[],windowListeners={};const window={k4AnalyticsConsent:consent,gtag:(...args)=>gaCalls.push(args),addEventListener(type,listener){windowListeners[type]=listener;},location:{assign:url=>navigations.push(url)},setTimeout(fn){const id=++timerId;timers.set(id,fn);return id;},clearTimeout(id){timers.delete(id);}};
   const context={window,document,location:{pathname:'/gpu-estimate/en-beta/',href:`https://${hostname}/gpu-estimate/en-beta/`,hostname},navigator:{userAgent:ua,doNotTrack:'0'},URL,URLSearchParams,crypto:webcrypto,sessionStorage:{getItem(){return null;},setItem(){}},fetch:(url,options)=>{eventCalls.push(JSON.parse(options.body));return eventWriteFails?Promise.reject(new Error('synthetic analytics failure')):Promise.resolve({ok:true});},CustomEvent:class{},console};
   vm.runInNewContext(source,context,{filename:'calculator-analytics.js'});
   const flush=()=>{while(timers.size){const work=[...timers.values()];timers.clear();work.forEach(fn=>fn());}};
   const setInput=(id,value)=>inputs.set(id,{value:String(value)});
-  return{window,profile,contact,contactContainer,contactClick:()=>contactClick,eventCalls,gaCalls,navigations,flush,setInput,profileInput:()=>documentListeners.input({isTrusted:true,target:profile}),profileChange:()=>profileListeners.change({isTrusted:true})};
+  return{window,profile,contact,contactContainer,contactClick:()=>contactClick,eventCalls,gaCalls,navigations,flush,setInput,consentChanged:granted=>windowListeners['k4:analytics-consent-changed']({detail:{granted}}),profileInput:()=>documentListeners.input({isTrusted:true,target:profile}),profileChange:()=>profileListeners.change({isTrusted:true})};
 }
 const validProfile={id:'r5_10',brand:'Jenbacher',engine:'J320',status:'OEM confirmed'};
 {
@@ -85,6 +85,8 @@ const validProfile={id:'r5_10',brand:'Jenbacher',engine:'J320',status:'OEM confi
   const app=boot({consent:false});app.window.K4CalculatorAnalytics.selected(validProfile);
   app.window.K4CalculatorAnalytics.changed();app.window.K4CalculatorResult={valid:true};app.flush();
   assert.deepEqual(app.eventCalls,[]);assert.deepEqual(app.gaCalls,[]);
+  app.window.k4AnalyticsConsent=true;app.consentChanged(true);
+  assert.deepEqual(app.eventCalls.map(event=>event.event_name),['calculator_page_view']);
 }
 {
   const app=boot({eventWriteFails:true});app.window.K4CalculatorAnalytics.selected(validProfile);

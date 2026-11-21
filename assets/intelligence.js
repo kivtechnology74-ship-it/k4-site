@@ -4,6 +4,21 @@
 
   const gaId='G-7ZWVHK5XV9';
   const internalKey='k4_internal';
+  const consentKey='k4_analytics_consent';
+  const savedConsent=(()=>{try{return document.cookie.split(';').map(item=>item.trim()).find(item=>item.startsWith(`${consentKey}=`))?.split('=').slice(1).join('=')||'';}catch(error){return'';}})();
+  window.k4AnalyticsConsent=savedConsent==='granted';
+  const consentCopy={
+    en:{title:'Help us improve K4',body:'With your permission, K4 uses Google Analytics and privacy-minimized calculator events to understand site use. No project figures or contact details are sent as analytics.',accept:'Accept analytics',reject:'Reject analytics',settings:'Privacy settings',policy:'Privacy notice'},
+    ru:{title:'Помогите улучшить сайт K4',body:'С вашего разрешения K4 использует Google Analytics и минимизированные события калькулятора, чтобы понимать использование сайта. Числовые параметры проекта и контактные данные не передаются в аналитику.',accept:'Разрешить аналитику',reject:'Отказаться',settings:'Настройки приватности',policy:'Политика конфиденциальности'},
+    fr:{title:'Aidez-nous à améliorer K4',body:'Avec votre accord, K4 utilise Google Analytics et des événements du calculateur minimisés pour comprendre l’utilisation du site. Les chiffres du projet et les coordonnées ne sont pas envoyés à des fins analytiques.',accept:'Accepter l’analyse',reject:'Refuser l’analyse',settings:'Paramètres de confidentialité',policy:'Politique de confidentialité'},
+    es:{title:'Ayúdenos a mejorar K4',body:'Con su permiso, K4 utiliza Google Analytics y eventos minimizados de la calculadora para comprender el uso del sitio. No se envían cifras del proyecto ni datos de contacto a analítica.',accept:'Aceptar analítica',reject:'Rechazar analítica',settings:'Ajustes de privacidad',policy:'Política de privacidad'},
+    'pt-br':{title:'Ajude a melhorar a K4',body:'Com sua autorização, a K4 usa o Google Analytics e eventos minimizados da calculadora para entender o uso do site. Valores do projeto e dados de contato não são enviados para análise.',accept:'Aceitar análise',reject:'Recusar análise',settings:'Configurações de privacidade',policy:'Política de privacidade'},
+    zh:{title:'帮助我们改进 K4',body:'经您同意后，K4 会使用 Google Analytics 和经过最小化处理的计算器事件来了解网站使用情况。项目数值和联系信息不会发送到分析系统。',accept:'同意分析',reject:'拒绝分析',settings:'隐私设置',policy:'隐私政策'}
+  };
+  const pageLanguage=(document.documentElement.lang||'en').toLowerCase();
+  const consentLanguage=pageLanguage.startsWith('ru')?'ru':pageLanguage.startsWith('fr')?'fr':pageLanguage.startsWith('es')?'es':pageLanguage.startsWith('pt')?'pt-br':pageLanguage.startsWith('zh')?'zh':'en';
+  const consentText=consentCopy[consentLanguage];
+  const privacyPath={ru:'/ru/privacy/',fr:'/fr/privacy/',es:'/es/privacy/','pt-br':'/pt-br/privacy/',zh:'/zh/privacy/'}[consentLanguage]||'/privacy/';
   const search=new URLSearchParams(location.search);
   const internalControl=search.get(internalKey);
   const analyticsPageUrl=new URL(location.href);
@@ -123,7 +138,12 @@
       return referrer.href;
     }catch(error){return'';}
   };
-  if(analyticsAllowed()){
+  const deniedConsent={analytics_storage:'denied',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'};
+  window.gtag('consent','default',deniedConsent);
+  let gaConfigured=false;
+  const loadAnalytics=()=>{
+    if(!analyticsAllowed()||gaConfigured)return;
+    window.gtag('consent','update',{analytics_storage:'granted',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'});
     window.gtag('set',analyticsContext);
     if(!document.querySelector(`script[src*="googletagmanager.com/gtag/js?id=${gaId}"]`)){
       const script=document.createElement('script');
@@ -134,7 +154,9 @@
     }
     window.gtag('js',new Date());
     window.gtag('config',gaId,{...analyticsContext,page_location:analyticsPageUrl.href,page_referrer:sanitizedReferrer()});
-  }
+    gaConfigured=true;
+  };
+  if(analyticsAllowed())loadAnalytics();
   if(analyticsPageUrl.href!==location.href){
     history.replaceState(history.state,'',`${analyticsPageUrl.pathname}${analyticsPageUrl.search}${analyticsPageUrl.hash}`);
   }
@@ -147,6 +169,45 @@
     window.gtag('event',name,cleanDetail);
     window.dispatchEvent(new CustomEvent('k4:analytics',{detail:{event:name,...cleanDetail}}));
   };
+
+  const saveConsent=value=>{
+    const granted=value==='granted';
+    window.k4AnalyticsConsent=granted;
+    try{document.cookie=`${consentKey}=${value}; Max-Age=15552000; Path=/; SameSite=Lax; Secure`;}catch(error){}
+    if(granted)loadAnalytics();
+    else{
+      window.gtag('consent','update',deniedConsent);
+      for(const cookie of document.cookie.split(';')){
+        const name=cookie.trim().split('=')[0];
+        if(!name.startsWith('_ga'))continue;
+        document.cookie=`${name}=; Max-Age=0; Path=/; SameSite=Lax; Secure`;
+        if(location.hostname.endsWith('k4-technology.com'))document.cookie=`${name}=; Max-Age=0; Path=/; Domain=.k4-technology.com; SameSite=Lax; Secure`;
+      }
+    }
+    window.dispatchEvent(new CustomEvent('k4:analytics-consent-changed',{detail:{granted}}));
+    const banner=document.getElementById('k4-consent-banner');
+    if(banner)banner.hidden=true;
+  };
+  const style=document.createElement('style');
+  style.textContent='#k4-consent-banner[hidden]{display:none!important}#k4-consent-banner{position:fixed;z-index:2147483000;left:50%;bottom:16px;transform:translateX(-50%);width:min(720px,calc(100vw - 28px));padding:18px 20px;background:#101821;color:#eef4f8;border:1px solid #526170;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.28);font:14px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}#k4-consent-banner h2{margin:0 0 5px;font-size:17px;line-height:1.3;color:#fff}#k4-consent-banner p{margin:0 0 12px;color:#d1dbe3}#k4-consent-banner a{color:#b7d9f2;text-decoration:underline}#k4-consent-banner .k4-consent-actions{display:flex;gap:10px;flex-wrap:wrap}#k4-consent-banner button{flex:1 1 190px;min-height:42px;padding:8px 14px;border:1px solid #9bb0c2;border-radius:7px;background:#17232f;color:#fff;font:600 14px/1.3 system-ui,-apple-system,Segoe UI,sans-serif;cursor:pointer}#k4-consent-banner button:hover{background:#263a4d}#k4-consent-banner button:focus-visible,#k4-privacy-settings:focus-visible{outline:3px solid #8ac8fa;outline-offset:2px}#k4-privacy-settings{border:0;background:transparent;color:inherit;font:inherit;text-decoration:underline;cursor:pointer;padding:0}@media(max-width:560px){#k4-consent-banner{bottom:8px;padding:14px 15px}#k4-consent-banner .k4-consent-actions{display:grid;grid-template-columns:1fr}#k4-consent-banner button{width:100%}}';
+  document.head.appendChild(style);
+  const footer=document.querySelector('footer');
+  if(footer){
+    const holder=footer.querySelector('.footer-links')||footer;
+    if(!footer.querySelector('#k4-privacy-settings')){
+      const settings=document.createElement('button');settings.id='k4-privacy-settings';settings.type='button';settings.textContent=consentText.settings;settings.addEventListener('click',()=>{const banner=document.getElementById('k4-consent-banner');if(banner)banner.hidden=false;});
+      holder.append(' ',settings,' ');
+      const link=document.createElement('a');link.href=privacyPath;link.textContent=consentText.policy;holder.append(link);
+    }
+  }
+  const banner=document.createElement('section');banner.id='k4-consent-banner';banner.setAttribute('role','region');banner.setAttribute('aria-label',consentText.settings);banner.hidden=Boolean(savedConsent);
+  const title=document.createElement('h2');title.textContent=consentText.title;
+  const body=document.createElement('p');body.append(document.createTextNode(consentText.body+' '));
+  const policy=document.createElement('a');policy.href=privacyPath;policy.textContent=consentText.policy;body.append(policy);
+  const actions=document.createElement('div');actions.className='k4-consent-actions';
+  const accept=document.createElement('button');accept.type='button';accept.textContent=consentText.accept;accept.addEventListener('click',()=>saveConsent('granted'));
+  const reject=document.createElement('button');reject.type='button';reject.textContent=consentText.reject;reject.addEventListener('click',()=>saveConsent('denied'));
+  actions.append(accept,reject);banner.append(title,body,actions);document.body.appendChild(banner);
 
   const menuButton=document.querySelector('[data-menu]');
   const links=document.querySelector('[data-nav]');

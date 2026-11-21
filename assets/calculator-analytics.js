@@ -21,6 +21,7 @@
   let validCurrent=false;
   let completionPromise=Promise.resolve(false);
   let contactPromise=Promise.resolve(false);
+  let pageViewSent=false;
 
   function selectedModel(profile){
     if(modelSelect?.value==='custom'||profile?.isCustom)return{brand:'custom',model_id:'manual',model_name:'manual profile',profile_type:'manual'};
@@ -96,7 +97,10 @@
     current(){return validCurrent?context():null;}
   };
   model={...selectedModel()};
-  send('calculator_page_view');
+  if(consentAllowed()){send('calculator_page_view');pageViewSent=true;}
+  window.addEventListener('k4:analytics-consent-changed',event=>{
+    if(event.detail?.granted&&!pageViewSent){pageViewSent=true;send('calculator_page_view');}
+  });
   modelSelect?.addEventListener('change',event=>{if(event.isTrusted)window.K4CalculatorAnalytics.modelSelected();});
   document.addEventListener('input',event=>{if(event.isTrusted&&event.target!==modelSelect&&event.target.closest('.panel'))window.K4CalculatorAnalytics.changed();},true);
   document.addEventListener('change',event=>{if(event.isTrusted&&event.target.closest('.panel')&&event.target!==modelSelect)window.K4CalculatorAnalytics.changed();},true);

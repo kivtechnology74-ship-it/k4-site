@@ -6,12 +6,23 @@
   "triggers": {
     "crons": ["*/5 * * * *"]
   },
+  "routes": [
+    "k4-technology.com/api/remote-diagnostics*",
+    "www.k4-technology.com/api/remote-diagnostics*",
+    "k4-technology.com/api/calculator-events*",
+    "www.k4-technology.com/api/calculator-events*"
+  ],
   "d1_databases": [
     {
       "binding": "LEADS_DB",
       "database_name": "k4-remote-diagnostics",
       "database_id": "a6b972e2-0fc2-4bfa-887d-5690ba10bfd3",
       "migrations_dir": "migrations"
+    },
+    {
+      "binding": "PREVIEW_LEADS_DB",
+      "database_name": "k4-site-leads-preview",
+      "database_id": "42d1526a-e2c2-45f9-8071-c12fe3e57b26"
     }
   ],
   "ratelimits": [
@@ -25,8 +36,5 @@
       "namespace_id": "2002",
       "simple": { "limit": 60, "period": 60 }
     }
-  ],
-  "vars": {
-    "GMAIL_RELAY_URL": "https://script.google.com/macros/s/AKfycbyJZGa2AcZyLEzb0fhq5JnLCm9KeRW5XH_Sz1mc_b-Pg-IcBhiRBADx3chQ_pa1DEypRQ/exec"
-  }
+  ]
 }

@@ -167,6 +167,10 @@ function calculatorTrafficClass(request, profileType, requestedClass) {
   return "production";
 }
 
+function isInternalTraffic(request) {
+  return (request.headers.get("cookie") || "").split(";").some(part => part.trim() === "k4_internal=1");
+}
+
 function safeCalculatorEvent(input, request) {
   if (!CALCULATOR_EVENTS.has(input?.event_name)) return null;
   if (!UUID_V4.test(cleanText(input.event_id, 36)) || !UUID_V4.test(cleanText(input.session_id, 36)) || !UUID_V4.test(cleanText(input.calc_id, 36))) return null;
@@ -182,7 +186,8 @@ function safeCalculatorEvent(input, request) {
     brand: cleanText(input.brand, 60) || "unknown", model_id: cleanText(input.model_id, 80) || "unknown",
     model_name: cleanText(input.model_name, 100) || "unknown", profile_type: profileType, language,
     calculator_version: cleanText(input.calculator_version, 20) || "unknown", page_path: pagePath,
-    traffic_class: calculatorTrafficClass(request, profileType, input.traffic_class)
+    traffic_class: calculatorTrafficClass(request, profileType, input.traffic_class),
+    internal_traffic: isInternalTraffic(request) ? 1 : 0
   };
 }
 
@@ -202,14 +207,14 @@ async function handleCalculatorEvent(request, env) {
     const statements = [];
     if (event.event_name === "calculator_result_completed" && event.traffic_class !== "demo") {
       statements.push(env.LEADS_DB.prepare(`INSERT OR IGNORE INTO calculator_completions
-        (calc_id, created_at, brand, model_id, model_name, profile_type, language, calculator_version, page_path, traffic_class)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
-        .bind(event.calc_id, event.created_at, event.brand, event.model_id, event.model_name, event.profile_type, event.language, event.calculator_version, event.page_path, event.traffic_class));
+        (calc_id, created_at, brand, model_id, model_name, profile_type, language, calculator_version, page_path, traffic_class, internal_traffic)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+        .bind(event.calc_id, event.created_at, event.brand, event.model_id, event.model_name, event.profile_type, event.language, event.calculator_version, event.page_path, event.traffic_class, event.internal_traffic));
     }
     statements.push(env.LEADS_DB.prepare(`INSERT OR IGNORE INTO calculator_events
-      (event_id, created_at, event_name, session_id, calc_id, brand, model_id, model_name, profile_type, language, calculator_version, page_path, traffic_class)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
-      .bind(event.event_id, event.created_at, event.event_name, event.session_id, event.calc_id, event.brand, event.model_id, event.model_name, event.profile_type, event.language, event.calculator_version, event.page_path, event.traffic_class));
+      (event_id, created_at, event_name, session_id, calc_id, brand, model_id, model_name, profile_type, language, calculator_version, page_path, traffic_class, internal_traffic)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+      .bind(event.event_id, event.created_at, event.event_name, event.session_id, event.calc_id, event.brand, event.model_id, event.model_name, event.profile_type, event.language, event.calculator_version, event.page_path, event.traffic_class, event.internal_traffic));
     const results = await env.LEADS_DB.batch(statements);
     return json({ success: true, stored: true, duplicate: results.every(result => Number(result.meta?.changes || 0) === 0) }, 202, origin);
   } catch {
@@ -221,11 +226,11 @@ async function recordCalculatorLead(env, leadId, calcId, allowQa = false) {
   if (!calcId || !UUID_V4.test(calcId)) return false;
   try {
     const completion = await env.LEADS_DB.prepare(`SELECT calc_id, brand, model_id, model_name, profile_type, language, calculator_version, page_path
-      FROM calculator_completions WHERE calc_id = ? AND (traffic_class = 'production' OR (? = 1 AND traffic_class = 'qa'))`).bind(calcId, allowQa ? 1 : 0).first();
+      FROM calculator_completions WHERE calc_id = ? AND internal_traffic = 0 AND (traffic_class = 'production' OR (? = 1 AND traffic_class = 'qa'))`).bind(calcId, allowQa ? 1 : 0).first();
     if (!completion) return false;
     await env.LEADS_DB.prepare(`INSERT OR IGNORE INTO calculator_events
-      (event_id, created_at, event_name, session_id, calc_id, brand, model_id, model_name, profile_type, language, calculator_version, page_path, traffic_class)
-      VALUES (?, ?, 'generate_lead', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+      (event_id, created_at, event_name, session_id, calc_id, brand, model_id, model_name, profile_type, language, calculator_version, page_path, traffic_class, internal_traffic)
+      VALUES (?, ?, 'generate_lead', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`)
       .bind(`lead-${leadId}`, new Date().toISOString(), leadId, calcId, completion.brand, completion.model_id, completion.model_name, completion.profile_type, completion.language, completion.calculator_version, completion.page_path, completion.traffic_class).run();
     return true;
   } catch { return false; }
@@ -253,7 +258,7 @@ async function handleSubmission(request, env) {
   let validCalcId = null;
   if (calcId) {
     try {
-      const completion = await env.LEADS_DB.prepare("SELECT calc_id FROM calculator_completions WHERE calc_id = ? AND (traffic_class = 'production' OR (? = 1 AND traffic_class = 'qa'))").bind(calcId, env.K4_PREVIEW_QA === true ? 1 : 0).first();
+      const completion = await env.LEADS_DB.prepare("SELECT calc_id FROM calculator_completions WHERE calc_id = ? AND internal_traffic = 0 AND (traffic_class = 'production' OR (? = 1 AND traffic_class = 'qa'))").bind(calcId, env.K4_PREVIEW_QA === true ? 1 : 0).first();
       if (completion) validCalcId = calcId;
     } catch { /* Missing analytics tables must not block lead storage. */ }
   }
