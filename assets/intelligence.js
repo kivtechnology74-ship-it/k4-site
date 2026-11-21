@@ -29,7 +29,14 @@
   const effectiveSearch=analyticsPageUrl.searchParams;
   const qaSource=effectiveSearch.get('utm_source')==='codex_internal_test'&&effectiveSearch.get('utm_medium')==='qa';
   const isQa=qaSource||search.has('qa')||search.has('gtm_latency');
-  const technicalParams=['k4_internal','qa','gtm_latency','release'];
+  const calculatorIdParam=search.get('calc_id');
+  const applyCalculatorId=()=>{
+    const field=document.querySelector('[name="calc_id"]');
+    if(field&&/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(calculatorIdParam||''))field.value=calculatorIdParam;
+  };
+  applyCalculatorId();
+  document.addEventListener('DOMContentLoaded',applyCalculatorId,{once:true});
+  const technicalParams=['k4_internal','qa','gtm_latency','release','calc_id'];
   technicalParams.forEach(parameter=>analyticsPageUrl.searchParams.delete(parameter));
   const readInternalCookie=()=>{
     try{
@@ -90,6 +97,7 @@
       ?{pageType:'insight',articleSlug:slug}
       :{pageType:'insights_index'};
     if(section==='resources')return{pageType:'resource'};
+    if(section==='gpu-estimate')return{pageType:'calculator'};
     return{pageType:'other'};
   };
   const pagePath=location.pathname;
@@ -105,21 +113,25 @@
   window.dataLayer=window.dataLayer||[];
   window.gtag=window.gtag||function(){window.dataLayer.push(arguments)};
   const analyticsContext=pageContext();
-  window.gtag('set',analyticsContext);
-  if(!document.querySelector(`script[src*="googletagmanager.com/gtag/js?id=${gaId}"]`)){
-    const script=document.createElement('script');
-    script.async=true;
-    script.src='https://www.googletagmanager.com/gtag/js?id='+gaId;
-    script.dataset.k4Ga4='true';
-    document.head.appendChild(script);
+  const analyticsAllowed=()=>window.k4AnalyticsConsent!==false&&(typeof navigator==='undefined'||!['1','yes'].includes(String(navigator.doNotTrack||'').toLowerCase()));
+  if(analyticsAllowed()){
+    window.gtag('set',analyticsContext);
+    if(!document.querySelector(`script[src*="googletagmanager.com/gtag/js?id=${gaId}"]`)){
+      const script=document.createElement('script');
+      script.async=true;
+      script.src='https://www.googletagmanager.com/gtag/js?id='+gaId;
+      script.dataset.k4Ga4='true';
+      document.head.appendChild(script);
+    }
+    window.gtag('js',new Date());
+    window.gtag('config',gaId,{...analyticsContext,page_location:analyticsPageUrl.href});
   }
-  window.gtag('js',new Date());
-  window.gtag('config',gaId,{...analyticsContext,page_location:analyticsPageUrl.href});
   if(analyticsPageUrl.href!==location.href){
     history.replaceState(history.state,'',`${analyticsPageUrl.pathname}${analyticsPageUrl.search}${analyticsPageUrl.hash}`);
   }
 
   const track=(name,detail={})=>{
+    if(!analyticsAllowed())return;
     const cleanDetail=Object.fromEntries(
       Object.entries({...pageContext(),...detail}).filter(([,value])=>value!==undefined&&value!==null&&value!=='')
     );

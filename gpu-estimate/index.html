@@ -8,7 +8,8 @@
 @media print{@page{size:A4 portrait;margin:0}body{background:white!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}.app{display:block!important;max-width:none;margin:0;padding:0}.panel{display:none!important}.sheet{display:block!important;font-family:Arial,Helvetica,sans-serif!important;width:210mm;height:290mm;min-height:290mm;margin:0;border:0;border-radius:0;box-shadow:none;padding:9mm 11mm;overflow:hidden}.sheet:before{right:-18mm;top:-20mm;width:65mm;height:65mm}.report-content{zoom:.9;width:100%;min-width:0}.report-head>*,.metric-grid>*,.report-grid>*,.capex-block>*{min-width:0}.report-grid{grid-template-columns:minmax(0,1fr) minmax(0,1.12fr)}.table{table-layout:fixed}.table th,.table td{overflow-wrap:anywhere}.report-head{padding-bottom:2.5mm}.report-head h2{font-size:19pt}.subtitle{font-size:8pt}.datebox{font-size:7.5pt}.project-name{margin-top:2.5mm;padding:2mm 3mm;font-size:8pt}.profilebar{margin:2.5mm 0}.profilebar h3{font-size:11pt}.meta{font-size:7pt}.metric-grid{gap:1.5mm;margin:2.5mm 0}.metric{min-height:18mm;padding:2mm;border-radius:2mm}.metric .label{font-size:7pt;min-height:5mm}.metric .value{font-size:12pt;margin-top:1mm}.metric .unit{font-size:6.5pt}.report-grid{gap:3mm;margin-top:1mm}.section{margin:1.5mm 0}.section h3{font-size:7.5pt;margin-bottom:1mm}.data-grid{font-size:7pt;gap:1mm 2mm}.data-grid .value{max-width:92mm;font-size:6pt}.table{font-size:6.8pt}.table th,.table td{padding:1.1mm 1.5mm}.statusbox{margin-top:1.5mm;padding:1.5mm 2mm;font-size:6.8pt}.capex-block{gap:3mm;padding-top:1.5mm;margin-top:1.5mm}.capex-total{padding:2mm}.capex-total .label{font-size:6.5pt}.capex-total .value{font-size:12pt}.foot{margin-top:1.5mm;padding-top:1mm;font-size:5.8pt}}
 button:focus-visible,.details summary:focus-visible,a:focus-visible{outline:3px solid #0e8277;outline-offset:2px}.meta,.hint,.notice,.statusbox{overflow-wrap:anywhere}
 @media(max-width:600px){.app{padding:0 10px;gap:12px}.panel,.sheet{padding:16px;border-radius:12px}.three{grid-template-columns:1fr 1fr}.report-grid,.capex-block{grid-template-columns:1fr}.report-head{flex-wrap:wrap;gap:8px}.datebox{text-align:left;white-space:normal}.profilebar{align-items:flex-start}.table{font-size:8px}.table th,.table td{padding:4px 3px}.data-grid .value{max-width:62vw}}
-</style></head><body>
+ .calc-contact{margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--mint);font-size:12px}.calc-contact p{margin:5px 0 8px;color:var(--muted);font-size:11px}.calc-contact a{color:var(--teal);font-weight:800;text-decoration:none}.calc-contact[hidden]{display:none}
+</style><script defer src="/assets/intelligence.js?v=20261121-1"></script><script defer src="/assets/calculator-analytics.js?v=20261121-1"></script></head><body>
 <div class="app">
 <aside class="panel no-print">
  <div class="brandline">K4 Power Economics · Россия</div><h1>Экспресс-оценка ГПУ</h1><p class="sub">Бесплатная предварительная оценка выработки и экономики одного проекта.</p>
@@ -47,6 +48,7 @@ button:focus-visible,.details summary:focus-visible,a:focus-visible{outline:3px 
    <div class="hint" id="capexBreakHint">Разбивка необязательна; сумма берётся из поля «Общий CAPEX».</div>
   </div></details>
  </div>
+ <aside class="calc-contact" id="calcContact" hidden><strong>Обсудить расчёт с K4</strong><p>Проверим исходные данные, границы расчёта и проектные допущения.</p><a data-calculator-contact href="/services/remote-technical-review/#review-form">Обсудить с K4 →</a></aside>
  <div class="actions"><button class="btn primary" id="pdfBtn" type="button">Сохранить отчёт в PDF</button><button class="btn secondary" id="clearBtn" type="button">Сброс</button></div>
  <p class="fine">Результат — предварительная оценка. Налоги, финансирование, капитальный ремонт и почасовой график не включены, если их отдельно не ввели. В Safari при сохранении PDF отключите колонтитулы, чтобы отчёт остался на одной странице и не печатался локальный адрес файла.</p>
 </aside>
@@ -227,6 +229,7 @@ function readInput(){
 function setText(id,value){const el=$(id);if(el)el.textContent=value}
 function update(){
  const x=readInput();const r=calculateScenario(x);const p=x.profile;
+ window.K4CalculatorAnalytics?.selected(p);window.K4CalculatorResult={valid:!!p&&!p.is_example&&r.generationValid&&r.horizonValid&&!!r.fuel&&r.costsInputComplete&&r.heatSaleValid&&Number.isFinite(r.ebitdaAvg)&&Number.isFinite(r.revAvg)};
  setText('outProject',$('project').value||'не указано');setText('outHorizon',Number.isInteger(x.horizon)?String(x.horizon):'—');setText('tableHorizon',Number.isInteger(x.horizon)?String(x.horizon):'—');
  setText('outModel',$('profile').value==='custom'?($('customModel').value||'Свой профиль'):p?.model||'Профиль не выбран');
  setText('outMeta',p?[p.engine,p.brand,p.fuel,p.rating].filter(Boolean).join(' · '):'Введите параметры проекта и ГПУ.');

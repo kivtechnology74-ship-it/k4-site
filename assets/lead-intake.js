@@ -30,7 +30,7 @@
     window.dispatchEvent(new CustomEvent('k4:analytics',{detail:{event,...payload}}));
   };
   const requestId=()=>crypto.randomUUID();
-  const values=form=>[...new FormData(form).entries()].filter(([name,value])=>name!=='website'&&String(value).trim());
+  const values=form=>[...new FormData(form).entries()].filter(([name,value])=>!['website','calc_id'].includes(name)&&String(value).trim());
   const findStatus=form=>form.querySelector('[role="status"]')||(()=>{
     const node=document.createElement('div');node.className='rd-status';node.setAttribute('role','status');node.setAttribute('aria-live','polite');node.tabIndex=-1;form.append(node);return node;
   })();
@@ -78,6 +78,7 @@
       const formType=form.dataset.formType||(form.matches('[data-diagnostic-form]')?'remote_diagnostics':'technical_review');
       const payload={
         requestId:currentId,contact,message,formType,
+        calcId:form.querySelector('[name="calc_id"]')?.value||new URLSearchParams(location.search).get('calc_id')||'',
         language:document.documentElement.lang||'en',
         sourceUrl:location.href,
         timezone:Intl.DateTimeFormat().resolvedOptions().timeZone||'unknown',
@@ -95,6 +96,7 @@
         const deliveryMessage=result.emailStatus==='sent'?copy.savedBody:result.emailStatus==='failed'?copy.failed:copy.queued;
         show(copy.saved,`${deliveryMessage}${result.reference||''}`);
         track('lead_form_submit_success',{form_type:formType,form_location:form.dataset.location||'form',request_reference:result.reference||'stored',email_status:result.emailStatus||'pending'});
+        if(result.calculatorAttributionStored===true)track('generate_lead',{form_type:formType,form_location:form.dataset.location||'form'});
         if(formType==='remote_diagnostics')track('diagnostic_case_submit_success',{form_type:formType,form_location:form.dataset.location||'diagnostic-form',request_reference:result.reference||'stored'});
         id='';
         try{sessionStorage.removeItem(idKey);}catch(error){/* Nothing to clean up in restricted storage. */}
