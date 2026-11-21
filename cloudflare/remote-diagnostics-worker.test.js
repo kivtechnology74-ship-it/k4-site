@@ -186,7 +186,9 @@ test("preview origins cannot write to production intake and preview host suppres
       headers: { origin: "https://branch.k4-technology.pages.dev", "content-type": "application/json" },
       body: JSON.stringify(payload({ sourceUrl: "https://branch.k4-technology.pages.dev/ru/project-assessment/" }))
     });
-    const preview = await worker.fetch(previewRequest, makeEnv(db, { K4_PREVIEW_QA: true }));
+    const previewEnv = makeEnv(db);
+    previewEnv.K4_PREVIEW_QA = true;
+    const preview = await worker.fetch(previewRequest, previewEnv);
     assert.equal(preview.status, 201);
     assert.equal((await preview.json()).emailStatus, "suppressed");
     assert.equal(db.rows.size, 1);
@@ -284,7 +286,11 @@ test("classifies preview and probable automation separately", async () => {
     body: JSON.stringify(eventPayload({ event_name: "calculator_page_view", event_id: "a12185d0-3937-42db-9776-e932565e889b", calc_id: "b12185d0-3937-42db-9776-e932565e889b" }))
   }), env);
   assert.deepEqual([...db.events.values()].map(event => event.traffic_class), ["qa", "probable_automation"]);
-  const qaDemo = await worker.fetch(calculatorPost(eventPayload({ event_id: "b12185d0-3937-42db-9776-e932565e889b", calc_id: "c12185d0-3937-42db-9776-e932565e889b", event_name: "calculator_page_view", profile_type: "demo" }), "https://branch.k4-technology.pages.dev"), env);
+  const qaDemo = await worker.fetch(new Request("https://branch.k4-technology.pages.dev/api/calculator-events", {
+    method: "POST",
+    headers: { origin: "https://branch.k4-technology.pages.dev", "content-type": "application/json" },
+    body: JSON.stringify(eventPayload({ event_id: "b12185d0-3937-42db-9776-e932565e889b", calc_id: "c12185d0-3937-42db-9776-e932565e889b", event_name: "calculator_page_view", profile_type: "demo" }))
+  }), env);
   assert.equal(qaDemo.status, 202);
   assert.equal([...db.events.values()].at(-1).traffic_class, "qa");
   assert.equal([...db.events.values()].at(-1).profile_type, "demo");
