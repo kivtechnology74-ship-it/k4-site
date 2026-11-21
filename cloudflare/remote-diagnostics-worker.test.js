@@ -273,7 +273,12 @@ test("stores an allowlisted completion once and rejects demo completion", async 
 
 test("classifies preview and probable automation separately", async () => {
   const db = new MemoryD1(), env = makeEnv(db);
-  await worker.fetch(calculatorPost(eventPayload({ event_name: "calculator_page_view", event_id: "f02185d0-3937-42db-9776-e932565e889b", calc_id: "a12185d0-3937-42db-9776-e932565e889b" }), "https://branch.k4-technology.pages.dev"), env);
+  const previewRequest = new Request("https://branch.k4-technology.pages.dev/api/calculator-events", {
+    method: "POST",
+    headers: { origin: "https://branch.k4-technology.pages.dev", "content-type": "application/json" },
+    body: JSON.stringify(eventPayload({ event_name: "calculator_page_view", event_id: "f02185d0-3937-42db-9776-e932565e889b", calc_id: "a12185d0-3937-42db-9776-e932565e889b" }))
+  });
+  await worker.fetch(previewRequest, env);
   await worker.fetch(new Request("https://k4-technology.com/api/calculator-events", {
     method: "POST", headers: { origin: "https://k4-technology.com", "content-type": "application/json", "user-agent": "ExampleCrawler/1.0" },
     body: JSON.stringify(eventPayload({ event_name: "calculator_page_view", event_id: "a12185d0-3937-42db-9776-e932565e889b", calc_id: "b12185d0-3937-42db-9776-e932565e889b" }))
