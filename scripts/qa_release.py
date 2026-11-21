@@ -416,8 +416,11 @@ def main() -> int:
             errors.append(
                 f"shared analytics script must appear exactly once at {route} (found {intelligence_count})"
             )
+        required_analytics_version = "20261121-1" if route in {
+            "/gpu-estimate/", "/gpu-estimate/en-beta/", "/services/remote-technical-review/"
+        } else ANALYTICS_ASSET_VERSION
         versioned_intelligence_count = raw.count(
-            f"/assets/intelligence.js?v={ANALYTICS_ASSET_VERSION}"
+            f"/assets/intelligence.js?v={required_analytics_version}"
         )
         if versioned_intelligence_count != 1:
             errors.append(
