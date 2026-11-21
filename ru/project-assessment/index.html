@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,follow">
+  <title>Обсудить проект газовой генерации | K4-Technology</title>
+  <meta name="description" content="Передайте K4 вводные для обсуждения проекта и предварительной технико-экономической оценки газопоршневой генерации.">
+  <link rel="canonical" href="https://k4-technology.com/ru/project-assessment/">
+  <link rel="stylesheet" href="/assets/lead-intake.css">
+  <style>
+    :root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#17313f;background:#f2f5f6}
+    *{box-sizing:border-box}body{margin:0}.shell{width:min(860px,calc(100% - 32px));margin:0 auto;padding:38px 0 64px}
+    header{margin-bottom:24px}.brand{font-size:12px;letter-spacing:.12em;color:#0e8277;font-weight:800}
+    h1{font-size:clamp(30px,6vw,48px);line-height:1.1;color:#123044;margin:10px 0}
+    .intro,.note{color:#526873;line-height:1.6}.card{background:#fff;border:1px solid #d8e4e8;border-radius:14px;padding:clamp(18px,4vw,30px);box-shadow:0 8px 26px rgba(18,48,68,.06)}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}
+    label{font-size:14px;font-weight:700}.field input,.field textarea{width:100%;border:1px solid #bdcbd1;border-radius:8px;padding:11px;font:inherit}
+    textarea{min-height:120px;resize:vertical}.actions{margin-top:18px}.button{border:0;border-radius:8px;padding:12px 18px;background:#0e8277;color:#fff;font:inherit;font-weight:700;cursor:pointer}
+    .fine{font-size:12px;color:#61747d;line-height:1.5}.back{display:inline-block;margin-top:22px;color:#0e6f67}
+    @media(max-width:560px){.shell{padding-top:24px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header><div class="brand">K4 · POWER ECONOMICS</div><h1>Обсудить проект газовой генерации</h1>
+      <p class="intro">Расскажите о площадке, нагрузке и предполагаемой газопоршневой электростанции. Команда K4 уточнит исходные данные и предложит следующий шаг: предварительную оценку, модель или ТЭО.</p>
+    </header>
+    <form class="card" id="assessment-form" data-lead-form data-server-lead-form data-form-type="project_assessment" data-location="calculator-project-assessment" data-form-title="Заявка на обсуждение проекта газовой генерации" data-form-subject="Обсуждение проекта газовой генерации — K4">
+      <input type="hidden" name="calc_id" value="">
+      <div class="form-grid">
+        <div class="field full"><label for="assessment-contact">Телефон или электронная почта</label><input id="assessment-contact" name="Contact" data-contact-field type="text" autocomplete="off" maxlength="254" required><span class="fine">Достаточно одного способа связи.</span></div>
+        <div class="field"><label for="assessment-name">Имя</label><input id="assessment-name" name="Name" autocomplete="name"></div>
+        <div class="field"><label for="assessment-company">Компания</label><input id="assessment-company" name="Company" autocomplete="organization"></div>
+        <div class="field"><label for="assessment-country">Страна и площадка</label><input id="assessment-country" name="Country and site" autocomplete="country-name"></div>
+        <div class="field"><label for="assessment-capacity">Ориентировочная мощность</label><input id="assessment-capacity" name="Approximate capacity" inputmode="text"></div>
+        <div class="field full"><label for="assessment-description">Что важно учесть в проекте?</label><textarea id="assessment-description" name="Project description" placeholder="Нагрузка, топливо, сроки или другие вводные (необязательно)"></textarea></div>
+      </div>
+      <div class="actions"><button class="button" type="submit">Отправить запрос K4</button></div>
+      <p class="fine">Форма передаёт запрос по защищённому каналу и сохраняет номер обращения. Отправка не означает заключения договора; объём и коммерческие условия согласуются отдельно.</p>
+    </form>
+    <a class="back" href="/gpu-estimate/">← Вернуться к калькулятору</a>
+    <p class="note">Параметры расчёта остаются в калькуляторе и не добавляются в ссылку. Для связи передаётся только технический идентификатор завершённого расчёта.</p>
+  </main>
+  <script src="/assets/intelligence.js?v=20261121-2" defer></script>
+  <script src="/assets/lead-intake.js?v=20261121-1" defer></script>
+</body>
+</html>
