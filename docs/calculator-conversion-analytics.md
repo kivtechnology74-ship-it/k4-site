@@ -21,7 +21,7 @@
 | `calculator_contact_clicked` | Click on the K4 CTA after a valid result. Navigation waits for the D1 completion acknowledgement (up to 1.5 seconds); a failed analytics request still allows the form to open. |
 | `generate_lead` | Emitted only after the existing Worker confirms the D1 lead row is stored and its `calc_id` resolves to a production completion. Email delivery status is not required for storage. |
 
-Profiles use `oem`, `incomplete`, `manual`, or `demo`. `traffic_class` separates production, QA, demo and probable automation; `profile_type=demo` separately marks demonstration scenarios, including demos run in QA. QA takes precedence when a demo is used on a preview. The funnel and popularity queries exclude demo profiles. `probable_automation` is a conservative User-Agent heuristic. The system deliberately makes no positive “real person” classification.
+Profiles use `oem`, `incomplete`, `manual`, or `demo`. `traffic_class` separates production, QA, and probable automation; `profile_type=demo` separately marks demonstration scenarios, including demos run on a Preview. The funnel and popularity queries exclude demo profiles. `probable_automation` is a conservative User-Agent heuristic. The system deliberately makes no positive “real person” classification.
 
 ## D1 deployment
 
@@ -51,11 +51,11 @@ Example only, synthetic interval `2026-11-01T00:00:00Z` to `2026-12-01T00:00:00Z
 
 Synthetic model sample: Jenbacher J320 — 21 selections / 13 completions; Caterpillar G3516 — 15 / 9; Manual profile — 8 / 4; other models — 30 / 16. These values are examples, not measured K4 traffic.
 
-## QA still required before release
+## QA verification before release
 
-- Unit and static checks can verify event gates, payload allowlists, migrations, deduplication, storage-failure behavior, and form attribution without sending a real client request.
-- Use Tag Assistant on a branch Preview URL to enable GA4 debug mode for QA events. Preview GA events carry `calculator_traffic_class=qa` and `debug_mode=true`; production events omit `debug_mode`.
-- Verified on 2026-11-21 in the branch Preview: GA4 DebugView received `calculator_page_view`, `calculator_started`, `calculator_result_completed`, and `calculator_contact_clicked`, plus one `page_view`. Preview D1 stored those four calculator events and one QA completion after migration `0003` was applied to the isolated Preview database.
-- `calculator_model_selected` passed the client contract test but was not emitted by browser automation because the native model selector did not produce a trusted change event. PDF click and `generate_lead` were not sent in this Preview session; no print dialog or inquiry was submitted.
-- The Preview Function rate limiter is local to an isolate; production requests use the Cloudflare Worker rate-limit binding.
-- Recheck RU/EN at desktop/mobile sizes, repeated recalculation, model changes, blocked analytics, event-write failure, PDF click, and form-store failure using synthetic-only contacts before release.
+- Client and Worker tests verify event gates, payload allowlists, migration behavior, deduplication, storage-failure handling, rate limits, Preview routing, and production-only attribution after lead storage. The lead form itself was not submitted during browser QA, so no inquiry was created or sent.
+- Verified on 2026-11-21 in the deployed branch Preview: RU and EN browser flows emitted `calculator_page_view`, `calculator_started`, `calculator_model_selected`, and `calculator_result_completed` for synthetic QA calculations. Both languages recorded `calculator_pdf_clicked` on the existing PDF/print button. The event means the button was clicked; the browser print flow does not prove that a file was downloaded.
+- GA4 DebugView received the QA calculator event stream, including page view, start, model selection, completion, and PDF-click events. The existing site GA4 configuration was reused; QA events carry `calculator_traffic_class=qa` and `debug_mode=true`, while production events omit `debug_mode`.
+- Preview D1, after migration `0003` was applied to the isolated Preview database, stored matching RU and EN QA events with model ID/name, profile class, language, calculator version and `traffic_class=qa`. It did not store project figures or personal data.
+- Browser checks covered RU and EN at mobile size, EN at desktop size, RU desktop event flow, model switching, valid completion and PDF-button clicks. Client/Worker tests cover duplicate/recalculation behavior, analytics consent and write failures, request limits, and lead attribution only after successful storage. No real or synthetic lead was sent through the form.
+- The Preview Function rate limiter is local to an isolate; production requests use the Cloudflare Worker rate-limit binding. Production D1 and Worker deployment remain untouched.
