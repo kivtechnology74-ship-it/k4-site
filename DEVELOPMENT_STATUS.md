@@ -1,68 +1,64 @@
 # K4 Free Power Screening — development status
 
-- Version: 0.2.0 — functionality frozen
-- Branch: `codex/free-power-screening-20261121`
-- Pull Request: [#55](https://github.com/kivtechnology74-ship-it/k4-site/pull/55) against `main`; open, clean, not merged
-- Current HTTPS preview alias: https://codex-free-power-screening-2.k4-technology.pages.dev/gpu-estimate-hybrid-en/
-- Last browser-verified immutable preview: https://8aab5ab9.k4-technology.pages.dev/
-- Production: unchanged; no production deployment performed
-- Release status: PR is ready for review. Production release remains blocked until GA4 refresh confirms `project_inquiry_submitted`.
+- Version: 0.2.0 — functionality frozen and published
+- Pull Request: [#55](https://github.com/kivtechnology74-ship-it/k4-site/pull/55) — merged 2026-11-21
+- Merge commit: `21a6f7a08d6dade2bd7f51e043c678a57d3eb6aa`
+- Production deployment: `3cb3cbdc` — successful; aliases `https://k4-technology.com` and `https://www.k4-technology.com`
+- Public EN: https://k4-technology.com/gpu-estimate-hybrid-en/
+- Public RU: https://k4-technology.com/gpu-estimate-hybrid-ru/
 - Product KPI: qualified commercial inquiries for K4 Independent Power Analysis.
 
 ## Frozen functionality
 
-No screening functionality or calculation logic changed in this release preparation. English and Russian pages share the existing calculation engine. The user-entered nominal peak (including PUE for IT Load) is checked against grid capacity; annual energy, average load, and equivalent full-load hours are calculated separately. Unknown inputs are not silently defaulted. The gas scenario remains unavailable without an applicable confirmed OEM curve and a project gas price with units and LHV/HHV basis.
+No screening functionality or calculation logic changed in the production-readiness preparation. English and Russian pages share the existing calculation engine. The user-entered nominal peak (including PUE for IT Load) is checked against grid capacity; annual energy, average load, and equivalent full-load hours are calculated separately. Unknown inputs are not silently defaulted. The gas scenario remains unavailable without an applicable confirmed OEM curve and a project gas price with units and LHV/HHV basis.
 
-The main CTA remains “Request Independent Power Analysis”. Energy cost remains labeled “Energy Charge Only”. The screening remains a preliminary estimate, not engineering advice, a feasibility study, or an investment recommendation.
+The main CTA is “Request Independent Power Analysis”. Energy cost is labeled “Energy Charge Only”. The screening is preliminary, not engineering advice, a feasibility study, or an investment recommendation.
 
-## SEO and preview indexing changes
+## SEO and preview indexing
 
-- Production EN URL: `https://k4-technology.com/gpu-estimate-hybrid-en/`.
-- Production RU URL: `https://k4-technology.com/gpu-estimate-hybrid-ru/`.
-- Each HTML page has a self-referencing canonical, production `index,follow` robots metadata, reciprocal `en`/`ru` hreflang, and `x-default` pointing to EN.
-- Sitemap includes both production URLs with matching reciprocal hreflang entries. Preview URLs are not added to the sitemap.
-- `functions/_middleware.js` adds `X-Robots-Tag: noindex, nofollow` to every Cloudflare Pages `*.pages.dev` deployment and leaves the primary custom domain unchanged. Middleware behavior is covered by regression tests; the deployment reports `uses_functions: true`.
-- URL layout follows the existing trailing-slash directory convention.
+- EN and RU pages use self-referencing canonicals on the primary domain, indexable robots metadata, reciprocal `en`/`ru` hreflang, and `x-default` pointing to EN.
+- The production sitemap contains both public routes and matching language alternates. No preview URLs are in the sitemap.
+- `functions/_middleware.js` adds `X-Robots-Tag: noindex, nofollow` on Cloudflare Pages `*.pages.dev` deployments and leaves the primary custom domain unchanged. Middleware behavior is regression-tested; production deployment reports `uses_functions: true`.
+- Existing trailing-slash URL convention is used.
 
 ## Verification — 2026-11-21
 
-- The branch preview alias above resolves to the latest successful deployment. The last immutable deployment checked in the browser was `8aab5ab9`; the subsequent change only updated this Markdown status file.
-- Browser loaded both EN and RU screening routes and the preview sitemap without a 404. The sitemap displayed both production URLs. The EN/RU language links and Request Independent Power Analysis CTA were present. The K4 advisory destination is live.
-- New and existing automated checks: 27 tests passed across Free Screening formulas, SEO metadata/route conventions, preview noindex middleware, and remote diagnostics worker; `scripts/test_analytics.mjs` passed; `scripts/test_calculator_analytics.mjs` passed.
-- No calculation core, base `gpu-estimate/` calculator, or screening UI behavior was changed.
-- Deployment middleware source and host behavior are unit-tested. A separate raw HTTP header inspection was unavailable from the external probe; the browser confirmed Pages Function deployment and the page routes, while the noindex header itself is verified by the middleware test.
+- Cloudflare production deployment `3cb3cbdc` for merge commit `21a6f7a08d6dade2bd7f51e043c678a57d3eb6aa` completed successfully.
+- Browser opened the public EN route, RU route, and production `/sitemap.xml`; no 404 observed. EN/RU language links, primary CTA and K4 advisory link were present. Sitemap lists both production routes.
+- Regression suites: 27 tests passed across Free Screening formulas, SEO metadata/route conventions, preview noindex middleware, and remote diagnostics worker. `scripts/test_analytics.mjs` passed; `scripts/test_calculator_analytics.mjs` passed.
+- No base `gpu-estimate/` calculator files or calculation behavior were changed.
+- Browser URL policy blocked viewing `view-source:`, so production response metadata was not separately inspected in the browser; canonical, robots, hreflang, sitemap and preview middleware are covered by passing source regression tests.
+- Deployed preview response header `X-Robots-Tag` has not been independently read. Function deployment and middleware tests pass; retain this as a release verification follow-up.
 
 ## Analytics status
 
-`project_inquiry_submitted` remains gated on successful server storage and the correct inquiry form with a request reference. The analytics contract tests pass, and analytics payloads exclude project/contact values.
+`project_inquiry_submitted` is emitted only after confirmed server storage for the correct inquiry form and request reference. Analytics contract tests pass, and analytics payloads exclude project/contact values.
 
-**GA4 status: UNVERIFIED.** A refreshed query for the event on 2026-11-21 returned no rows; Windsor.ai reported that this property uses cached data and does not allow on-request refresh. Recheck after the next scheduled GA4 refresh before production release.
+**GA4 status: UNVERIFIED.** A refreshed query on 2026-11-21 returned no rows; Windsor.ai reported cached-only data and no on-request refresh. This does not establish that the event was absent from GA4. Recheck after scheduled data refresh.
 
-## Pull Request scope — all files changed against `main`
+## Production release follow-up
 
-- `DEVELOPMENT_STATUS.md` — release status, verification, blockers, exact scope, and rollback.
+1. Confirm a nonzero `project_inquiry_submitted` count in refreshed GA4 data.
+2. Inspect a deployed preview response for `X-Robots-Tag: noindex, nofollow`.
+3. Confirm production canonical/robots/hreflang through an allowed raw-response inspection or Search Console crawl report.
+
+## Rollback plan
+
+If route, SEO, or indexing behavior fails, revert merge commit `21a6f7a08d6dade2bd7f51e043c678a57d3eb6aa` and deploy the revert through the normal production process. This removes the new routes, sitemap entries and SEO metadata, plus preview middleware and the added screening/tests/docs. No migration is needed.
+
+## Changed files in PR #55
+
+- `DEVELOPMENT_STATUS.md` — release and verification status, blockers, scope and rollback.
 - `functions/_middleware.js` — preview-only noindex response header.
 - `gpu-estimate-hybrid-en/index.html` — EN page and production SEO metadata.
 - `gpu-estimate-hybrid-ru/README.md` — Free Screening documentation.
 - `gpu-estimate-hybrid-ru/index.html` — RU page and production SEO metadata.
-- `gpu-estimate-hybrid-ru/screening-engine.js` — shared screening calculation engine (frozen for this release).
-- `gpu-estimate-hybrid-ru/screening-ui.js` — screening UI/inquiry flow (frozen for this release).
-- `gpu-estimate-hybrid-ru/tests/free-screening.test.mjs` — calculation and event regression tests.
+- `gpu-estimate-hybrid-ru/screening-engine.js` — shared screening calculation engine.
+- `gpu-estimate-hybrid-ru/screening-ui.js` — screening UI and inquiry flow.
+- `gpu-estimate-hybrid-ru/tests/free-screening.test.mjs` — calculation/event tests.
 - `sitemap.xml` — production EN/RU URLs and alternate-language entries.
-- `tests/free-power-screening-seo.test.mjs` — SEO and preview-indexing regression checks.
-
-The base `gpu-estimate/` calculator and its files are unchanged.
-
-## Rollback plan
-
-If post-merge SEO or route checks fail, revert the PR merge commit. That removes the screening routes, their sitemap entries and SEO metadata, restores the prior page set, and removes the preview-header middleware and added tests/docs. No database migration, lead pipeline change, or calculation-engine change is included. Do not deploy production until the separate approval is given.
-
-## Remaining production blockers
-
-1. Wait for GA4 data refresh and confirm a nonzero `project_inquiry_submitted` event count for the confirmed test.
-2. After merge and a separately approved production deployment, confirm both canonical URLs return 200 with indexable metadata and remain in the production sitemap.
-3. Keep Cloudflare preview deployments on `*.pages.dev` non-indexable; middleware behavior is unit-tested and should be rechecked against the deployed response header during release verification.
+- `tests/free-power-screening-seo.test.mjs` — SEO and preview-indexing tests.
 
 ## Model limits
 
-The simplified annual screen does not establish utility availability. Energy Charge Only excludes demand, connection, and other charges. Full CAPEX/OPEX, reliability/outages, fuel logistics, taxes/financing, hourly dispatch, Solar/BESS, IRR, and payback are excluded. No investment recommendation is produced.
+The annual model does not establish utility availability. Energy Charge Only excludes demand, connection, and other charges. Full CAPEX/OPEX, reliability/outages, fuel logistics, taxes/financing, hourly dispatch, Solar/BESS, IRR, and payback are excluded. No investment recommendation is produced.
