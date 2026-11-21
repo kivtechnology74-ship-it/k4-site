@@ -175,12 +175,22 @@ test("accepts only a phone number with no message", async () => {
   });
 });
 
-test("accepts a Cloudflare Pages preview origin for controlled testing", async () => {
+test("preview origins cannot write to production intake and preview host suppresses notifications", async () => {
   const db = new MemoryD1();
   await withRelay(async () => Response.json({ ok: true }), async () => {
-    const response = await worker.fetch(post(payload({ sourceUrl: "https://branch.k4-technology.pages.dev/ru/services/remote-gas-engine-diagnostics/" }), "https://branch.k4-technology.pages.dev"), makeEnv(db));
-    assert.equal(response.status, 201);
-    assert.match([...db.rows.values()][0].source_url, /^https:\/\/branch\.k4-technology\.pages\.dev\/ru\//);
+    const blocked = await worker.fetch(post(payload(), "https://branch.k4-technology.pages.dev"), makeEnv(db));
+    assert.equal(blocked.status, 403);
+    assert.equal(db.rows.size, 0);
+    const previewRequest = new Request("https://branch.k4-technology.pages.dev/api/remote-diagnostics", {
+      method: "POST",
+      headers: { origin: "https://branch.k4-technology.pages.dev", "content-type": "application/json" },
+      body: JSON.stringify(payload({ sourceUrl: "https://branch.k4-technology.pages.dev/ru/project-assessment/" }))
+    });
+    const preview = await worker.fetch(previewRequest, makeEnv(db, { K4_PREVIEW_QA: true }));
+    assert.equal(preview.status, 201);
+    assert.equal((await preview.json()).emailStatus, "suppressed");
+    assert.equal(db.rows.size, 1);
+    assert.equal([...db.rows.values()][0].email_status, "suppressed");
   });
 });
 
