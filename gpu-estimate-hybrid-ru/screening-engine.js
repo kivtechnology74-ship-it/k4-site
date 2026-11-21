@@ -1,43 +1,44 @@
 'use strict';
-
-// Free Power Screening: deterministic annual energy and grid-capacity arithmetic.
-// This intentionally does not call the gas-engine or hybrid dispatch model.
-(function (root) {
-  const HOURS_PER_YEAR = 8760;
-
-  function calculateScreening(input) {
-    const powerMW = Number(input.requiredPowerMW);
-    const utilizationPercent = Number(input.utilizationPercent);
-    const pue = input.loadType === 'it' ? Number(input.pue) : 1;
-    if (!Number.isFinite(powerMW) || powerMW <= 0) throw new Error('Введите требуемую мощность больше нуля.');
-    if (!['it', 'facility'].includes(input.loadType)) throw new Error('Выберите IT Load или Total Facility Load.');
-    if (input.loadType === 'it' && (!Number.isFinite(pue) || pue < 1)) throw new Error('Для IT Load укажите PUE не меньше 1.');
-    if (!Number.isFinite(utilizationPercent) || utilizationPercent < 0 || utilizationPercent > 100) throw new Error('Загрузка должна быть от 0 до 100%.');
-
-    const facilityPeakMW = powerMW * pue;
-    const equivalentFullLoadHours = HOURS_PER_YEAR * utilizationPercent / 100;
-    const annualEnergyMWh = facilityPeakMW * equivalentFullLoadHours;
-    const averageLoadMW = annualEnergyMWh / HOURS_PER_YEAR;
-    const tariff = input.gridTariff === '' || input.gridTariff == null ? null : Number(input.gridTariff);
-    if (tariff !== null && (!Number.isFinite(tariff) || tariff < 0)) throw new Error('Тариф сети должен быть числом не меньше нуля.');
-    const annualEnergyCost = tariff === null ? null : annualEnergyMWh * 1000 * tariff;
-
-    const capacity = input.gridCapacityMW === '' || input.gridCapacityMW == null ? null : Number(input.gridCapacityMW);
-    if (capacity !== null && (!Number.isFinite(capacity) || capacity < 0)) throw new Error('Доступная мощность сети должна быть числом не меньше нуля.');
-    const gridCheck = capacity === null ? 'unknown' : capacity >= facilityPeakMW ? 'sufficient' : 'shortfall';
-    const gridShortfallMW = capacity === null ? null : Math.max(0, facilityPeakMW - capacity);
-    const connectionDate = String(input.connectionDate || '').trim() || null;
-
-    return {
-      loadType: input.loadType, enteredPowerMW: powerMW, pue, facilityPeakMW,
-      utilizationPercent, equivalentFullLoadHours, annualEnergyMWh, averageLoadMW,
-      gridTariff: tariff, currency: String(input.currency || '').trim().toUpperCase() || null,
-      annualEnergyCost, gridCapacityMW: capacity, gridCheck, gridShortfallMW,
-      connectionDate, scenarioAssumption: input.utilizationIsScenario === true
-    };
-  }
-
-  const api = { HOURS_PER_YEAR, calculateScreening };
-  if (typeof module !== 'undefined' && module.exports) module.exports = api;
-  root.K4Screening = api;
-})(typeof globalThis !== 'undefined' ? globalThis : this);
+(function(root){
+ const HOURS_PER_YEAR=8760;
+ const parse=(raw,min,max,allowZero=true)=>{
+  if(raw===null||raw===undefined||String(raw).trim()==='')return{state:'unknown',value:null};
+  const value=Number(raw);
+  if(!Number.isFinite(value))return{state:'invalid',value:null,issue:'not_number'};
+  if(value<min||(!allowZero&&value===0)||(max!==undefined&&value>max))return{state:'invalid',value,issue:'out_of_range'};
+  return{state:value===0?'provided_zero':'provided',value};
+ };
+ function calculateScreening(input={}){
+  const fields={
+   requiredPower:parse(input.requiredPowerMW,0,undefined,false),
+   utilization:parse(input.utilizationPercent,0,100,true),
+   pue:input.loadType==='it'?parse(input.pue,1,undefined,true):{state:'not_applicable',value:1},
+   tariff:parse(input.gridTariff,0,undefined,true),
+   gridCapacity:parse(input.gridCapacityMW,0,undefined,true)
+  };
+  const errors={};
+  for(const [key,item] of Object.entries(fields))if(item.state==='invalid')errors[key]=item.issue;
+  if(!['it','facility'].includes(input.loadType))errors.loadType='required';
+  const missing=[];
+  for(const key of ['requiredPower','utilization'])if(fields[key].state==='unknown')missing.push(key);
+  if(input.loadType==='it'&&fields.pue.state==='unknown')missing.push('pue');
+  const currency=String(input.currency||'').trim().toUpperCase();
+  const currencyState=currency?'provided':'unknown';
+  const date=String(input.connectionDate||'').trim();
+  const ready=!Object.keys(errors).length&&!missing.length;
+  if(!ready)return{ready:false,fields,errors,missing,currencyState,connectionDate:date||null};
+  const facilityPeakMW=fields.requiredPower.value*(input.loadType==='it'?fields.pue.value:1);
+  const utilizationPercent=fields.utilization.value;
+  const equivalentFullLoadHours=HOURS_PER_YEAR*utilizationPercent/100;
+  const annualEnergyMWh=facilityPeakMW*equivalentFullLoadHours;
+  const averageLoadMW=annualEnergyMWh/HOURS_PER_YEAR;
+  const costAvailable=fields.tariff.state!=='unknown'&&fields.tariff.state!=='invalid'&&currencyState==='provided';
+  const annualEnergyCost=costAvailable?annualEnergyMWh*1000*fields.tariff.value:null;
+  const capacityKnown=fields.gridCapacity.state!=='unknown'&&fields.gridCapacity.state!=='invalid';
+  const gridCheck=capacityKnown?(fields.gridCapacity.value>=facilityPeakMW?'sufficient':'shortfall'):'unknown';
+  return{ready:true,fields,errors,missing,currency,currencyState,loadType:input.loadType,enteredPowerMW:fields.requiredPower.value,pue:fields.pue.value,facilityPeakMW,utilizationPercent,equivalentFullLoadHours,annualEnergyMWh,averageLoadMW,gridTariff:fields.tariff.state==='invalid'?null:fields.tariff.value,annualEnergyCost,costAvailable,gridCapacityMW:capacityKnown?fields.gridCapacity.value:null,gridCheck,gridShortfallMW:gridCheck==='shortfall'?facilityPeakMW-fields.gridCapacity.value:gridCheck==='sufficient'?0:null,connectionDate:date||null,energyChargeOnly:true};
+ }
+ const api={HOURS_PER_YEAR,calculateScreening};
+ if(typeof module!=='undefined'&&module.exports)module.exports=api;
+ root.K4Screening=api;
+})(typeof globalThis!=='undefined'?globalThis:this);
