@@ -37,6 +37,8 @@ The migration creates `calculator_events`, `calculator_completions`, indexes, an
 
 The Pages project has a separate Preview `LEADS_DB` binding. The `functions/api/calculator-events.js` route is limited to branch Preview hostnames and uses that binding; the custom production domain continues to use the existing Worker route. Apply the same migration to the Pages Preview database before exercising preview event writes. Production migration and Worker deployment remain separate release actions.
 
+The isolated `k4-site-leads-preview` database received migration `0003` on 2026-11-21 for synthetic verification. The production `k4-remote-diagnostics` database was not changed.
+
 ## Reporting
 
 Run `reports/calculator-funnel.sql` with inclusive UTC start and exclusive UTC end bound as `?1` and `?2`. The first query reports Traffic → Started → Model Selected → Completed → PDF Clicked → Lead Stored → Qualified Lead plus stage conversion rates. The second reports popular models. The third keeps QA, demo and probable automation visible for audit.
@@ -53,5 +55,7 @@ Synthetic model sample: Jenbacher J320 — 21 selections / 13 completions; Cater
 
 - Unit and static checks can verify event gates, payload allowlists, migrations, deduplication, storage-failure behavior, and form attribution without sending a real client request.
 - Use Tag Assistant on a branch Preview URL to enable GA4 debug mode for QA events. Preview GA events carry `calculator_traffic_class=qa` and `debug_mode=true`; production events omit `debug_mode`.
-- A Cloudflare Pages Preview with the migration applied is required to prove remote D1 writes. Its rate limiter is local to a Preview Function isolate; production requests use the Cloudflare Worker rate-limit binding.
+- Verified on 2026-11-21 in the branch Preview: GA4 DebugView received `calculator_page_view`, `calculator_started`, `calculator_result_completed`, and `calculator_contact_clicked`, plus one `page_view`. Preview D1 stored those four calculator events and one QA completion after migration `0003` was applied to the isolated Preview database.
+- `calculator_model_selected` passed the client contract test but was not emitted by browser automation because the native model selector did not produce a trusted change event. PDF click and `generate_lead` were not sent in this Preview session; no print dialog or inquiry was submitted.
+- The Preview Function rate limiter is local to an isolate; production requests use the Cloudflare Worker rate-limit binding.
 - Recheck RU/EN at desktop/mobile sizes, repeated recalculation, model changes, blocked analytics, event-write failure, PDF click, and form-store failure using synthetic-only contacts before release.

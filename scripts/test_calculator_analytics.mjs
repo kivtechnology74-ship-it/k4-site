@@ -62,6 +62,7 @@ const validProfile={id:'r5_10',brand:'Jenbacher',engine:'J320',status:'OEM confi
   app.window.K4CalculatorAnalytics.selected(next);app.window.K4CalculatorAnalytics.modelSelected(next);app.window.K4CalculatorResult={valid:true};app.flush();
   const completions=app.eventCalls.filter(event=>event.event_name==='calculator_result_completed');
   assert.equal(completions.length,2);assert.notEqual(completions[0].calc_id,completions[1].calc_id);
+  assert.equal(app.eventCalls.filter(event=>event.event_name==='calculator_model_selected').length,1);
 }
 {
   const app=boot({consent:false});app.window.K4CalculatorAnalytics.selected(validProfile);
