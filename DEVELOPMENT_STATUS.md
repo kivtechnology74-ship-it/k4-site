@@ -3,7 +3,7 @@
 - Version: 0.2.0 — functionality frozen
 - Branch: `codex/free-power-screening-20261121`
 - Pull Request: being prepared against `main`; no merge requested or performed
-- Latest verified HTTPS preview: https://771e0945.k4-technology.pages.dev/gpu-estimate-hybrid-en/
+- Latest verified HTTPS preview: https://codex-free-power-screening-2.k4-technology.pages.dev/gpu-estimate-hybrid-en/
 - Production: unchanged; no production deployment performed
 - Release status: PR is ready for review. Production release remains blocked until GA4 refresh confirms `project_inquiry_submitted`.
 - Product KPI: qualified commercial inquiries for K4 Independent Power Analysis.
@@ -25,7 +25,7 @@ The main CTA remains “Request Independent Power Analysis”. Energy cost remai
 
 ## Verification — 2026-11-21
 
-- Latest Pages preview deployment: `771e0945`, branch alias `https://codex-free-power-screening-2.k4-technology.pages.dev`, status success; the immutable deployment URL above was used for checks.
+- Latest Pages preview deployment verified: `8aab5ab9`, branch alias https://codex-free-power-screening-2.k4-technology.pages.dev, status success; immutable preview URL: https://8aab5ab9.k4-technology.pages.dev.
 - Browser loaded both EN and RU screening routes and the preview sitemap without a 404. The sitemap displayed both production URLs. The EN/RU language links and Request Independent Power Analysis CTA were present. The K4 advisory destination is live.
 - New and existing automated checks: 27 tests passed across Free Screening formulas, SEO metadata/route conventions, preview noindex middleware, and remote diagnostics worker; `scripts/test_analytics.mjs` passed; `scripts/test_calculator_analytics.mjs` passed.
 - No calculation core, base `gpu-estimate/` calculator, or screening UI behavior was changed.
