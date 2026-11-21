@@ -95,6 +95,7 @@
   if(isInternal)trafficParams.traffic_type='internal';
   if(isQa)trafficParams.debug_mode=true;
   window.k4AnalyticsInternal=isInternal;
+  window.k4AnalyticsQa=isQa;
 
   const localeSegments=new Set(['en','ru','zh','es','pt-br']);
   const routeInfo=pathname=>{
