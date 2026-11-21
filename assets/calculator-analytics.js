@@ -27,28 +27,20 @@
     const type=profile.isCustom?'manual':profile.is_example?'demo':/oem (confirmed|подтверждено)/i.test(profile.status||'')?'oem':'incomplete';
     return{brand:String(profile.brand||'unknown').slice(0,60),model_id:String(profile.id||'unknown').slice(0,80),model_name:String(profile.engine||profile.model||'unknown').slice(0,100),profile_type:type};
   }
-  function send(eventName,scenario=calcId,{waitForGa=false}={}){
+  function send(eventName,scenario=calcId){
     if(!consentAllowed())return Promise.resolve(false);
     const eventId=id();
     const payload={event_id:eventId,event_name:eventName,session_id:sessionId,calc_id:scenario,...base,...model,traffic_class:trafficClass};
-    let gaDelivery=Promise.resolve(false);
     try{
       if(typeof window.gtag==='function'){
         const gaParams={calculator_brand:'k4',calculator_model_id:model.model_id,calculator_model:model.model_name,calculator_profile_type:model.profile_type,calculator_language:language,calculator_version:VERSION,calculator_traffic_class:trafficClass,...(trafficClass==='qa'?{debug_mode:true}:{})};
-        if(waitForGa)gaDelivery=new Promise(resolve=>{
-          let settled=false;
-          const finish=delivered=>{if(settled)return;settled=true;window.clearTimeout(timeout);if(delivered)window.setTimeout(()=>resolve(true),350);else resolve(false);};
-          const timeout=window.setTimeout(()=>finish(false),750);
-          gaParams.transport_type='beacon';
-          gaParams.event_callback=()=>finish(true);
-        });
         window.gtag('event',eventName,gaParams);
       }
     }catch(error){/* Analytics must never interrupt the calculator. */}
     try{
       const stored=fetch(endpoint,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload),keepalive:true}).then(response=>response.ok).catch(()=>false);
-      return waitForGa?Promise.all([gaDelivery,stored]).then(([delivered,saved])=>delivered||saved):stored;
-    }catch(error){/* Analytics must never interrupt the calculator. */return gaDelivery;}
+      return stored;
+    }catch(error){/* Analytics must never interrupt the calculator. */return Promise.resolve(false);}
   }
   let sessionId;
   try{sessionId=sessionStorage.getItem('k4_calc_session')||id();sessionStorage.setItem('k4_calc_session',sessionId);}catch(error){sessionId=id();}
@@ -72,7 +64,7 @@
       const ctaUrl=new URL(contact.href,location.href);ctaUrl.searchParams.set('calc_id',calcId);contact.href=ctaUrl.href;if(contactContainer)contactContainer.hidden=false;
       completionPromise=send('calculator_result_completed',calcId);
     },
-    pdfClicked(){return validCurrent?send('calculator_pdf_clicked',calcId,{waitForGa:true}):Promise.resolve(false);},
+    pdfClicked(){if(!validCurrent||!consentAllowed())return Promise.resolve(false);return send('calculator_pdf_clicked').then(saved=>new Promise(resolve=>window.setTimeout(()=>resolve(saved),350)));},
     contactClicked(){if(validCurrent)send('calculator_contact_clicked');},
     current(){return validCurrent?context():null;}
   };
