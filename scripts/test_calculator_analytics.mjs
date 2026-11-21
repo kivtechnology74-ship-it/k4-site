@@ -34,6 +34,8 @@ const validProfile={id:'r5_10',brand:'Jenbacher',engine:'J320',status:'OEM confi
   assert.equal(JSON.stringify(app.eventCalls).includes('1000'),false);
   app.window.K4CalculatorAnalytics.changed();app.window.K4CalculatorResult={valid:true};app.flush();
   assert.equal(app.eventCalls.filter(event=>event.event_name==='calculator_result_completed').length,1);
+  app.window.K4CalculatorAnalytics.pdfClicked();
+  assert.equal(app.eventCalls.at(-1).event_name,'calculator_pdf_clicked');
   app.setInput('power',1100);app.window.K4CalculatorAnalytics.changed();app.window.K4CalculatorResult={valid:true};app.flush();
   assert.equal(app.eventCalls.filter(event=>event.event_name==='calculator_result_completed').length,2);
 }

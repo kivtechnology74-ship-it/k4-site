@@ -8,7 +8,7 @@ WITH event_counts AS (
     COUNT(DISTINCT CASE WHEN event_name = 'calculator_result_completed' THEN calc_id END) AS completed,
     COUNT(CASE WHEN event_name = 'calculator_pdf_clicked' THEN 1 END) AS pdf_clicks
   FROM calculator_events
-  WHERE traffic_class = 'production' AND created_at >= ?1 AND created_at < ?2
+  WHERE traffic_class = 'production' AND profile_type != 'demo' AND created_at >= ?1 AND created_at < ?2
 ), lead_counts AS (
   SELECT
     COUNT(DISTINCT id) AS lead_stored,
@@ -36,8 +36,8 @@ GROUP BY model_id, model_name
 ORDER BY selections DESC, completed DESC;
 
 -- Segmentation audit: keep QA, demos and probable automation visible outside the funnel.
-SELECT traffic_class, event_name, COUNT(*) AS events
+SELECT traffic_class, profile_type, event_name, COUNT(*) AS events
 FROM calculator_events
 WHERE created_at >= ?1 AND created_at < ?2
-GROUP BY traffic_class, event_name
-ORDER BY traffic_class, event_name;
+GROUP BY traffic_class, profile_type, event_name
+ORDER BY traffic_class, profile_type, event_name;

@@ -21,7 +21,7 @@
 | `calculator_contact_clicked` | Click on the K4 CTA after a valid result. |
 | `generate_lead` | Emitted only after the existing Worker confirms the D1 lead row is stored and its `calc_id` resolves to a production completion. Email delivery status is not required for storage. |
 
-Profiles use `oem`, `incomplete`, `manual`, or `demo`. Traffic uses `production`, `qa`, `demo`, or `probable_automation`; QA takes precedence over demo traffic, and `profile_type=demo` remains visible as a second dimension. `probable_automation` is a conservative User-Agent heuristic. The system deliberately makes no positive “real person” classification.
+Profiles use `oem`, `incomplete`, `manual`, or `demo`. `traffic_class` separates production, QA, demo and probable automation; `profile_type=demo` separately marks demonstration scenarios, including demos run in QA. QA takes precedence when a demo is used on a preview. The funnel and popularity queries exclude demo profiles. `probable_automation` is a conservative User-Agent heuristic. The system deliberately makes no positive “real person” classification.
 
 ## D1 deployment
 
