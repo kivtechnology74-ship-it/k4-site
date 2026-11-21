@@ -1,9 +1,10 @@
 # K4 Free Power Screening — development status
 
 - Version: 0.1.0 preview candidate
-- Stage: implementation and browser verification in progress
+- Stage: preview deployed and browser smoke-check complete
 - Branch: `codex/free-power-screening-20261121` (isolated from production)
 - Production: unchanged; no production merge or deployment
+- Preview: [Cloudflare Pages preview](https://0572ce01.k4-technology.pages.dev/gpu-estimate-hybrid-ru/) — commit `95a9cac84951c0d7937116de6069d89c6ebc862d`
 - Commercial readiness: not approved for public production; copy, contact conversion, localization, and project qualification flow need owner review
 
 ## Gap analysis
@@ -44,7 +45,8 @@
 - `node --test gpu-estimate-hybrid-ru/tests/free-screening.test.mjs`: 8 passed.
 - `node --test gpu-estimate-hybrid-ru/tests/hybrid-engine.test.mjs`: 16 passed in the local source snapshot; that legacy test suite is not part of the new main-based preview branch.
 - `node --check gpu-estimate-hybrid-ru/screening-engine.js` and extracted inline script syntax check: passed.
-- Browser verification: pending preview deployment. Chrome blocks `file://` navigation; verification must use the HTTPS Cloudflare preview generated from the isolated branch.
+- Browser verification on the HTTPS preview: IT Load 10 MW × PUE 1.30, 70% gives 79,716 MWh, 9.1 MW average, 6,132 full-load hours and USD 7,971,600 at USD 0.10/kWh; with 12 MW grid, the indicated peak shortfall is 1 MW. Total Facility Load 10 MW at 50% gives 43,800 MWh and 5 MW average; with 8 MW grid, the indicated peak shortfall is 2 MW. With tariff and grid capacity blank, energy cost and capacity coverage are shown as unknown. These are synthetic checks, not project inputs.
+- Initial browser attempt with `file://` was blocked by Chrome policy; HTTPS preview was used for the smoke-check.
 
 ## Limitations and release gate
 
