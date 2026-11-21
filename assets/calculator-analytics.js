@@ -69,7 +69,7 @@
   modelSelect?.addEventListener('change',event=>{if(event.isTrusted)window.K4CalculatorAnalytics.modelSelected();});
   document.addEventListener('input',event=>{if(event.isTrusted&&event.target.closest('.panel'))window.K4CalculatorAnalytics.changed();},true);
   document.addEventListener('change',event=>{if(event.isTrusted&&event.target.closest('.panel')&&event.target!==modelSelect)window.K4CalculatorAnalytics.changed();},true);
-  document.querySelector('#pdfBtn')?.addEventListener('click',()=>window.K4CalculatorAnalytics.pdfClicked());
+  document.addEventListener('click',event=>{if(event.target?.closest?.('#pdfBtn'))window.K4CalculatorAnalytics.pdfClicked();},true);
   contact?.addEventListener('click',event=>{
     if(!validCurrent)return;
     event.preventDefault();
