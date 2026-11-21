@@ -27,8 +27,10 @@ The screening equations follow the task's definitions and 8,760-hour year. IT Lo
 - Existing `cloudflare/remote-diagnostics-worker.test.js`: 8 passed.
 - Existing `scripts/test_analytics.mjs`: passed.
 - JavaScript syntax checks and Python HTML parsing for both language entry pages: passed.
-- Browser verification and screenshots: pending latest HTTPS preview deployment.
-- No production request was submitted during tests. The live server-backed form is not used as test data because it would create a real lead.
+- Browser verification on HTTPS preview `https://db76353d.k4-technology.pages.dev`: RU control case (1 MW, 100%, USD 0.10/kWh, 1 MW grid) returned 8,760 MWh, USD 876,000 Energy Charge Only, 0 MW deficit; EN Total Facility Load and IT Load calculations were reviewed. Explicit zero utilization/tariff and invalid utilization 101% were exercised; invalid input blocked calculation. Grid check used nominal peak and showed a 1 MW deficit when capacity was 9 MW for a 10 MW facility.
+- Responsive layout was visually checked in Chrome desktop and Responsive mode at 390 × 844 px; summary copy and explicit inquiry-draft inclusion worked. Screenshots were captured during QA.
+- Browser analytics dataLayer showed `screening_started`, `screening_completed`, `grid_capacity_deficit_detected`, and `analysis_cta_clicked` with page/language or safe CTA metadata only. `project_inquiry_submitted` was not end-to-end triggered because preview submits into K4's live lead intake; its confirmed-storage gate is covered by the regression tests.
+- No production code was changed. The live server-backed form was not submitted during tests because it would create a real lead.
 
 ## Remaining limitations
 
