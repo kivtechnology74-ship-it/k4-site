@@ -37,7 +37,7 @@
         const gaParams={calculator_brand:'k4',calculator_model_id:model.model_id,calculator_model:model.model_name,calculator_profile_type:model.profile_type,calculator_language:language,calculator_version:VERSION,calculator_traffic_class:trafficClass,...(trafficClass==='qa'?{debug_mode:true}:{})};
         if(waitForGa)gaDelivery=new Promise(resolve=>{
           let settled=false;
-          const finish=delivered=>{if(settled)return;settled=true;window.clearTimeout(timeout);resolve(delivered);};
+          const finish=delivered=>{if(settled)return;settled=true;window.clearTimeout(timeout);if(delivered)window.setTimeout(()=>resolve(true),350);else resolve(false);};
           const timeout=window.setTimeout(()=>finish(false),750);
           gaParams.transport_type='beacon';
           gaParams.event_callback=()=>finish(true);

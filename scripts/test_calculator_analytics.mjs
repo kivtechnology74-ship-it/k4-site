@@ -19,7 +19,7 @@ function boot({consent=true,ua='Mozilla/5.0',hostname='k4-technology.com',eventW
   const navigations=[];const window={k4AnalyticsConsent:consent,gtag:(...args)=>gaCalls.push(args),location:{assign:url=>navigations.push(url)},setTimeout(fn){const id=++timerId;timers.set(id,fn);return id;},clearTimeout(id){timers.delete(id);}};
   const context={window,document,location:{pathname:'/gpu-estimate/en-beta/',href:`https://${hostname}/gpu-estimate/en-beta/`,hostname},navigator:{userAgent:ua,doNotTrack:'0'},URL,URLSearchParams,crypto:webcrypto,sessionStorage:{getItem(){return null;},setItem(){}},fetch:(url,options)=>{eventCalls.push(JSON.parse(options.body));return eventWriteFails?Promise.reject(new Error('synthetic analytics failure')):Promise.resolve({ok:true});},CustomEvent:class{},console};
   vm.runInNewContext(source,context,{filename:'calculator-analytics.js'});
-  const flush=()=>{const work=[...timers.values()];timers.clear();work.forEach(fn=>fn());};
+  const flush=()=>{while(timers.size){const work=[...timers.values()];timers.clear();work.forEach(fn=>fn());}};
   const setInput=(id,value)=>inputs.set(id,{value:String(value)});
   return{window,profile,contact,contactContainer,contactClick:()=>contactClick,eventCalls,gaCalls,navigations,flush,setInput,profileInput:()=>documentListeners.input({isTrusted:true,target:profile}),profileChange:()=>profileListeners.change({isTrusted:true})};
 }
@@ -40,6 +40,7 @@ const validProfile={id:'r5_10',brand:'Jenbacher',engine:'J320',status:'OEM confi
   assert.equal(pdfGaCall[2].transport_type,'beacon');
   assert.equal(typeof pdfGaCall[2].event_callback,'function');
   pdfGaCall[2].event_callback();
+  app.flush();
   assert.equal(await pdfDelivery,true);
   app.setInput('power',1100);app.window.K4CalculatorAnalytics.changed();app.window.K4CalculatorResult={valid:true};app.flush();
   assert.equal(app.eventCalls.filter(event=>event.event_name==='calculator_result_completed').length,2);
@@ -91,6 +92,7 @@ const validProfile={id:'r5_10',brand:'Jenbacher',engine:'J320',status:'OEM confi
   const pdfDelivery=app.window.K4CalculatorAnalytics.pdfClicked();
   const pdfGaCall=app.gaCalls.filter(call=>call[1]==='calculator_pdf_clicked').at(-1);
   pdfGaCall[2].event_callback();
+  app.flush();
   assert.equal(await pdfDelivery,true); // GA can receive it even if D1 is unavailable.
   assert.equal(app.eventCalls.at(-1).event_name,'calculator_pdf_clicked');
 }
