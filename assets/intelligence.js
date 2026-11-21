@@ -90,7 +90,7 @@
   if(!persistentInternal){
     persistentInternal=readInternalCookie();
   }
-  const isInternal=internalControl==='0'?false:persistentInternal||isQa;
+  const isInternal=internalControl==='0'?false:persistentInternal;
   const trafficParams={};
   if(isInternal)trafficParams.traffic_type='internal';
   if(isQa)trafficParams.debug_mode=true;
