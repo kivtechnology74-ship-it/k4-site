@@ -159,11 +159,11 @@ async function deliverPending(env, row) {
 }
 
 function calculatorTrafficClass(request, profileType, requestedClass) {
-  if (profileType === "demo") return "demo";
   const origin = request.headers.get("origin") || "";
   if (/\.k4-technology\.pages\.dev$/.test(new URL(origin || "https://invalid.local").hostname) || requestedClass === "qa") return "qa";
   const agent = request.headers.get("user-agent") || "";
   if (/bot|crawler|spider|headless|lighthouse|pagespeed/i.test(agent)) return "probable_automation";
+  if (profileType === "demo") return "demo";
   return "production";
 }
 

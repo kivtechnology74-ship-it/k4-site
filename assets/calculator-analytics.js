@@ -28,7 +28,7 @@
   function send(eventName,scenario=calcId){
     if(!consentAllowed())return;
     const eventId=id();
-    const payload={event_id:eventId,event_name:eventName,session_id:sessionId,calc_id:scenario,...base,...model,traffic_class:model.profile_type==='demo'?'demo':trafficClass};
+    const payload={event_id:eventId,event_name:eventName,session_id:sessionId,calc_id:scenario,...base,...model,traffic_class:trafficClass};
     try{
       if(typeof window.gtag==='function')window.gtag('event',eventName,{calculator_brand:'k4',calculator_model_id:model.model_id,calculator_model: model.model_name,calculator_profile_type:model.profile_type,calculator_language:language,calculator_version:VERSION});
     }catch(error){/* Analytics must never interrupt the calculator. */}
@@ -45,7 +45,7 @@
   }
   function context(){return{...base,...model,calc_id:calcId};}
   window.K4CalculatorAnalytics={
-    selected(profile){model={...selectedModel(profile)};},
+    selected(profile){const next=selectedModel(profile);if(window.K4CalculatorAnalytics.lastCompleted&&next.model_id!==model.model_id){calcId=id();started=false;validCurrent=false;window.K4CalculatorAnalytics.lastCompleted='';}model={...next};},
     modelSelected(profile){const next=selectedModel(profile);if(window.K4CalculatorAnalytics.lastCompleted&&next.model_id!==model.model_id){calcId=id();started=false;validCurrent=false;window.K4CalculatorAnalytics.lastCompleted='';}model={...next};start();send('calculator_model_selected');window.clearTimeout(completeTimer);const current=fingerprint();lastFingerprint=current;completeTimer=window.setTimeout(()=>window.K4CalculatorAnalytics.complete(current),650);},
     changed(){const current=fingerprint();if(window.K4CalculatorAnalytics.lastCompleted&&current!==window.K4CalculatorAnalytics.lastCompleted){calcId=id();started=false;validCurrent=false;window.K4CalculatorAnalytics.lastCompleted='';}start();window.clearTimeout(completeTimer);lastFingerprint=current;validCurrent=false;completeTimer=window.setTimeout(()=>window.K4CalculatorAnalytics.complete(current),650);},
     complete(expected){

@@ -238,6 +238,10 @@ test("classifies preview and probable automation separately", async () => {
     body: JSON.stringify(eventPayload({ event_name: "calculator_page_view", event_id: "a12185d0-3937-42db-9776-e932565e889b", calc_id: "b12185d0-3937-42db-9776-e932565e889b" }))
   }), env);
   assert.deepEqual([...db.events.values()].map(event => event.traffic_class), ["qa", "probable_automation"]);
+  const qaDemo = await worker.fetch(calculatorPost(eventPayload({ event_id: "b12185d0-3937-42db-9776-e932565e889b", calc_id: "c12185d0-3937-42db-9776-e932565e889b", event_name: "calculator_page_view", profile_type: "demo" }), "https://branch.k4-technology.pages.dev"), env);
+  assert.equal(qaDemo.status, 202);
+  assert.equal([...db.events.values()].at(-1).traffic_class, "qa");
+  assert.equal([...db.events.values()].at(-1).profile_type, "demo");
 });
 
 test("links only a production completion after the lead row is stored", async () => {

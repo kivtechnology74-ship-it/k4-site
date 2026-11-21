@@ -42,7 +42,17 @@ const validProfile={id:'r5_10',brand:'Jenbacher',engine:'J320',status:'OEM confi
   app.window.K4CalculatorAnalytics.changed();app.window.K4CalculatorResult={valid:true};app.flush();
   assert.equal(app.eventCalls.some(event=>event.event_name==='calculator_result_completed'),false);
   assert.equal(app.eventCalls[0].traffic_class,'production');
-  assert.equal(app.eventCalls[1].traffic_class,'demo');
+  assert.equal(app.eventCalls[1].traffic_class,'production');
+  assert.equal(app.eventCalls[1].profile_type,'demo');
+}
+{
+  const app=boot();app.window.K4CalculatorAnalytics.selected(validProfile);
+  app.window.K4CalculatorAnalytics.changed();app.window.K4CalculatorResult={valid:true};app.flush();
+  const first=app.eventCalls.find(event=>event.event_name==='calculator_result_completed').calc_id;
+  const next={id:'r5_11',brand:'Jenbacher',engine:'J320 variant',status:'OEM confirmed'};
+  app.window.K4CalculatorAnalytics.selected(next);app.window.K4CalculatorAnalytics.modelSelected(next);app.window.K4CalculatorResult={valid:true};app.flush();
+  const completions=app.eventCalls.filter(event=>event.event_name==='calculator_result_completed');
+  assert.equal(completions.length,2);assert.notEqual(completions[0].calc_id,completions[1].calc_id);
 }
 {
   const app=boot({consent:false});app.window.K4CalculatorAnalytics.selected(validProfile);
