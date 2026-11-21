@@ -27,7 +27,7 @@ test("EN/RU production routes use canonical URLs and reciprocal hreflang", async
     assert.match(html, new RegExp('hreflang="en" href="' + enUrl.replaceAll("/", "\\/") + '"'));
     assert.match(html, new RegExp('hreflang="ru" href="' + ruUrl.replaceAll("/", "\\/") + '"'));
     assert.match(html, new RegExp('hreflang="x-default" href="' + enUrl.replaceAll("/", "\\/") + '"'));
-    assert.match(html, /href="\/services\/ai-power-project-advisory\//);
+    assert.match(html, /href="https:\/\/k4-technology\.com\/services\/ai-power-project-advisory\//);
   }
   const sitemap = await read("sitemap.xml");
   assert.match(sitemap, new RegExp("<loc>" + enUrl.replaceAll("/", "\\/") + "<\\/loc>"));
