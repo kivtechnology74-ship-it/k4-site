@@ -7,7 +7,7 @@
   const modelSelect=document.querySelector('#profile');
   const contact=document.querySelector('[data-calculator-contact]');
   const contactContainer=document.querySelector('#calcContact');
-  const qa=location.hostname.endsWith('.pages.dev')||new URLSearchParams(location.search).has('qa')||new URLSearchParams(location.search).get('utm_source')==='codex_internal_test';
+  const qa=location.hostname.endsWith('.pages.dev')||window.k4AnalyticsQa===true||new URLSearchParams(location.search).has('qa')||new URLSearchParams(location.search).get('utm_source')==='codex_internal_test';
   const automation=/bot|crawler|spider|headless|lighthouse|pagespeed/i.test(navigator.userAgent||'');
   const trafficClass=qa?'qa':automation?'probable_automation':'production';
   const consentAllowed=()=>!['1','yes'].includes(String(navigator.doNotTrack||'').toLowerCase())&&window.k4AnalyticsConsent===true;
