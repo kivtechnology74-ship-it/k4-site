@@ -123,6 +123,7 @@ const fakeLink=({href,event,channel='internal_navigation'})=>{
   assert.equal(visible.searchParams.has('qa'),false);
   assert.equal(visible.searchParams.has('release'),false);
   assert.equal(result.config.page_location,visible.href);
+  assert.equal(result.window.k4AnalyticsQa,true);
 }
 {
   const href='https://k4-technology.com/case-studies/j320-303-days-operating-data/?amp;utm_medium=email&amp;utm_campaign=existing_fleet_2026&amp;utm_content=apa_group_01';
