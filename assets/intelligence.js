@@ -190,8 +190,15 @@
   };
   const style=document.createElement('style');
   style.textContent='#k4-consent-banner[hidden]{display:none!important}#k4-consent-banner{position:fixed;z-index:2147483000;left:50%;bottom:16px;transform:translateX(-50%);width:min(720px,calc(100vw - 28px));padding:18px 20px;background:#101821;color:#eef4f8;border:1px solid #526170;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.28);font:14px/1.5 system-ui,-apple-system,Segoe UI,sans-serif}#k4-consent-banner h2{margin:0 0 5px;font-size:17px;line-height:1.3;color:#fff}#k4-consent-banner p{margin:0 0 12px;color:#d1dbe3}#k4-consent-banner a{color:#b7d9f2;text-decoration:underline}#k4-consent-banner .k4-consent-actions{display:flex;gap:10px;flex-wrap:wrap}#k4-consent-banner button{flex:1 1 190px;min-height:42px;padding:8px 14px;border:1px solid #9bb0c2;border-radius:7px;background:#17232f;color:#fff;font:600 14px/1.3 system-ui,-apple-system,Segoe UI,sans-serif;cursor:pointer}#k4-consent-banner button:hover{background:#263a4d}#k4-consent-banner button:focus-visible,#k4-privacy-settings:focus-visible{outline:3px solid #8ac8fa;outline-offset:2px}#k4-privacy-settings{border:0;background:transparent;color:inherit;font:inherit;text-decoration:underline;cursor:pointer;padding:0}@media(max-width:560px){#k4-consent-banner{bottom:8px;padding:14px 15px}#k4-consent-banner .k4-consent-actions{display:grid;grid-template-columns:1fr}#k4-consent-banner button{width:100%}}';
+  style.textContent+='.k4-consent-footer{position:fixed;right:12px;bottom:10px;z-index:2147482000;color:#25323d;background:rgba(255,255,255,.94);border:1px solid #cbd5dc;border-radius:7px;padding:7px 10px;font:12px/1.3 system-ui,-apple-system,Segoe UI,sans-serif}.k4-consent-footer #k4-privacy-settings{font-size:12px}@media(max-width:560px){.k4-consent-footer{right:8px;bottom:8px}}';
   document.head.appendChild(style);
-  const footer=document.querySelector('footer');
+  let footer=document.querySelector('footer');
+  if(!footer){
+    footer=document.createElement('footer');
+    footer.className='k4-consent-footer';
+    footer.setAttribute('aria-label',consentText.settings);
+    document.body.appendChild(footer);
+  }
   if(footer){
     const holder=footer.querySelector('.footer-links')||footer;
     if(!footer.querySelector('#k4-privacy-settings')){

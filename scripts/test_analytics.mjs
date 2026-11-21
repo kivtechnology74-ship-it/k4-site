@@ -36,7 +36,7 @@ const boot=(href,storedInternal=false,{elements=[],form=null,consent=true}={})=>
     },
     querySelectorAll(selector){return selector==='a[href], [data-event]'?elements:[];},
     createTextNode(text){return {textContent:String(text)};},
-    createElement(tag){const listeners={};const element={tagName:tag.toUpperCase(),dataset:{},style:{},hidden:false,children:[],addEventListener(type,listener){listeners[type]=listener;},append(...items){this.children.push(...items);},setAttribute(){},click(type='click'){listeners[type]?.();}};created.push(element);return element;},
+    createElement(tag){const listeners={};const element={tagName:tag.toUpperCase(),dataset:{},style:{},hidden:false,children:[],addEventListener(type,listener){listeners[type]=listener;},append(...items){this.children.push(...items);},querySelector(selector){return this.children.find(child=>child.id===selector.slice(1))||null;},setAttribute(){},click(type='click'){listeners[type]?.();}};created.push(element);return element;},
     getElementById(id){return created.find(element=>element.id===id)||null;},
     addEventListener(){}
   };
@@ -72,6 +72,9 @@ const boot=(href,storedInternal=false,{elements=[],form=null,consent=true}={})=>
   assert.ok(banner);
   assert.equal(banner.hidden,false);
   assert.deepEqual(banner.children[2].children.map(button=>button.textContent),['Accept analytics','Reject analytics']);
+  const fallbackFooter=result.created.find(element=>element.className==='k4-consent-footer');
+  assert.ok(fallbackFooter,'calculator pages without a site footer still need persistent consent settings');
+  assert.ok(fallbackFooter.children.some(element=>element.id==='k4-privacy-settings'));
   banner.children[2].children[0].click();
   assert.equal(result.window.k4AnalyticsConsent,true);
   assert.ok(result.document.cookie.includes('k4_analytics_consent=granted'));
