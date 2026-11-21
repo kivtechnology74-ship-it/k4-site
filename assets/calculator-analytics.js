@@ -6,6 +6,7 @@
   const pagePath=location.pathname;
   const modelSelect=document.querySelector('#profile');
   const contact=document.querySelector('[data-calculator-contact]');
+  const contactContainer=document.querySelector('#calcContact');
   const qa=location.hostname.endsWith('.pages.dev')||new URLSearchParams(location.search).has('qa')||new URLSearchParams(location.search).get('utm_source')==='codex_internal_test';
   const automation=/bot|crawler|spider|headless|lighthouse|pagespeed/i.test(navigator.userAgent||'');
   const trafficClass=qa?'qa':automation?'probable_automation':'production';
@@ -56,7 +57,7 @@
       const current=fingerprint();if(current===window.K4CalculatorAnalytics.lastCompleted)return;
       if(!started)return;
       calcId=calcId||id();validCurrent=true;lastFingerprint=current;window.K4CalculatorAnalytics.lastCompleted=current;
-      const ctaUrl=new URL(contact.href,location.href);ctaUrl.searchParams.set('calc_id',calcId);contact.href=ctaUrl.href;contact.hidden=false;
+      const ctaUrl=new URL(contact.href,location.href);ctaUrl.searchParams.set('calc_id',calcId);contact.href=ctaUrl.href;if(contactContainer)contactContainer.hidden=false;
       completionPromise=send('calculator_result_completed',calcId);
     },
     pdfClicked(){if(validCurrent)send('calculator_pdf_clicked');},

@@ -8,11 +8,11 @@ const source=await readFile(new URL('../assets/calculator-analytics.js',import.m
 function boot({consent=true,ua='Mozilla/5.0'}={}){
   const eventCalls=[],gaCalls=[],timers=new Map(),inputs=new Map();let timerId=0;
   const profile={dataset:{},value:'2',addEventListener(){}};
-  let contactClick;const contact={href:'/services/remote-technical-review/#review-form',hidden:true,addEventListener(type,listener){if(type==='click')contactClick=listener;}};
+  let contactClick;const contact={href:'/services/remote-technical-review/#review-form',addEventListener(type,listener){if(type==='click')contactClick=listener;}};const contactContainer={hidden:true};
   const pdf={addEventListener(){}};
   const document={
     documentElement:{lang:'en'},
-    querySelector(selector){return selector==='#profile'?profile:selector==='[data-calculator-contact]'?contact:selector==='#pdfBtn'?pdf:null;},
+    querySelector(selector){return selector==='#profile'?profile:selector==='[data-calculator-contact]'?contact:selector==='#calcContact'?contactContainer:selector==='#pdfBtn'?pdf:null;},
     addEventListener(){},
     getElementById(id){return inputs.get(id)||null;}
   };
@@ -21,7 +21,7 @@ function boot({consent=true,ua='Mozilla/5.0'}={}){
   vm.runInNewContext(source,context,{filename:'calculator-analytics.js'});
   const flush=()=>{const work=[...timers.values()];timers.clear();work.forEach(fn=>fn());};
   const setInput=(id,value)=>inputs.set(id,{value:String(value)});
-  return{window,profile,contact,contactClick:()=>contactClick,eventCalls,gaCalls,navigations,flush,setInput};
+  return{window,profile,contact,contactContainer,contactClick:()=>contactClick,eventCalls,gaCalls,navigations,flush,setInput};
 }
 const validProfile={id:'r5_10',brand:'Jenbacher',engine:'J320',status:'OEM confirmed'};
 {
@@ -30,7 +30,7 @@ const validProfile={id:'r5_10',brand:'Jenbacher',engine:'J320',status:'OEM confi
   app.window.K4CalculatorResult={valid:true};app.flush();
   assert.deepEqual(app.eventCalls.map(event=>event.event_name),['calculator_page_view','calculator_started','calculator_result_completed']);
   assert.equal(app.eventCalls[2].profile_type,'oem');assert.equal(app.eventCalls[2].model_id,'r5_10');
-  assert.equal(app.contact.hidden,false);assert.match(app.contact.href,/calc_id=[0-9a-f-]{36}/);
+  assert.equal(app.contactContainer.hidden,false);assert.match(app.contact.href,/calc_id=[0-9a-f-]{36}/);
   assert.equal(JSON.stringify(app.eventCalls).includes('1000'),false);
   app.window.K4CalculatorAnalytics.changed();app.window.K4CalculatorResult={valid:true};app.flush();
   assert.equal(app.eventCalls.filter(event=>event.event_name==='calculator_result_completed').length,1);
