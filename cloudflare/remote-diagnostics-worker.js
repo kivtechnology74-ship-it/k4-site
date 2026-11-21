@@ -351,6 +351,14 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const origin = request.headers.get("origin") || "";
+    const referer = request.headers.get("referer") || "";
+    const previewSource = [origin, referer].some(value => {
+      if (!value) return false;
+      try { return new URL(value).hostname.endsWith(".k4-technology.pages.dev"); }
+      catch { return false; }
+    });
+    const previewRequestHost = url.hostname.endsWith(".k4-technology.pages.dev");
+    if (previewSource && !previewRequestHost) return json({ success: false, error: "Preview requests cannot use production intake." }, 403, origin);
     if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: corsHeaders(origin) });
     if (request.method === "GET" && url.pathname.endsWith("/health")) {
       return json({ ok: true, storage: Boolean(env.LEADS_DB), emailConfigured: Boolean(env.GMAIL_RELAY_URL && env.GMAIL_RELAY_SECRET) }, 200, origin);

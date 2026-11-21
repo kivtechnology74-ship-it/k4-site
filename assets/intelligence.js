@@ -143,8 +143,9 @@
   window.gtag('consent','default',deniedConsent);
   let gaConfigured=false;
   const loadAnalytics=()=>{
-    if(!analyticsAllowed()||gaConfigured)return;
+    if(!analyticsAllowed())return;
     window.gtag('consent','update',{analytics_storage:'granted',ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied'});
+    if(gaConfigured)return;
     window.gtag('set',analyticsContext);
     if(!document.querySelector(`script[src*="googletagmanager.com/gtag/js?id=${gaId}"]`)){
       const script=document.createElement('script');

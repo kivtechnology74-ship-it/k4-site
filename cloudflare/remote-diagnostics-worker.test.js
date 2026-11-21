@@ -175,12 +175,24 @@ test("accepts only a phone number with no message", async () => {
   });
 });
 
-test("accepts a Cloudflare Pages preview origin for controlled testing", async () => {
+test("preview origins cannot write to production intake and preview host suppresses notifications", async () => {
   const db = new MemoryD1();
   await withRelay(async () => Response.json({ ok: true }), async () => {
-    const response = await worker.fetch(post(payload({ sourceUrl: "https://branch.k4-technology.pages.dev/ru/services/remote-gas-engine-diagnostics/" }), "https://branch.k4-technology.pages.dev"), makeEnv(db));
-    assert.equal(response.status, 201);
-    assert.match([...db.rows.values()][0].source_url, /^https:\/\/branch\.k4-technology\.pages\.dev\/ru\//);
+    const blocked = await worker.fetch(post(payload(), "https://branch.k4-technology.pages.dev"), makeEnv(db));
+    assert.equal(blocked.status, 403);
+    assert.equal(db.rows.size, 0);
+    const previewRequest = new Request("https://branch.k4-technology.pages.dev/api/remote-diagnostics", {
+      method: "POST",
+      headers: { origin: "https://branch.k4-technology.pages.dev", "content-type": "application/json" },
+      body: JSON.stringify(payload({ sourceUrl: "https://branch.k4-technology.pages.dev/ru/project-assessment/" }))
+    });
+    const previewEnv = makeEnv(db);
+    previewEnv.K4_PREVIEW_QA = true;
+    const preview = await worker.fetch(previewRequest, previewEnv);
+    assert.equal(preview.status, 201);
+    assert.equal((await preview.json()).emailStatus, "suppressed");
+    assert.equal(db.rows.size, 1);
+    assert.equal([...db.rows.values()][0].email_status, "suppressed");
   });
 });
 
@@ -263,13 +275,22 @@ test("stores an allowlisted completion once and rejects demo completion", async 
 
 test("classifies preview and probable automation separately", async () => {
   const db = new MemoryD1(), env = makeEnv(db);
-  await worker.fetch(calculatorPost(eventPayload({ event_name: "calculator_page_view", event_id: "f02185d0-3937-42db-9776-e932565e889b", calc_id: "a12185d0-3937-42db-9776-e932565e889b" }), "https://branch.k4-technology.pages.dev"), env);
+  const previewRequest = new Request("https://branch.k4-technology.pages.dev/api/calculator-events", {
+    method: "POST",
+    headers: { origin: "https://branch.k4-technology.pages.dev", "content-type": "application/json" },
+    body: JSON.stringify(eventPayload({ event_name: "calculator_page_view", event_id: "f02185d0-3937-42db-9776-e932565e889b", calc_id: "a12185d0-3937-42db-9776-e932565e889b" }))
+  });
+  await worker.fetch(previewRequest, env);
   await worker.fetch(new Request("https://k4-technology.com/api/calculator-events", {
     method: "POST", headers: { origin: "https://k4-technology.com", "content-type": "application/json", "user-agent": "ExampleCrawler/1.0" },
     body: JSON.stringify(eventPayload({ event_name: "calculator_page_view", event_id: "a12185d0-3937-42db-9776-e932565e889b", calc_id: "b12185d0-3937-42db-9776-e932565e889b" }))
   }), env);
   assert.deepEqual([...db.events.values()].map(event => event.traffic_class), ["qa", "probable_automation"]);
-  const qaDemo = await worker.fetch(calculatorPost(eventPayload({ event_id: "b12185d0-3937-42db-9776-e932565e889b", calc_id: "c12185d0-3937-42db-9776-e932565e889b", event_name: "calculator_page_view", profile_type: "demo" }), "https://branch.k4-technology.pages.dev"), env);
+  const qaDemo = await worker.fetch(new Request("https://branch.k4-technology.pages.dev/api/calculator-events", {
+    method: "POST",
+    headers: { origin: "https://branch.k4-technology.pages.dev", "content-type": "application/json" },
+    body: JSON.stringify(eventPayload({ event_id: "b12185d0-3937-42db-9776-e932565e889b", calc_id: "c12185d0-3937-42db-9776-e932565e889b", event_name: "calculator_page_view", profile_type: "demo" }))
+  }), env);
   assert.equal(qaDemo.status, 202);
   assert.equal([...db.events.values()].at(-1).traffic_class, "qa");
   assert.equal([...db.events.values()].at(-1).profile_type, "demo");

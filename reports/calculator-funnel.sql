@@ -80,3 +80,17 @@ FROM calculator_events
 WHERE created_at >= ?1 AND created_at < ?2
 GROUP BY traffic_class, internal_traffic, profile_type, event_name
 ORDER BY traffic_class, internal_traffic, profile_type, event_name;
+-- Monitor candidates: a commercial alert requires one saved lead tied to a completed,
+-- non-internal production scenario. Use lead_id as the idempotency key in K4 Calculator Watch.
+SELECT l.id AS lead_id, l.created_at AS lead_created_at, l.language, l.form_type,
+  l.qualification_status, l.calc_id, c.created_at AS calculation_completed_at,
+  c.page_path, c.brand, c.model_id, c.model_name
+FROM site_leads l
+JOIN calculator_completions c ON c.calc_id = l.calc_id
+WHERE l.calc_id IS NOT NULL
+  AND l.created_at >= ?1 AND l.created_at < ?2
+  AND c.created_at <= l.created_at
+  AND c.traffic_class = 'production'
+  AND c.internal_traffic = 0
+  AND c.profile_type != 'demo'
+ORDER BY l.created_at DESC, l.id;
