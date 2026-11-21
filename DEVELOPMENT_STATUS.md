@@ -2,8 +2,9 @@
 
 - Version: 0.2.0 — functionality frozen
 - Branch: `codex/free-power-screening-20261121`
-- Pull Request: being prepared against `main`; no merge requested or performed
-- Latest verified HTTPS preview: https://codex-free-power-screening-2.k4-technology.pages.dev/gpu-estimate-hybrid-en/
+- Pull Request: [#55](https://github.com/kivtechnology74-ship-it/k4-site/pull/55) against `main`; open, clean, not merged
+- Current HTTPS preview alias: https://codex-free-power-screening-2.k4-technology.pages.dev/gpu-estimate-hybrid-en/
+- Last browser-verified immutable preview: https://8aab5ab9.k4-technology.pages.dev/
 - Production: unchanged; no production deployment performed
 - Release status: PR is ready for review. Production release remains blocked until GA4 refresh confirms `project_inquiry_submitted`.
 - Product KPI: qualified commercial inquiries for K4 Independent Power Analysis.
@@ -25,7 +26,7 @@ The main CTA remains “Request Independent Power Analysis”. Energy cost remai
 
 ## Verification — 2026-11-21
 
-- Latest Pages preview deployment verified: `8aab5ab9`, branch alias https://codex-free-power-screening-2.k4-technology.pages.dev, status success; immutable preview URL: https://8aab5ab9.k4-technology.pages.dev.
+- The branch preview alias above resolves to the latest successful deployment. The last immutable deployment checked in the browser was `8aab5ab9`; the subsequent change only updated this Markdown status file.
 - Browser loaded both EN and RU screening routes and the preview sitemap without a 404. The sitemap displayed both production URLs. The EN/RU language links and Request Independent Power Analysis CTA were present. The K4 advisory destination is live.
 - New and existing automated checks: 27 tests passed across Free Screening formulas, SEO metadata/route conventions, preview noindex middleware, and remote diagnostics worker; `scripts/test_analytics.mjs` passed; `scripts/test_calculator_analytics.mjs` passed.
 - No calculation core, base `gpu-estimate/` calculator, or screening UI behavior was changed.
@@ -37,21 +38,24 @@ The main CTA remains “Request Independent Power Analysis”. Energy cost remai
 
 **GA4 status: UNVERIFIED.** A refreshed query for the event on 2026-11-21 returned no rows; Windsor.ai reported that this property uses cached data and does not allow on-request refresh. Recheck after the next scheduled GA4 refresh before production release.
 
-## Pull Request scope
+## Pull Request scope — all files changed against `main`
 
-Expected changed files:
-
-- `DEVELOPMENT_STATUS.md` — audit outcome, preview, release gate, and rollback notes.
-- `gpu-estimate-hybrid-en/index.html` — EN canonical/indexability/hreflang metadata.
-- `gpu-estimate-hybrid-ru/index.html` — RU canonical/indexability/hreflang metadata.
+- `DEVELOPMENT_STATUS.md` — release status, verification, blockers, exact scope, and rollback.
 - `functions/_middleware.js` — preview-only noindex response header.
+- `gpu-estimate-hybrid-en/index.html` — EN page and production SEO metadata.
+- `gpu-estimate-hybrid-ru/README.md` — Free Screening documentation.
+- `gpu-estimate-hybrid-ru/index.html` — RU page and production SEO metadata.
+- `gpu-estimate-hybrid-ru/screening-engine.js` — shared screening calculation engine (frozen for this release).
+- `gpu-estimate-hybrid-ru/screening-ui.js` — screening UI/inquiry flow (frozen for this release).
+- `gpu-estimate-hybrid-ru/tests/free-screening.test.mjs` — calculation and event regression tests.
 - `sitemap.xml` — production EN/RU URLs and alternate-language entries.
 - `tests/free-power-screening-seo.test.mjs` — SEO and preview-indexing regression checks.
-- Existing Free Screening README, shared engine/UI, and calculation regression test remain in the branch and are unchanged by this release preparation.
+
+The base `gpu-estimate/` calculator and its files are unchanged.
 
 ## Rollback plan
 
-If post-merge SEO or route checks fail, revert this PR commit/merge commit. That removes the screening sitemap entries and production SEO metadata, restores the prior screening page metadata, and removes the preview-header middleware. No database migration, lead pipeline change, or calculation-engine change is included. Do not deploy production until the separate approval is given.
+If post-merge SEO or route checks fail, revert the PR merge commit. That removes the screening routes, their sitemap entries and SEO metadata, restores the prior page set, and removes the preview-header middleware and added tests/docs. No database migration, lead pipeline change, or calculation-engine change is included. Do not deploy production until the separate approval is given.
 
 ## Remaining production blockers
 
