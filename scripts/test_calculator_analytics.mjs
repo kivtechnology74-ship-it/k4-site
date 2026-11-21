@@ -58,6 +58,7 @@ const validProfile={id:'r5_10',brand:'Jenbacher',engine:'J320',status:'OEM confi
   const click=app.contactClick();let prevented=false;click({preventDefault(){prevented=true;}});
   await new Promise(resolve=>setImmediate(resolve));
   assert.equal(prevented,true);assert.equal(app.navigations.length,1);assert.match(app.navigations[0],/calc_id=/);
+  assert.equal(app.eventCalls.some(event=>event.event_name==='calculator_contact_clicked'),true);
 }
 {
   const app=boot();app.window.K4CalculatorAnalytics.selected({id:'example_J320',brand:'Demo',engine:'J320',is_example:true});
