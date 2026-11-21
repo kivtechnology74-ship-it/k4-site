@@ -5,7 +5,7 @@ import vm from 'node:vm';
 import {webcrypto} from 'node:crypto';
 
 const source=await readFile(new URL('../assets/calculator-analytics.js',import.meta.url),'utf8');
-function boot({consent=true,ua='Mozilla/5.0'}={}){
+function boot({consent=true,ua='Mozilla/5.0',hostname='k4-technology.com'}={}){
   const eventCalls=[],gaCalls=[],timers=new Map(),inputs=new Map();let timerId=0;
   const profile={dataset:{},value:'2',addEventListener(){}};
   let contactClick;const contact={href:'/services/remote-technical-review/#review-form',addEventListener(type,listener){if(type==='click')contactClick=listener;}};const contactContainer={hidden:true};
@@ -17,7 +17,7 @@ function boot({consent=true,ua='Mozilla/5.0'}={}){
     getElementById(id){return inputs.get(id)||null;}
   };
   const navigations=[];const window={k4AnalyticsConsent:consent,gtag:(...args)=>gaCalls.push(args),location:{assign:url=>navigations.push(url)},setTimeout(fn){const id=++timerId;timers.set(id,fn);return id;},clearTimeout(id){timers.delete(id);}};
-  const context={window,document,location:{pathname:'/gpu-estimate/en-beta/',href:'https://k4-technology.com/gpu-estimate/en-beta/',hostname:'k4-technology.com'},navigator:{userAgent:ua,doNotTrack:'0'},URL,URLSearchParams,crypto:webcrypto,sessionStorage:{getItem(){return null;},setItem(){}},fetch:(url,options)=>{eventCalls.push(JSON.parse(options.body));return Promise.resolve({ok:true});},CustomEvent:class{},console};
+  const context={window,document,location:{pathname:'/gpu-estimate/en-beta/',href:`https://${hostname}/gpu-estimate/en-beta/`,hostname},navigator:{userAgent:ua,doNotTrack:'0'},URL,URLSearchParams,crypto:webcrypto,sessionStorage:{getItem(){return null;},setItem(){}},fetch:(url,options)=>{eventCalls.push(JSON.parse(options.body));return Promise.resolve({ok:true});},CustomEvent:class{},console};
   vm.runInNewContext(source,context,{filename:'calculator-analytics.js'});
   const flush=()=>{const work=[...timers.values()];timers.clear();work.forEach(fn=>fn());};
   const setInput=(id,value)=>inputs.set(id,{value:String(value)});
@@ -71,5 +71,13 @@ const validProfile={id:'r5_10',brand:'Jenbacher',engine:'J320',status:'OEM confi
 {
   const app=boot({ua:'SyntheticCrawler/1.0'});
   assert.equal(app.eventCalls[0].traffic_class,'probable_automation');
+}
+{
+  const app=boot({hostname:'branch.k4-technology.pages.dev'});
+  app.window.K4CalculatorAnalytics.selected(validProfile);
+  app.window.K4CalculatorAnalytics.changed();app.window.K4CalculatorResult={valid:true};app.flush();
+  const params=app.gaCalls.find(call=>call[1]==='calculator_result_completed')[2];
+  assert.equal(params.calculator_traffic_class,'qa');
+  assert.equal(params.debug_mode,true);
 }
 console.log('Calculator analytics client checks passed.');

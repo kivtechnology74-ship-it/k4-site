@@ -27,13 +27,15 @@ Profiles use `oem`, `incomplete`, `manual`, or `demo`. `traffic_class` separates
 
 Migration: `cloudflare/migrations/0003_calculator_analytics.sql`.
 
-Apply it before deploying the Worker and Pages change:
+Apply it to the Worker D1 before the production Worker deploy:
 
 ```sh
 npx wrangler d1 migrations apply k4-remote-diagnostics --remote --config cloudflare/wrangler.jsonc
 ```
 
-The migration creates `calculator_events`, `calculator_completions`, indexes, and a nullable FK `site_leads.calc_id`. It also adds `site_leads.qualification_status` (`unreviewed` by default); set `qualified` only after a human or CRM process confirms fit. Existing rows stay unreviewed. No D1 migration or Worker deployment was run as part of this change.
+The migration creates `calculator_events`, `calculator_completions`, indexes, and a nullable FK `site_leads.calc_id`. It also adds `site_leads.qualification_status` (`unreviewed` by default); set `qualified` only after a human or CRM process confirms fit. Existing rows stay unreviewed.
+
+The Pages project has a separate Preview `LEADS_DB` binding. The `functions/api/calculator-events.js` route is limited to branch Preview hostnames and uses that binding; the custom production domain continues to use the existing Worker route. Apply the same migration to the Pages Preview database before exercising preview event writes. Production migration and Worker deployment remain separate release actions.
 
 ## Reporting
 
@@ -50,6 +52,6 @@ Synthetic model sample: Jenbacher J320 — 21 selections / 13 completions; Cater
 ## QA still required before release
 
 - Unit and static checks can verify event gates, payload allowlists, migrations, deduplication, storage-failure behavior, and form attribution without sending a real client request.
-- GA4 DebugView requires a controlled session using `?qa=1` or `utm_source=codex_internal_test&utm_medium=qa`; verify the six calculator events and confirm there is one page view and one GA4 config. This repository change cannot verify property access, live DebugView reception, or data filters.
-- A Cloudflare preview with the migration applied is required to prove production-like D1 writes and Worker rate limits. No preview deployment, remote migration, production deploy, or real inquiry is part of this PR.
+- Use Tag Assistant on a branch Preview URL to enable GA4 debug mode for QA events. Preview GA events carry `calculator_traffic_class=qa` and `debug_mode=true`; production events omit `debug_mode`.
+- A Cloudflare Pages Preview with the migration applied is required to prove remote D1 writes. Its rate limiter is local to a Preview Function isolate; production requests use the Cloudflare Worker rate-limit binding.
 - Recheck RU/EN at desktop/mobile sizes, repeated recalculation, model changes, blocked analytics, event-write failure, PDF click, and form-store failure using synthetic-only contacts before release.

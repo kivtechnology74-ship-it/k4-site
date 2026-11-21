@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createHmac } from "node:crypto";
 import worker from "./remote-diagnostics-worker.js";
+import { onRequest as onPreviewCalculatorEvents } from "../functions/api/calculator-events.js";
 
 class MemoryD1 {
   rows = new Map();
@@ -271,4 +272,25 @@ test("analytics write failures return safely and rate limits events", async () =
   db.batchFailure = true;
   assert.equal((await worker.fetch(calculatorPost(eventPayload()), env)).status, 503);
   assert.equal((await worker.fetch(calculatorPost(eventPayload()), makeEnv(db, { eventRateAllowed: false }))).status, 429);
+});
+
+test("Pages preview route writes QA events to its bound D1 and rejects the production Pages host", async () => {
+  const db = new MemoryD1();
+  const env = { LEADS_DB: db };
+  const previewRequest = new Request("https://branch.k4-technology.pages.dev/api/calculator-events", {
+    method: "POST", headers: { origin: "https://branch.k4-technology.pages.dev", "content-type": "application/json" },
+    body: JSON.stringify(eventPayload({
+    event_name: "calculator_page_view",
+    event_id: "c12185d0-3937-42db-9776-e932565e889b",
+    calc_id: "d12185d0-3937-42db-9776-e932565e889b"
+    }))
+  });
+  const response = await onPreviewCalculatorEvents({ request: previewRequest, env });
+  assert.equal(response.status, 202);
+  assert.equal([...db.events.values()][0].traffic_class, "qa");
+  const production = await onPreviewCalculatorEvents({
+    request: calculatorPost(eventPayload({ event_name: "calculator_page_view" })), env
+  });
+  assert.equal(production.status, 404);
+  assert.equal(db.events.size, 1);
 });

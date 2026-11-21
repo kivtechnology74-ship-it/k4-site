@@ -32,7 +32,7 @@
     const eventId=id();
     const payload={event_id:eventId,event_name:eventName,session_id:sessionId,calc_id:scenario,...base,...model,traffic_class:trafficClass};
     try{
-      if(typeof window.gtag==='function')window.gtag('event',eventName,{calculator_brand:'k4',calculator_model_id:model.model_id,calculator_model: model.model_name,calculator_profile_type:model.profile_type,calculator_language:language,calculator_version:VERSION});
+      if(typeof window.gtag==='function')window.gtag('event',eventName,{calculator_brand:'k4',calculator_model_id:model.model_id,calculator_model:model.model_name,calculator_profile_type:model.profile_type,calculator_language:language,calculator_version:VERSION,calculator_traffic_class:trafficClass,...(trafficClass==='qa'?{debug_mode:true}:{})});
     }catch(error){/* Analytics must never interrupt the calculator. */}
     try{
       return fetch(endpoint,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload),keepalive:true}).then(response=>response.ok).catch(()=>false);
