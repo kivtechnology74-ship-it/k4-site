@@ -18,7 +18,7 @@
 | `calculator_model_selected` | A user change to a catalog/manual model. |
 | `calculator_result_completed` | Debounced 650 ms after user input when generation, horizon, fuel, all operating costs, heat assumptions and a finite economic result are valid. Demo profiles are excluded. A changed scenario receives a new `calc_id`; keystrokes do not emit repeated completions. |
 | `calculator_pdf_clicked` | Trusted click on the existing PDF/print action after a valid result. This records the click only; it does not claim the browser saved a file. |
-| `calculator_contact_clicked` | Click on the K4 CTA after a valid result. |
+| `calculator_contact_clicked` | Click on the K4 CTA after a valid result. Navigation waits for the D1 completion acknowledgement (up to 1.5 seconds); a failed analytics request still allows the form to open. |
 | `generate_lead` | Emitted only after the existing Worker confirms the D1 lead row is stored and its `calc_id` resolves to a production completion. Email delivery status is not required for storage. |
 
 Profiles use `oem`, `incomplete`, `manual`, or `demo`. `traffic_class` separates production, QA, demo and probable automation; `profile_type=demo` separately marks demonstration scenarios, including demos run in QA. QA takes precedence when a demo is used on a preview. The funnel and popularity queries exclude demo profiles. `probable_automation` is a conservative User-Agent heuristic. The system deliberately makes no positive “real person” classification.

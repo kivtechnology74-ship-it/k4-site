@@ -18,6 +18,7 @@
   let completeTimer=0;
   let lastFingerprint='';
   let validCurrent=false;
+  let completionPromise=Promise.resolve(false);
 
   function selectedModel(profile){
     if(modelSelect?.value==='custom'||profile?.isCustom)return{brand:'custom',model_id:'manual',model_name:'manual profile',profile_type:'manual'};
@@ -33,8 +34,8 @@
       if(typeof window.gtag==='function')window.gtag('event',eventName,{calculator_brand:'k4',calculator_model_id:model.model_id,calculator_model: model.model_name,calculator_profile_type:model.profile_type,calculator_language:language,calculator_version:VERSION});
     }catch(error){/* Analytics must never interrupt the calculator. */}
     try{
-      fetch(endpoint,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload),keepalive:true}).catch(()=>{});
-    }catch(error){/* Analytics must never interrupt the calculator. */}
+      return fetch(endpoint,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload),keepalive:true}).then(response=>response.ok).catch(()=>false);
+    }catch(error){/* Analytics must never interrupt the calculator. */return Promise.resolve(false);}
   }
   let sessionId;
   try{sessionId=sessionStorage.getItem('k4_calc_session')||id();sessionStorage.setItem('k4_calc_session',sessionId);}catch(error){sessionId=id();}
@@ -56,7 +57,7 @@
       if(!started)return;
       calcId=calcId||id();validCurrent=true;lastFingerprint=current;window.K4CalculatorAnalytics.lastCompleted=current;
       const ctaUrl=new URL(contact.href,location.href);ctaUrl.searchParams.set('calc_id',calcId);contact.href=ctaUrl.href;contact.hidden=false;
-      send('calculator_result_completed');
+      completionPromise=send('calculator_result_completed',calcId);
     },
     pdfClicked(){if(validCurrent)send('calculator_pdf_clicked');},
     contactClicked(){if(validCurrent)send('calculator_contact_clicked');},
@@ -68,5 +69,12 @@
   document.addEventListener('input',event=>{if(event.isTrusted&&event.target.closest('.panel'))window.K4CalculatorAnalytics.changed();},true);
   document.addEventListener('change',event=>{if(event.isTrusted&&event.target.closest('.panel')&&event.target!==modelSelect)window.K4CalculatorAnalytics.changed();},true);
   document.querySelector('#pdfBtn')?.addEventListener('click',()=>window.K4CalculatorAnalytics.pdfClicked());
-  contact?.addEventListener('click',()=>window.K4CalculatorAnalytics.contactClicked());
+  contact?.addEventListener('click',event=>{
+    if(!validCurrent)return;
+    event.preventDefault();
+    window.K4CalculatorAnalytics.contactClicked();
+    const destination=contact.href;
+    const fallback=new Promise(resolve=>window.setTimeout(()=>resolve(false),1500));
+    Promise.race([completionPromise,fallback]).finally(()=>window.location.assign(destination));
+  });
 })();
