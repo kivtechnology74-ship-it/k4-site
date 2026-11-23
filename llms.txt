@@ -57,3 +57,12 @@ Contact: ceo@k4-technology.com · WhatsApp +998 97 057 59 96 · Telegram @k4_tec
 - Diagnostic à distance K4 (français) — localisation de pannes de moteurs à gaz à partir de preuves et mesures de terrain : https://k4-technology.com/fr/services/remote-gas-engine-diagnostics/
 - Étude de cas en français — plusieurs alarmes de contrôleurs, un défaut électrique, avec la limite résiduelle C105–C106 explicitée : https://k4-technology.com/fr/case-studies/remote-gas-engine-controller-fault-diagnostics/
 - K4 Power Decisions — Can I Rent a Gas Generator for Six Months? A project-specific framework for comparing gas and diesel rental by delivered cost per kWh, including fuel route, site readiness, operating hours and rental term: https://k4-technology.com/insights/six-month-gas-generator-rental/
+
+## Industrial captive power retrospective screens
+
+Interview-based K4 analysis prepared in 2026 of historical installations supplied and serviced by a previous organisation. Reported interview claims, calculated quantities and illustrative financial scenarios are separated; K4 did not deliver or audit the historical assets.
+
+- [Industrial Captive Power Retrospective Investment Screens](https://k4-technology.com/insights/industrial-captive-power-retrospective-investment-screens/)
+- [Electroplating Captive Power Load Matching](https://k4-technology.com/insights/electroplating-captive-power-load-matching/)
+- [Variable Industrial Load Gas Engine Risk](https://k4-technology.com/insights/variable-industrial-load-gas-engine-risk/)
+- [Laundry Captive Power Operating Evidence](https://k4-technology.com/insights/laundry-captive-power-operating-evidence/)
