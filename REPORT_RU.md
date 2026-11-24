@@ -110,3 +110,9 @@
 **Статус: UNVERIFIED.** В `gpu-estimate/en-beta/index.html` внутри `@media print` скрыты `body>footer.k4-consent-footer` и `#k4-consent-banner`; экранные стили не менялись. В исходниках найден consent footer и баннер; отдельного DOM-виджета чата/аналитики не обнаружено. Регрессия `node scripts/ui_audit_regression.mjs` прошла (9 финансовых утверждений и результаты 146 профилей), `node --check` встроенного JS и `git diff --check` прошли.
 
 **Не проверено фактически:** сформированный браузером A4 PDF, число страниц, текст в PDF и отсутствие Privacy/Russia. В среде не обнаружены Playwright/Puppeteer и `pdftotext`; поэтому автоматический `page.pdf()` тест и утверждение «одна страница» не заявляются как прошедшие. Скриншоты не сохранены.
+
+### T2 · перенос строки CAPEX и тест геометрии
+
+**Статус: UNVERIFIED.** `.capex-index` теперь явно получает `white-space:normal!important` при сохранённом `overflow-wrap:anywhere`; это снимает более специфичное правило nowrap в `.capex-breakdown-grid .value`. Добавлен `scripts/en_beta_layout_regression.mjs`: тест рассчитан на геометрию каждого элемента внутри `.sheet` (`getBoundingClientRect().right` против правого края листа + 1 px) при 390/500 px в пустом, demo и Custom-состояниях; тот же тест содержит проверки A4 PDF и ожидаемого текста.
+
+Доступная регрессия после изменения прошла (9 golden assertions, полные объекты 146 профилей); синтаксис теста и встроенного JS проверен `node --check`, `git diff --check` прошёл. **Браузерный тест не выполнен:** пакет Playwright/Puppeteer и Chromium в окружении не обнаружены, поэтому результаты всех шести сочетаний ширина×состояние — **UNVERIFIED**; фактических элементов с переполнением здесь не измерено. PDF-часть также UNVERIFIED. Тест-скрипт требует установленный Playwright и системные `pdfinfo`/`pdftotext`.
