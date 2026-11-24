@@ -186,3 +186,27 @@
 **Статус: PARTIAL (исправление не потребовалось по CSS).** На базе уже есть правило `@media(max-width:639px){#summary .metric:last-child{grid-column:1/-1}}`; summary использует две колонки до 850 px, поэтому пятая Texas-карточка задана на всю ширину строки при 390/500 px. CSS оставлен без изменений.
 
 Фактические `getBoundingClientRect()` размеры/координаты не измерены: браузерная автоматизация недоступна. Следовательно, критерий «DONE-NO-CHANGE с замером» пока не подтверждён; измерение добавлено в T3-тест и остаётся UNVERIFIED до запуска в Playwright.
+
+### T3 · UI/геометрия, golden UI и validation regression
+
+**Статус: PARTIAL.** Обновлён `gpu-estimate-hybrid-ru/tests/mobile-layout-regression.mjs`. При запуске с Playwright он проходит ширины 1440, 1024, 520, 500 и 390 px, четыре состояния (пустая форма, golden, 20 MWh/SOC 90%, validation `units=-3`/`loadFactor=150`) и:
+
+- проверяет вычисленный `font-size` каждого видимого input/select/textarea; на мобильных ожидает не менее 16 px;
+- проверяет каждый видимый элемент в карточках по `getBoundingClientRect().right` относительно viewport и правой границы его карточки; содержимое горизонтально прокручиваемой таблицы исключено, сам `.table-scroll` проверяется;
+- повторно подтверждает UI golden: сеть 6 132,0 МВт·ч / USD 490 560; газ 6 132,0 МВт·ч / 1 533 000 Нм³ / USD 153 300; ГПУ+BESS 6 394,9 МВт·ч, заряд 2 190,0, разряд 1 927,1 МВт·ч, топливо 1 598 716 Нм³, SOC 569,0 кВт·ч / 56,9%, исходная стоимость USD 159 872 и SOC-корр. USD 159 870 (−USD 2);
+- проверяет 20 MWh путь: «Не сопоставимо» и SOC-корр. USD 159 872 (+USD 388);
+- проверяет, что Texas KPI занимает всю ширину summary, и печатает измеренные размеры/координаты плитки.
+
+**Проверено фактически:** существующий `node gpu-estimate-hybrid-ru/tests/hybrid-ui-regression.mjs` прошёл после T1, T2 и T3; `node --check` встроенного JS и нового Playwright-скрипта прошёл; `git diff --check` прошёл. Для 18 полей база аудита фиксирует **14 px до правки**; после правки CSS назначает **16 px** на ширине менее 640 px. Эти значения после изменения — заданный размер по CSS, а не снятый браузером computed style.
+
+**UNVERIFIED по ширинам/состояниям:** Playwright и Chromium в окружении отсутствуют, поэтому тест не запускался. Геометрия overflow остаётся UNVERIFIED для каждого сочетания:
+
+| Ширина | Пустая форма | Golden | 20 MWh / SOC 90% | Validation |
+|---:|---|---|---|---|
+| 1440 px | UNVERIFIED | UNVERIFIED | UNVERIFIED | UNVERIFIED |
+| 1024 px | UNVERIFIED | UNVERIFIED | UNVERIFIED | UNVERIFIED |
+| 520 px | UNVERIFIED | UNVERIFIED | UNVERIFIED | UNVERIFIED |
+| 500 px | UNVERIFIED | UNVERIFIED | UNVERIFIED | UNVERIFIED |
+| 390 px | UNVERIFIED | UNVERIFIED | UNVERIFIED | UNVERIFIED |
+
+Для полей computed font-size на 520/500/390 px также UNVERIFIED; desktop 1440/1024 оставлен без CSS-изменений. Фактическая геометрия Texas KPI на 390/500 px не измерена; правило полного ряда присутствует в production CSS. Тест при запуске сохранит golden-скриншоты в `audit_screens/`, но в этой среде браузерных PNG не создано — before/after скриншотов нет. Проверка на реальном iPhone/iOS Safari недоступна и не выполнялась.
