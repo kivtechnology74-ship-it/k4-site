@@ -109,3 +109,4 @@ assert.match(html, /sel\.innerHTML='<option value="">Choose a model<\/option>'/,
 assert.match(html, /custom\.textContent='Custom profile — enter data from quote'/, 'Custom is a separately available non-profile option');
 assert.match(html, /demoOption\.textContent='Demo example \(button only\)'[\s\S]*?demoOption\.hidden=true/, 'demo-only option is hidden from the normal list');
 console.log(`Regression passed: 9 demo financial assertions; full output objects unchanged for ${currentProfileOutputs.length} profiles; labels unique, max ${maxLabelLength} chars, mean ${meanLabelLength.toFixed(1)} chars; selectable profile counter and non-profile options verified.`);
+assert.match(html, /setText\('mobilePayback',Number\.isFinite\(r\.payback\)\?fmt\(r\.payback,1\):'—'\)/, 'mobile payback value contains the number only; unit is rendered separately');
