@@ -148,7 +148,7 @@ function profileSearchText(p){return normalizeProfileSearch([p.brand,p.engine,p.
 function profileSearchRank(p,q){const model=normalizeProfileSearch(profileDisplayModel(p));const engine=normalizeProfileSearch(p.engine);const brand=normalizeProfileSearch(profileDisplayBrand(p));if(model===q)return 0;if(model.startsWith(q))return 1;if(engine===q)return 2;if(engine.startsWith(q))return 3;if(model.includes(q))return 4;if(engine.includes(q))return 5;if(brand===q||brand.startsWith(q))return 6;return 7}
 function renderProfiles(query=''){
  const sel=$('profile');const selected=sel.value;const q=normalizeProfileSearch(query);const by={};
- const selectable=PROFILES.map((p,i)=>[p,i]).filter(([p])=>!p.is_example);profileAssertLabels();
+ const selectable=PROFILES.map((p,i)=>[p,i]).filter(([p])=>!p.is_example&&allowed(p));profileAssertLabels();
  const matches=selectable.filter(([p])=>!q||profileSearchText(p).includes(q));
  const selectedPair=selected!==''&&selected!=='custom'?(()=>{const i=Number(selected);return PROFILES[i]&&!PROFILES[i].is_example?[PROFILES[i],i]:null})():null;
  const selectedDemo=selected!==''&&selected!=='custom'&&PROFILES[Number(selected)]?.is_example?Number(selected):null;
@@ -161,7 +161,7 @@ function renderProfiles(query=''){
  Object.keys(by).sort((a,b)=>a.localeCompare(b,'en')).forEach(brand=>{const g=document.createElement('optgroup');g.label=brand;by[brand].forEach(([p,i])=>{const o=document.createElement('option');o.value=i;o.dataset.profileId=p.id;o.disabled=!allowed(p);o.textContent=profileOptionLabel(p);o.title=profileOptionTooltip(p);g.appendChild(o)});sel.appendChild(g)});
  if(selectedPair&&!matches.some(([,i])=>String(i)===selected)){const g=document.createElement('optgroup');g.label='Current selection';const [p,i]=selectedPair;const o=document.createElement('option');o.value=i;o.dataset.profileId=p.id;o.disabled=!allowed(p);o.textContent=profileOptionLabel(p);o.title=profileOptionTooltip(p);g.appendChild(o);sel.appendChild(g)}
  if(selected&&[...sel.options].some(o=>o.value===selected))sel.value=selected;
- const status=$('profileSearchStatus');const clear=$('profileSearchClear');if(q){status.textContent=matches.length?`Showing ${matches.length} of ${selectable.length} selectable models · demo excluded`:'No matches — current selection retained';clear.classList.remove('hidden')}else{status.textContent=`All models · ${selectable.length} selectable · demo excluded`;clear.classList.add('hidden')}
+ const status=$('profileSearchStatus');const clear=$('profileSearchClear');if(q){status.textContent=matches.length?`Showing ${matches.length} of ${selectable.length} selectable engine profiles + Custom · demo excluded`:'No matches — current selection retained';clear.classList.remove('hidden')}else{status.textContent=`All models · ${selectable.length} selectable engine profiles + Custom · demo excluded`;clear.classList.add('hidden')}
 }
 
 function initProfiles(){

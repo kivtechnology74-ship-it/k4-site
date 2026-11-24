@@ -94,6 +94,7 @@ const labelSandbox = { PROFILES: profiles, Number, Math, Object, String, Intl };
 vm.createContext(labelSandbox);
 vm.runInContext(`const fmt=(x,d=0)=>Number.isFinite(x)?new Intl.NumberFormat('en-US',{maximumFractionDigits:d}).format(x):'—';\n${html.slice(labelStart, labelEnd)}\nthis.labels=profileAssertLabels();`, labelSandbox);
 assert.equal(labelSandbox.labels.length, 146, 'all selectable profiles have an option label');
+assert.equal(profiles.filter(profile => !profile.is_example && Number.isFinite(profile.power) && !/blocked/i.test(profile.status || '')).length, 146, 'selectable count excludes blocked profiles and demo');
 assert.equal(new Set(labelSandbox.labels).size, 146, 'selectable profile labels are unique');
 const maxLabelLength = Math.max(...labelSandbox.labels.map(label => label.length));
 const meanLabelLength = labelSandbox.labels.reduce((sum, label) => sum + label.length, 0) / labelSandbox.labels.length;
@@ -103,4 +104,8 @@ for (const profile of profiles.filter(profile => !profile.is_example)) {
   assert.ok(tooltip.includes(profile.model || 'not specified'), `tooltip preserves original model: ${profile.id}`);
 }
 assert.match(html.match(/function profileSearchText\(p\)\{([^}]+)\}/)?.[1] || '', /p\.model/, 'search still indexes the full original model string');
-console.log(`Regression passed: 9 demo financial assertions; full output objects unchanged for ${currentProfileOutputs.length} profiles; labels unique, max ${maxLabelLength} chars, mean ${meanLabelLength.toFixed(1)} chars.`);
+assert.match(html, /All models · \$\{selectable\.length\} selectable engine profiles \+ Custom · demo excluded/, 'counter describes profile count plus Custom, excluding demo');
+assert.match(html, /sel\.innerHTML='<option value="">Choose a model<\/option>'/, 'blank placeholder is a separate non-profile option');
+assert.match(html, /custom\.textContent='Custom profile — enter data from quote'/, 'Custom is a separately available non-profile option');
+assert.match(html, /demoOption\.textContent='Demo example \(button only\)'[\s\S]*?demoOption\.hidden=true/, 'demo-only option is hidden from the normal list');
+console.log(`Regression passed: 9 demo financial assertions; full output objects unchanged for ${currentProfileOutputs.length} profiles; labels unique, max ${maxLabelLength} chars, mean ${meanLabelLength.toFixed(1)} chars; selectable profile counter and non-profile options verified.`);
