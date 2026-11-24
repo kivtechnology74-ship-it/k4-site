@@ -47,6 +47,10 @@ const byName = name => results.find(item => item.name === name)?.result;
 const formatFunction = page.match(/function fmt\(value,digits=1\)\{return Number\(value\)\.toLocaleString\('ru-RU',\{minimumFractionDigits:digits,maximumFractionDigits:digits\}\)\}/);
 assert.ok(formatFunction, 'page exposes a central result formatter');
 const format = vm.runInNewContext(`(value,digits=1)=>Number(value).toLocaleString('ru-RU',{minimumFractionDigits:digits,maximumFractionDigits:digits})`);
+const costHelper = page.match(/function calculateSocAdjustedCost\([^\n]+/);
+const costDisplayHelper = page.match(/function formatCostLine\([^\n]+/);
+assert.ok(costHelper && costDisplayHelper, 'page exposes display-only SOC cost adjustment helpers');
+const costHelpers = vm.runInNewContext(`${costHelper[0]}\n${costDisplayHelper[0]}\n({calculateSocAdjustedCost,formatCostLine})`, { fmt: format });
 const nbsp = '\u00a0';
 assert.equal(format(6394.9,1), `6${nbsp}394,9`, 'MWh uses one decimal and Russian narrow no-break grouping');
 assert.equal(format(1598716.19,0), `1${nbsp}598${nbsp}716`, 'fuel uses whole units and Russian grouping');
@@ -71,7 +75,18 @@ approx(gasBess.gasGenerationKWh / 1000, 6394.9, 0.11, 'gas + BESS generation MWh
 approx(gasBess.bessChargeKWh / 1000, 2190, 0.11, 'BESS charge MWh');
 approx(gasBess.bessDischargeKWh / 1000, 1927.1, 0.11, 'BESS discharge MWh');
 approx(gasBess.fuelQuantity, 1598716.19, 0.11, 'gas + BESS fuel Nm3');
-assert.equal(gasBess.costComparable, false, 'changed SOC cost must be marked not comparable');
+const socAdjusted = costHelpers.calculateSocAdjustedCost(gasBess, config.gridPrice, config.fuelPrice);
+assert.equal(socAdjusted.comparable, true, 'golden gas + BESS cost is comparable below the 0.5% threshold');
+approx(socAdjusted.deltaSocKWh, 69, 0.11, 'golden SOC delta kWh');
+approx(socAdjusted.valuePerKWh, gasBess.fuelQuantity * config.fuelPrice / gasBess.gasGenerationKWh, 1e-12, 'marginal gas cost per kWh');
+approx(socAdjusted.adjustedCost, gasBess.cost - socAdjusted.deltaSocKWh * socAdjusted.valuePerKWh, 1e-8, 'SOC-adjusted cost formula');
+assert.ok(socAdjusted.adjustmentShare < 0.005, 'golden adjustment share is below 0.5%');
+const goldenCostDisplay = costHelpers.formatCostLine(gasBess, 'USD', config.gridPrice, config.fuelPrice);
+assert.equal(goldenCostDisplay.primary, `USD ${format(gasBess.cost, 0)}`, 'golden plain cost remains visible as comparable');
+assert.match(goldenCostDisplay.secondary, /^SOC-корр\.: USD /, 'golden adjusted cost appears on a second line');
+const gridAdjusted = costHelpers.calculateSocAdjustedCost(grid, config.gridPrice, config.fuelPrice);
+assert.equal(gridAdjusted.valuePerKWh, config.gridPrice, 'grid price is the fallback when no gas generation is present');
+assert.equal(gridAdjusted.comparable, true, 'grid-only scenario with unchanged SOC is comparable');
 approx(gasBess.endSocKWh, 569, 0.11, 'final SOC kWh');
 approx(gasBess.endSocPercent, 56.9, 0.02, 'final SOC percent');
 approx(gasBess.usableEnergyRemainingKWh, 469, 0.11, 'remaining usable energy kWh');
@@ -85,4 +100,5 @@ for (const key of numericKeys) {
   assert.deepEqual(gasPvBess[key], gasBess[key], `PV=0 scenario matches gas+BESS for ${key}`);
   assert.deepEqual(gridGasPvBess[key], gasBess[key], `PV=0 grid+gas+BESS scenario matches for ${key}`);
 }
-console.log('Hybrid page regression passed: 18 model, display-format, SOC and zero-PV assertions.');
+console.log(`Golden SOC adjustment: delta=${socAdjusted.deltaSocKWh.toFixed(6)} kWh; value=${socAdjusted.valuePerKWh.toFixed(9)} / kWh; cost=${gasBess.cost.toFixed(6)}; adjusted=${socAdjusted.adjustedCost.toFixed(6)}; adjustment=${socAdjusted.adjustment.toFixed(6)}; share=${(socAdjusted.adjustmentShare * 100).toFixed(9)}%.`);
+console.log('Hybrid page regression passed: model, display-format, SOC-adjustment and zero-PV assertions.')
