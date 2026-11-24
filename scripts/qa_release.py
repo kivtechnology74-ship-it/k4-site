@@ -29,6 +29,7 @@ TRACKED_ARTICLE_ROUTES = {
     "/ru/insights/gas-engine-project-checklist-purchase-operations/",
 }
 ALLOWED_ANALYTICS_EVENTS = {
+    "analysis_cta_clicked",
     "ai_power_cta_click",
     "ai_power_evidence_click",
     "article_cta_click",
@@ -416,16 +417,19 @@ def main() -> int:
             errors.append(
                 f"shared analytics script must appear exactly once at {route} (found {intelligence_count})"
             )
-        required_analytics_version = "20261121-1" if route in {
-            "/gpu-estimate/", "/gpu-estimate/en-beta/", "/services/remote-technical-review/"
-        } else ANALYTICS_ASSET_VERSION
+        required_analytics_version = {
+            "/gpu-estimate/": "20261121-1",
+            "/gpu-estimate/en-beta/": "20261121-1",
+            "/services/remote-technical-review/": "20261121-1",
+            "/ru/project-assessment/": "20261121-2",
+        }.get(route, ANALYTICS_ASSET_VERSION)
         versioned_intelligence_count = raw.count(
             f"/assets/intelligence.js?v={required_analytics_version}"
         )
         if versioned_intelligence_count != 1:
             errors.append(
                 f"analytics asset version mismatch at {route} "
-                f"(expected {ANALYTICS_ASSET_VERSION})"
+                f"(expected {required_analytics_version})"
             )
         if "googletagmanager.com/gtag/js" in raw or re.search(r"gtag\(['\"]config['\"]", raw):
             errors.append(f"inline GA bootstrap remains at {route}")
