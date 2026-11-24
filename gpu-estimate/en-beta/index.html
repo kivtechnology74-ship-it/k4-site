@@ -118,22 +118,48 @@ function loadPoints(p){if(p?.isCustom)return [100,95,90,85,80,75,70,65,60,55,50]
 function profileBrandGroup(brand){if(/^mtu(?:\s|$)/i.test(brand))return 'MTU';if(/^mwm(?:\s|$)/i.test(brand))return 'MWM';return brand}
 function normalizeProfileSearch(value){return String(value??'').normalize('NFKC').toLocaleLowerCase('en').replace(/[\s\u00a0\u202f]/g,'')}
 function profileDisplayBrand(p){const b=String(p.brand||'').trim();if(/^caterpillar/i.test(b))return 'CAT';if(/^mwm/i.test(b))return 'MWM';if(/^mtu/i.test(b))return 'MTU';return b.replace(/\s*\([^)]*\)\s*$/,'').trim()||'Power plant'}
+function profileCatalogBrand(p){const b=String(p.brand||'').trim();const prefix=/^caterpillar/i.test(b)?'CAT':/^mwm/i.test(b)?'MWM':/^mtu/i.test(b)?'MTU':'';return prefix?prefix+b.slice(/^caterpillar/i.test(b)?'Caterpillar'.length:/^mwm/i.test(b)?3:3):b}
 function profileDisplayModel(p){let model=String(p.model||'').trim();if(!model||/^not specified/i.test(model))model=String(p.engine||'Model not specified').trim();return model.replace(/^mtu(?=\s)/i,'MTU')}
+function profileBaseLabel(p){const freq=p.freq&&!/not specified/i.test(p.freq)?` · ${p.freq} Hz`:'';return `${profileDisplayBrand(p)} · ${profileDisplayModel(p)} · ${fmt(p.power)} kW${freq}`}
+function profileNoxLabel(p){const match=`${p.model||''} ${p.note||''}`.match(/NOx\s*(?:≤|<|=)?\s*(\d+)\s*mg\/Nm³/i);return match?`NOx ${match[1]} mg/Nm³`:''}
+function profileLabelPeers(p){const base=profileBaseLabel(p);return PROFILES.filter(other=>!other.is_example&&profileBaseLabel(other)===base)}
+function profileDistinction(p,peers){
+ const candidates=[
+  ['engine',profile=>String(profile.engine||'').trim(),value=>`Engine ${value}`],
+  ['catalog brand',profile=>String(profile.brand||'').trim(),value=>`Catalog brand ${profileCatalogBrand(p)}`],
+  ['boundary',profile=>String(profile.boundary||'').trim(),value=>`Boundary ${value}`],
+  ['fuel',profile=>String(profile.fuel||'').trim(),value=>`Fuel ${value}`],
+  ['NOx',profile=>profileNoxLabel(profile),value=>value],
+  ['fuel input',profile=>Number.isFinite(profile.samples?.['100'])?`${fmt(profile.samples['100'],1)} ${profile.unit||profile.source_unit||''}`:'',value=>`100% fuel input ${value}`],
+  ['thermal output',profile=>Number.isFinite(profile.heat_kw_100)?`${fmt(profile.heat_kw_100,1)} kW(th)`:'' ,value=>`Heat output ${value}`],
+  ['rating',profile=>String(profile.rating||'').trim(),value=>`Rating ${value}`],
+  ['source',profile=>String(profile.source||'').trim(),value=>`Source ${value}`]
+ ];
+ for(const [,getValue,format] of candidates){
+  const values=peers.map(profile=>getValue(profile));if(values.every(Boolean)&&new Set(values).size===peers.length)return format(getValue(p));
+ }
+ return `Profile ${p.id}`;
+}
+function profileOptionLabel(p){const peers=profileLabelPeers(p);return peers.length>1?`${profileBaseLabel(p)} · ${profileDistinction(p,peers)}`:profileBaseLabel(p)}
 function profileSearchAliases(p){const aliases=[];if(p.id==='example_J320')aliases.push('Jenbacher','INNIO');if(p.id==='r5_42')aliases.push('Weichai');return aliases}
 function profileSearchText(p){return normalizeProfileSearch([p.brand,p.engine,p.model,p.power,fmt(p.power),p.freq,p.fuel,p.rating,p.status,...profileSearchAliases(p)].join(' '))}
 function profileSearchRank(p,q){const model=normalizeProfileSearch(profileDisplayModel(p));const engine=normalizeProfileSearch(p.engine);const brand=normalizeProfileSearch(profileDisplayBrand(p));if(model===q)return 0;if(model.startsWith(q))return 1;if(engine===q)return 2;if(engine.startsWith(q))return 3;if(model.includes(q))return 4;if(engine.includes(q))return 5;if(brand===q||brand.startsWith(q))return 6;return 7}
 function renderProfiles(query=''){
  const sel=$('profile');const selected=sel.value;const q=normalizeProfileSearch(query);const by={};
- const matches=PROFILES.map((p,i)=>[p,i]).filter(([p])=>!q||profileSearchText(p).includes(q));
- const selectedPair=selected!==''&&selected!=='custom'?(()=>{const i=Number(selected);return PROFILES[i]?[PROFILES[i],i]:null})():null;
+ const selectable=PROFILES.map((p,i)=>[p,i]).filter(([p])=>!p.is_example);
+ const matches=selectable.filter(([p])=>!q||profileSearchText(p).includes(q));
+ const selectedPair=selected!==''&&selected!=='custom'?(()=>{const i=Number(selected);return PROFILES[i]&&!PROFILES[i].is_example?[PROFILES[i],i]:null})():null;
+ const selectedDemo=selected!==''&&selected!=='custom'&&PROFILES[Number(selected)]?.is_example?Number(selected):null;
  matches.forEach(([p,i])=>{const group=profileBrandGroup(p.brand);(by[group]??=[]).push([p,i])});
- for(const list of Object.values(by))list.sort((a,b)=>profileSearchRank(a[0],q)-profileSearchRank(b[0],q)||String(a[0].model).localeCompare(String(b[0].model),'en'));
+ const frequency=p=>{const match=String(p.freq||'').match(/(50|60)\s*Hz/i);return match?Number(match[1]):999};
+ for(const list of Object.values(by))list.sort((a,b)=>frequency(a[0])-frequency(b[0])||profileDisplayModel(a[0]).localeCompare(profileDisplayModel(b[0]),'en',{numeric:true})||a[0].power-b[0].power);
  sel.innerHTML='<option value="">Choose a model</option>';
  const custom=document.createElement('option');custom.value='custom';custom.textContent='Custom profile — enter data from quote';sel.appendChild(custom);
- Object.keys(by).sort((a,b)=>a.localeCompare(b,'en')).forEach(brand=>{const g=document.createElement('optgroup');g.label=brand;by[brand].forEach(([p,i])=>{const o=document.createElement('option');o.value=i;o.dataset.profileId=p.id;o.disabled=!allowed(p);const freq=p.freq&&!/not specified/i.test(p.freq)?` · ${p.freq} Hz`:'';o.textContent=`${profileDisplayBrand(p)} · ${profileDisplayModel(p)} · ${fmt(p.power)} kW${freq}`;g.appendChild(o)});sel.appendChild(g)});
+ if(selectedDemo!==null){const demoOption=document.createElement('option');demoOption.value=String(selectedDemo);demoOption.textContent='Demo example (button only)';demoOption.hidden=true;demoOption.dataset.demo='true';sel.appendChild(demoOption)}
+ Object.keys(by).sort((a,b)=>a.localeCompare(b,'en')).forEach(brand=>{const g=document.createElement('optgroup');g.label=brand;by[brand].forEach(([p,i])=>{const o=document.createElement('option');o.value=i;o.dataset.profileId=p.id;o.disabled=!allowed(p);o.textContent=profileOptionLabel(p);g.appendChild(o)});sel.appendChild(g)});
  if(selectedPair&&!matches.some(([,i])=>String(i)===selected)){const g=document.createElement('optgroup');g.label='Current selection';const [p,i]=selectedPair;const o=document.createElement('option');o.value=i;o.dataset.profileId=p.id;o.disabled=!allowed(p);const freq=p.freq&&!/not specified/i.test(p.freq)?` · ${p.freq} Hz`:'';o.textContent=`${profileDisplayBrand(p)} · ${profileDisplayModel(p)} · ${fmt(p.power)} kW${freq}`;g.appendChild(o);sel.appendChild(g)}
  if(selected&&[...sel.options].some(o=>o.value===selected))sel.value=selected;
- const status=$('profileSearchStatus');const clear=$('profileSearchClear');if(q){status.textContent=matches.length?`Showing ${matches.length} of ${PROFILES.length}`:'No matches — current selection retained';clear.classList.remove('hidden')}else{status.textContent=`All models · ${PROFILES.length}`;clear.classList.add('hidden')}
+ const status=$('profileSearchStatus');const clear=$('profileSearchClear');if(q){status.textContent=matches.length?`Showing ${matches.length} of ${selectable.length} selectable models · demo excluded`:'No matches — current selection retained';clear.classList.remove('hidden')}else{status.textContent=`All models · ${selectable.length} selectable · demo excluded`;clear.classList.add('hidden')}
 }
 
 function initProfiles(){
@@ -322,7 +348,7 @@ function update(){
  assumptions.push(`Horizon: ${Number.isInteger(x.horizon)?x.horizon:'not set'} years; averages use the selected escalation rates.`);assumptions.push('Electricity revenue is based on total generation; auxiliary loads and losses are not deducted. Prices and CAPEX are stated excl. VAT; enter the fuel tariff in the same unit as the selected profile’s consumption. Heat generation is estimated as thermal output × operating hours and does not vary with electrical load; actual heat sales require project verification. Taxes, financing, major overhauls and hourly dispatch are excluded.');setText('outAssumptions',assumptions.join(' '));setText('reportDate',new Intl.DateTimeFormat('en-GB',{day:'numeric',month:'short',year:'numeric'}).format(new Date()));updateInlineValidation();
 }
 function applyJ320Example(){
- $('profileSearch').value='';renderProfiles('');$('currency').value='RUB';updateCurrencyLabels();$('profile').value=String(PROFILES.findIndex(p=>p.id==='example_J320'));chooseProfile();$('project').value='Demo example: 10 × J320 (RUB)';$('units').value='10';$('load').value='95';$('hours').value='8125';$('fuelRate').value='274';$('manualFuelUnit').value='Nm³/h';$('fuelPrice').value='1.23';$('electricPrice').value='3.1';$('heatPower').value='1000';$('heatUse').value='0';$('heatPrice').value='0';$('horizon').value='10';$('idxElectric').value='0';$('idxHeat').value='0';$('idxFuel').value='0';$('idxZip').value='0';$('idxOps').value='0';$('idxOil').value='0';$('zipCost').value='0.922';$('opsCost').value='0.356';$('oilCost').value='0.172';$('capex').value=new Intl.NumberFormat('en-US',{maximumFractionDigits:2}).format(452000000);$('capexUnits').value='370000000';$('capexProject').value='14000000';$('capexWorks').value='35000000';$('capexStart').value='15000000';$('capexAux').value='18000000';demoCapexBreakdownActive=true;update();
+ $('profileSearch').value='';const demoIndex=PROFILES.findIndex(p=>p.id==='example_J320');const demoOption=document.createElement('option');demoOption.value=String(demoIndex);demoOption.textContent='Demo example (button only)';demoOption.hidden=true;demoOption.dataset.demo='true';$('profile').appendChild(demoOption);$('profile').value=String(demoIndex);renderProfiles('');$('currency').value='RUB';updateCurrencyLabels();chooseProfile();$('project').value='Demo example: 10 × J320 (RUB)';$('units').value='10';$('load').value='95';$('hours').value='8125';$('fuelRate').value='274';$('manualFuelUnit').value='Nm³/h';$('fuelPrice').value='1.23';$('electricPrice').value='3.1';$('heatPower').value='1000';$('heatUse').value='0';$('heatPrice').value='0';$('horizon').value='10';$('idxElectric').value='0';$('idxHeat').value='0';$('idxFuel').value='0';$('idxZip').value='0';$('idxOps').value='0';$('idxOil').value='0';$('zipCost').value='0.922';$('opsCost').value='0.356';$('oilCost').value='0.172';$('capex').value=new Intl.NumberFormat('en-US',{maximumFractionDigits:2}).format(452000000);$('capexUnits').value='370000000';$('capexProject').value='14000000';$('capexWorks').value='35000000';$('capexStart').value='15000000';$('capexAux').value='18000000';demoCapexBreakdownActive=true;update();
 }
 initProfiles();$('profile').addEventListener('change',()=>{clearDemoCapexBreakdown();chooseProfile()});$('load').addEventListener('change',()=>{if(activeProfile?.isCustom){$('fuelRate').value='';$('fuelUnitHint').textContent='Enter fuel consumption and its unit from the specification or quote for the selected load. Changing the load clears the value; enter the value for the new load.'}else if(activeProfile)$('fuelRate').value=activeProfile.samples?.[String($('load').value)]??'';update()});
 $('manualFuelUnit').addEventListener('input',()=>{if(activeProfile?.isCustom){const unit=normalizeFuelRateUnit($('manualFuelUnit').value,'consumption unit');$('fuelPriceLabel').textContent=`Fuel, ${moneyCode()} / ${unit}`}update()});
