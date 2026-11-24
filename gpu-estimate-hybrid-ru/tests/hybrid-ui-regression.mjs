@@ -87,6 +87,14 @@ assert.match(goldenCostDisplay.secondary, /^SOC-корр\.: USD /, 'golden adjus
 const gridAdjusted = costHelpers.calculateSocAdjustedCost(grid, config.gridPrice, config.fuelPrice);
 assert.equal(gridAdjusted.valuePerKWh, config.gridPrice, 'grid price is the fallback when no gas generation is present');
 assert.equal(gridAdjusted.comparable, true, 'grid-only scenario with unchanged SOC is comparable');
+const thresholdConfig = { ...config, bessEnergyKWh: 50000, initialSocPercent: 90, reserveSocPercent: 10 };
+const thresholdResult = hybrid.simulateHybridScenario(rows, scenarios.find(item => item.name === 'ГПУ + BESS'), thresholdConfig);
+const thresholdAdjusted = costHelpers.calculateSocAdjustedCost(thresholdResult, thresholdConfig.gridPrice, thresholdConfig.fuelPrice);
+const thresholdDisplay = costHelpers.formatCostLine(thresholdResult, 'USD', thresholdConfig.gridPrice, thresholdConfig.fuelPrice);
+assert.ok(thresholdAdjusted.adjustmentShare >= 0.005, 'large-battery scenario exceeds the 0.5% adjustment threshold');
+assert.equal(thresholdAdjusted.comparable, false, 'large-battery scenario is not directly comparable');
+assert.equal(thresholdDisplay.primary, 'Не сопоставимо', 'threshold case shows the required non-comparable label');
+assert.match(thresholdDisplay.secondary, /^SOC-корр\.: USD /, 'threshold case still shows adjusted cost and adjustment amount');
 approx(gasBess.endSocKWh, 569, 0.11, 'final SOC kWh');
 approx(gasBess.endSocPercent, 56.9, 0.02, 'final SOC percent');
 approx(gasBess.usableEnergyRemainingKWh, 469, 0.11, 'remaining usable energy kWh');
@@ -101,4 +109,5 @@ for (const key of numericKeys) {
   assert.deepEqual(gridGasPvBess[key], gasBess[key], `PV=0 grid+gas+BESS scenario matches for ${key}`);
 }
 console.log(`Golden SOC adjustment: delta=${socAdjusted.deltaSocKWh.toFixed(6)} kWh; value=${socAdjusted.valuePerKWh.toFixed(9)} / kWh; cost=${gasBess.cost.toFixed(6)}; adjusted=${socAdjusted.adjustedCost.toFixed(6)}; adjustment=${socAdjusted.adjustment.toFixed(6)}; share=${(socAdjusted.adjustmentShare * 100).toFixed(9)}%.`);
+console.log(`Threshold case: BESS=${thresholdConfig.bessPowerKW} kW/${thresholdConfig.bessEnergyKWh} kWh; initial SOC=${thresholdConfig.initialSocPercent}%; reserve=${thresholdConfig.reserveSocPercent}%; final SOC=${thresholdResult.endSocKWh.toFixed(6)} kWh; delta=${thresholdAdjusted.deltaSocKWh.toFixed(6)} kWh; cost=${thresholdResult.cost.toFixed(6)}; adjusted=${thresholdAdjusted.adjustedCost.toFixed(6)}; adjustment=${thresholdAdjusted.adjustment.toFixed(6)}; share=${(thresholdAdjusted.adjustmentShare * 100).toFixed(6)}%; displayed="${thresholdDisplay.primary}" / "${thresholdDisplay.secondary}".`);
 console.log('Hybrid page regression passed: model, display-format, SOC-adjustment and zero-PV assertions.')
