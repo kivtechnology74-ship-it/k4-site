@@ -17,7 +17,7 @@ button:focus-visible,.details summary:focus-visible,a:focus-visible{outline:3px 
  <button id="exampleBtn" class="btn example-btn" type="button">Демонстрационный пример: 10 × J320</button>
  <section class="mobile-quick-results" aria-labelledby="mobile-results-title"><h2 id="mobile-results-title">Краткие результаты</h2><div class="mobile-kpis"><div><span>Мощность</span><strong id="mobileCapacity">—</strong><small>кВт</small></div><div><span>Выработка за год</span><strong id="mobileEnergy">—</strong><small>кВт·ч / год</small></div><div><span>Средняя EBITDA за год</span><strong id="mobileEbitda">—</strong><small>₽ / год</small></div><div><span>Простой срок окупаемости</span><strong id="mobilePayback">—</strong><small>лет</small></div></div><a href="#pdfReport">Перейти к отчёту ↓</a></section>
  <div class="field"><label for="project">Проект / площадка</label><input id="project" placeholder="Название проекта"></div>
- <div class="field"><label for="profile">Модель ГПУ</label><select id="profile"><option value="">Выберите модель</option></select><div class="hint">Профили с ограничениями помечены. Для своего двигателя выберите ручной профиль.</div></div>
+ <div class="field"><label for="profile">Модель ГПУ</label><select id="profile"><option value="">Выберите модель</option></select><div class="profile-search-status" id="profileSearchStatus" aria-live="polite"></div><div class="hint">Профили с ограничениями помечены. Для своего двигателя выберите ручной профиль.</div></div>
  <div id="profileWarning" class="notice hidden"></div>
  <div class="two"><div class="field"><label for="power">Электрическая мощность одной ГПУ, кВт</label><input id="power" type="number" min="1" placeholder="Мощность"></div><div class="field"><label for="units">Количество, шт.</label><input id="units" type="number" min="1" max="100" step="1" value="1"></div></div>
  <div class="two"><div class="field"><label for="load">Загрузка, %</label><select id="load"><option value="100">100%</option><option value="75">75%</option><option value="50">50%</option></select></div><div class="field"><label for="hours">Наработка, ч/год</label><input id="hours" type="number" min="1" max="8760" step="1" value="8000"></div></div>
@@ -124,6 +124,7 @@ function initProfiles(){
  const custom=document.createElement('option');custom.value='custom';custom.textContent='Свой профиль — ввести данные из КП';sel.appendChild(custom);
  selectable.forEach(p=>{const index=PROFILES.indexOf(p),group=profileBrandGroup(p.brand);(by[group]??=[]).push([p,index])});
  Object.keys(by).sort((a,b)=>a.localeCompare(b,'ru')).forEach(brand=>{const g=document.createElement('optgroup');g.label=brand;by[brand].forEach(([p,i])=>{const o=document.createElement('option');o.value=i;o.dataset.profileId=p.id;o.disabled=!allowed(p);o.textContent=profileOptionLabel(p,selectable);o.title=profileOptionTooltip(p);g.appendChild(o)});sel.appendChild(g)});
+ const count=$('profileSearchStatus');if(count)count.textContent=`Все модели · ${selectable.length} доступно · свой профиль отдельно · демо исключено`;
 }
 let activeProfile=null;
 let demoCapexBreakdownActive=false;
