@@ -96,10 +96,11 @@ for (const [html, language] of cssAssertions) {
 }
 assert.ok(/\.field \.field-error[\s\S]*aria-invalid/.test(ru.html), 'RU: inline validation styles are present');
 assert.ok(/aria-invalid="true"[\s\S]*aria-describedby/.test(ru.html), 'RU: inline validation uses ARIA state and description');
-assert.ok(/class="mobile-quick-results"[\s\S]*id="mobileCapacity"[\s\S]*id="mobilePayback"/.test(ru.html), 'RU: mobile result snapshot is present');
+assert.ok(/class="mobile-quick-results(?: hidden)?"[^>]*[\s\S]*id="mobileCapacity"[\s\S]*id="mobilePayback"/.test(ru.html), 'RU: mobile result snapshot is present');
 assert.ok(/\.panel\{position:static;max-height:none;overflow:visible\}/.test(ru.html), 'RU: form does not retain an internal scroll');
 assert.ok(/\.capex-block #outIndexSummary[^}]*white-space:normal[^}]*overflow-wrap:anywhere/.test(ru.html), 'RU: CAPEX summary can wrap');
-assert.ok(/@media\(max-width:600px\)\{\.three \.field label\{min-height:2\.8em\}\}/.test(ru.html), 'RU: mobile cost labels share a minimum height');
+assert.ok(['outCapexUnits','outCapexProject','outCapexWorks','outCapexStart','outCapexAux'].every(id=>ru.html.includes(`id=\"${id}\"`)), 'RU: CAPEX breakdown has five individual rows');
+assert.ok(/@media\(max-width:600px\)\{\.two \.field label,\.three \.field label\{min-height:2\.8em\}\}/.test(ru.html), 'RU: paired mobile field labels share a minimum height');
 assert.ok(/body>footer\.k4-consent-footer\{gap:10px!important\}/.test(ru.html), 'RU: privacy footer links have a gap');
 assert.ok(/setText\('outPayback',Number\.isFinite\(r\.payback\)\?fmt\(r\.payback,1\):'—'\)/.test(ru.html), 'RU: payback value contains only the number');
 assert.ok(/Все модели · \$\{selectable\.length\} доступно · свой профиль отдельно · демо исключено/.test(ru.html), 'RU: counter is tied to selectable profiles');
@@ -123,7 +124,16 @@ const unitTotal = ['gas','zip','ops','oil'].reduce((sum,key)=>sum+Math.round(enS
 close(unitTotal, 1.784, 'same-input unit cost (RUB/kWh)');
 
 const ruOwn = ru.ownDemoOutput;
+assert.equal(Math.round(ruOwn.zipFirst), 75650388, 'RU demo ZIP cost (RUB)');
+assert.equal(Math.round(ruOwn.opsFirst), 29209911, 'RU demo operations cost (RUB)');
+assert.equal(Math.round(ruOwn.oilFirst), 14112654, 'RU demo oil cost (RUB)');
+assert.equal(Math.round(ruOwn.expensesFirst), 146355828, 'RU demo total costs (RUB)');
+assert.equal(Math.round(ruOwn.ebitdaFirst), 108000141, 'RU demo EBITDA (RUB)');
+close(ruOwn.marginFirst * 100, 42.5, 'RU demo margin (%)', 0.05);
+assert.equal(ruOwn.capex, 452000000, 'RU demo CAPEX (RUB)');
+close(ruOwn.payback, 4.2, 'RU demo simple payback (years)', 0.05);
 const ruOwnDisplayedUnitTotal = ['gas','zip','ops','oil'].reduce((sum,key)=>sum+Math.round(ruOwn.unitCosts[key]*1000),0)/1000;
+close(ruOwnDisplayedUnitTotal, 1.784, 'RU demo displayed unit cost (RUB/kWh)');
 console.log(JSON.stringify({
   ruSelectableProfiles: ru.selectable.length,
   ruOptionLabels: { count: ru.labels.length, maximumLength: Math.max(...ru.labels.map(label=>label.length)) },
