@@ -99,6 +99,7 @@ assert.ok(/aria-invalid="true"[\s\S]*aria-describedby/.test(ru.html), 'RU: inlin
 assert.ok(/class="mobile-quick-results(?: hidden)?"[^>]*[\s\S]*id="mobileCapacity"[\s\S]*id="mobilePayback"/.test(ru.html), 'RU: mobile result snapshot is present');
 assert.ok(/\.panel\{position:static;max-height:none;overflow:visible\}/.test(ru.html), 'RU: form does not retain an internal scroll');
 assert.ok(/\.capex-block #outIndexSummary[^}]*white-space:normal[^}]*overflow-wrap:anywhere/.test(ru.html), 'RU: CAPEX summary can wrap');
+assert.ok(['outCapexUnits','outCapexProject','outCapexWorks','outCapexStart','outCapexAux'].every(id=>ru.html.includes(`id=\"${id}\"`)), 'RU: CAPEX breakdown has five individual rows');
 assert.ok(/@media\(max-width:600px\)\{\.two \.field label,\.three \.field label\{min-height:2\.8em\}\}/.test(ru.html), 'RU: paired mobile field labels share a minimum height');
 assert.ok(/body>footer\.k4-consent-footer\{gap:10px!important\}/.test(ru.html), 'RU: privacy footer links have a gap');
 assert.ok(/setText\('outPayback',Number\.isFinite\(r\.payback\)\?fmt\(r\.payback,1\):'—'\)/.test(ru.html), 'RU: payback value contains only the number');
