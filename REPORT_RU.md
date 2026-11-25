@@ -412,6 +412,21 @@ The page copy and its README are now under `/power-screening/`; its canonical is
 
 **Браузерные замеры:** на текущей опубликованной EN-странице до правки при 390 px ширина viewport 390 px, wrapper 342 px, таблица 1500 px, первый столбец 124 px и `position: sticky`; стрелка вправо увеличила `scrollLeft` с 0 до 256 px, первый столбец остался у левого края wrapper. При 500 px wrapper 452 px, таблица 1500 px и `position: sticky`. В обеих ширинах live-страница показывает псевдоэлемент overlay. Это baseline production, не локальная версия после изменения. Браузер не смог открыть локальную ветку (доступны только HTTP/HTTPS, локальная раздача заблокирована средой), поэтому исчезновение overlay и поведение прокрутки после правки **UNVERIFIED**.
 
+### T4 — размер текста textarea Screening: NO-OP
+
+В `power-screening/index.html` уже было правило `@media(max-width:639px){#summary-text{font-size:16px}}`; правку не вносил. На опубликованной Screening-странице при 390 и 500 px в браузере измерены `#summary-text = 16px`; все 16 видимых полей (включая остальные input/select/textarea) также имеют computed `16px`. При 1024 px `#summary-text = 13.333px`, то есть его настольное значение сохранено. Эти размеры измерены на опубликованной странице; локальная копия после изменений не была доступна браузеру.
+
+### Итоговые проверки и ограничения
+
+- T1: обе подсказки EN совпадают с требуемой фразой; inline JS EN/RU прошёл `node --check`.
+- T2: screening-тесты — 13/13; внешний `screening-ui.js` прошёл `node --check`; ссылка и пользовательский текст на русском отсутствуют.
+- T3: `node gpu-estimate-hybrid-ru/tests/hybrid-ui-regression.mjs` и `node scripts/ui_audit_regression.mjs` прошли; inline JS EN/RU прошёл `node --check`.
+- `node scripts/regular_ru_regression.mjs` прошёл: одинаковые входы RU/EN совпали по всем ключевым метрикам (10 630 kW; 82 050 312.5 kWh; RUB 27 382 875 fuel; RUB 146 355 828 total costs; RUB 108 000 141 EBITDA; margin 42.46%; CAPEX RUB 452 000 000; payback 4.185 y; RUB 1.784/kWh). Свои demo-поля RU также проверены.
+- Финальный `git diff --stat origin/main` содержит только `REPORT_RU.md`, `gpu-estimate-hybrid-en/index.html`, `gpu-estimate-hybrid-ru/index.html`, `power-screening/index.html`; регулярные страницы и список файлов sitemap не изменялись. Кириллицы в EN Hybrid и Screening HTML после T2 нет.
+- Проверки источника и тесты подтверждают, что формулы, входы и расчётные JS-файлы не менялись. `git diff --check` прошёл.
+- `git fetch origin` не смог разрешить `github.com`; ветка создана от имеющегося локального `origin/main` (`d1cac6b`). Все указанные базовые маркеры проверены на этом ref. Актуальность удалённого `main` после этого ref проверить не удалось.
+- **UNVERIFIED:** локальный браузерный прогон изменённой ветки на 390/500 px, проверка overflow и послеизменённое поведение scroll/sticky. Существующий браузер открыл production; он измерен как baseline, а не как результат локальных изменений. Статический сервер не запустился из-за запрета среды на локальное сетевое соединение.
+
 ### T2 — английская версия Hybrid Power Calculator: DONE
 
 Создан `gpu-estimate-hybrid-en/index.html` на структуре и UI-контроллере RU-страницы; для расчёта подключается существующий `/gpu-estimate-hybrid-ru/engine.js`. `engine.js`, `screening-engine.js`, RU-страница, данные каталога и аналитика/consent не менялись. EN-страница имеет `lang="en"`, английские title/description/Open Graph, canonical на EN-адрес, `noindex,follow`, reciprocal `en`/`ru`/`x-default`, те же 0.1% SOC-правило, ARIA-валидацию, горизонтальную таблицу, мобильные подсказки/дисклеймер, 5-ю KPI-карточку в отдельной строке и поле 16 px.
