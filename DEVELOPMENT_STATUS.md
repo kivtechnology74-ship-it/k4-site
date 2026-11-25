@@ -4,24 +4,25 @@
 - Pull Request: [#55](https://github.com/kivtechnology74-ship-it/k4-site/pull/55) — merged 2026-11-21
 - Merge commit: `21a6f7a08d6dade2bd7f51e043c678a57d3eb6aa`
 - Production deployment: `3cb3cbdc` — successful; aliases `https://k4-technology.com` and `https://www.k4-technology.com`
-- Public EN: https://k4-technology.com/gpu-estimate-hybrid-en/
-- Public RU: https://k4-technology.com/gpu-estimate-hybrid-ru/
+- Public screening (EN): https://k4-technology.com/power-screening/
+- Hybrid calculator (RU): https://k4-technology.com/gpu-estimate-hybrid-ru/
+- Hybrid calculator (EN): https://k4-technology.com/gpu-estimate-hybrid-en/
 - Product KPI: qualified commercial inquiries for K4 Independent Power Analysis.
 
 ## Frozen functionality
 
-No screening functionality or calculation logic changed in the production-readiness preparation. English and Russian pages share the existing calculation engine. The user-entered nominal peak (including PUE for IT Load) is checked against grid capacity; annual energy, average load, and equivalent full-load hours are calculated separately. Unknown inputs are not silently defaulted. The gas scenario remains unavailable without an applicable confirmed OEM curve and a project gas price with units and LHV/HHV basis.
+The standalone English Free Power Screening tool is served from `/power-screening/`. Its calculation engine and UI remain at `gpu-estimate-hybrid-ru/screening-engine.js` and `gpu-estimate-hybrid-ru/screening-ui.js`; they are not moved. The Russian and English hybrid calculators are separate pages at `/gpu-estimate-hybrid-ru/` and `/gpu-estimate-hybrid-en/` and share `gpu-estimate-hybrid-ru/engine.js`.
 
 The main CTA is “Request Independent Power Analysis”. Energy cost is labeled “Energy Charge Only”. The screening is preliminary, not engineering advice, a feasibility study, or an investment recommendation.
 
 ## SEO and preview indexing
 
-- EN and RU pages use self-referencing canonicals on the primary domain, indexable robots metadata, reciprocal `en`/`ru` hreflang, and `x-default` pointing to EN.
-- The production sitemap contains both public routes and matching language alternates. No preview URLs are in the sitemap.
+- `/power-screening/` is the standalone indexable English screening page, with a self-referencing canonical and no language alternate.
+- `/gpu-estimate-hybrid-en/` and `/gpu-estimate-hybrid-ru/` are the separate noindex hybrid calculators; their canonicals, reciprocal `en`/`ru` alternates, `x-default`, and sitemap entries match. No preview URLs are in the sitemap.
 - `functions/_middleware.js` adds `X-Robots-Tag: noindex, nofollow` on Cloudflare Pages `*.pages.dev` deployments and leaves the primary custom domain unchanged. Middleware behavior is regression-tested; production deployment reports `uses_functions: true`.
 - Existing trailing-slash URL convention is used.
 
-## Verification — 2026-11-21
+## Verification — 2026-11-21 and route reconciliation — 2026-11-25
 
 - Cloudflare production deployment `3cb3cbdc` for merge commit `21a6f7a08d6dade2bd7f51e043c678a57d3eb6aa` completed successfully.
 - Browser opened the public EN route, RU route, and production `/sitemap.xml`; no 404 observed. EN/RU language links, primary CTA and K4 advisory link were present. Sitemap lists both production routes.
@@ -50,8 +51,9 @@ If route, SEO, or indexing behavior fails, revert merge commit `21a6f7a08d6dade2
 
 - `DEVELOPMENT_STATUS.md` — release and verification status, blockers, scope and rollback.
 - `functions/_middleware.js` — preview-only noindex response header.
-- `gpu-estimate-hybrid-en/index.html` — EN page and production SEO metadata.
-- `gpu-estimate-hybrid-ru/README.md` — Free Screening documentation.
+- `gpu-estimate-hybrid-en/index.html` — English hybrid calculator.
+- `power-screening/index.html` — English Free Power Screening page.
+- `power-screening/README.md` — Free Screening documentation.
 - `gpu-estimate-hybrid-ru/index.html` — RU page and production SEO metadata.
 - `gpu-estimate-hybrid-ru/screening-engine.js` — shared screening calculation engine.
 - `gpu-estimate-hybrid-ru/screening-ui.js` — screening UI and inquiry flow.

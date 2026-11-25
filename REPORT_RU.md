@@ -354,3 +354,53 @@ Playwright 1.65.1 и Chromium установлены и запущены. `scrip
 - Не проверено: на реальном iPhone/iOS Safari. PDF-страницы проверялись в Chromium; извлечение текста из PDF отдельно не выполнялось.
 
 Итоговый прогон прошёл: `node scripts/ui_audit_regression.mjs`, `node scripts/regular_ru_regression.mjs`, `node scripts/regular_ru_browser_regression.mjs`, `node --check` для inline JS и тестовых скриптов, `git diff --check`.
+
+## Hybrid EN + Free Power Screening route reconciliation · 2026-11-25
+
+### Phase 0 — reference inventory (before code changes)
+
+| Location (baseline line) | Reference / expectation | Classification |
+|---|---|---|
+| `gpu-estimate-hybrid-en/index.html:1,15,17,22` | Page content, canonical, language alternates and lead form described Free Power Screening, but occupied the URL declared as Hybrid EN. Script tags loaded the screening engine/UI. | Screening page to move; old route becomes Hybrid EN. |
+| `gpu-estimate-hybrid-ru/index.html:9,11` | RU hybrid page's EN and x-default alternates point to `/gpu-estimate-hybrid-en/`. | Hybrid; retain and make reciprocal. |
+| `DEVELOPMENT_STATUS.md:7` | “Public EN” called the old path the English screening page. | Screening; update to `/power-screening/`. |
+| `DEVELOPMENT_STATUS.md:8,19-20` | Called old EN and RU paths a language pair for the indexable screening product. | Screening statement is wrong for RU; distinguish screening and hybrid. |
+| `DEVELOPMENT_STATUS.md:53-58` | Lists the old EN page, screening README, engine and UI as the screening implementation. | Screening docs/page move; engine and UI remain in place. |
+| `gpu-estimate-hybrid-ru/README.md:1-3` | Described the RU and EN hybrid paths as Free Power Screening and said hybrid dispatch was absent. | Screening documentation misplaced; move it alongside `/power-screening/`. |
+| `gpu-estimate-hybrid-ru/tests/free-screening.test.mjs:9` | Imports `screening-engine.js` from its existing path. | Screening engine test; keep engine and test location. |
+| `gpu-estimate-hybrid-ru/tests/free-screening.test.mjs:57` | Expected screening analytics to report the old EN route. | Screening; update `page_path` to `/power-screening/`. |
+| `tests/free-power-screening-seo.test.mjs:6,18-37` | Treated the old EN page as indexable screening and the RU hybrid as its indexable language alternate. | Screening SEO test; retarget to `/power-screening/`, replace false hybrid/indexing assertions in T4. |
+| `tests/free-power-screening-seo.test.mjs:44` | Preview middleware test requested the old route for screening. | Screening; update the request path. |
+| `sitemap.xml:79` | Old EN path was listed as a language pair with the RU hybrid route. The file actually served screening. | Existing mapping is semantically wrong; T1 assigns a standalone screening URL, T3 restores the EN hybrid entry. |
+| `sitemap.xml:80` | RU hybrid entry alternates to the old EN path. | Hybrid; retain and reconcile with the actual EN hybrid page in T3. |
+| `gpu-estimate-hybrid-en/index.html:22` / screening tests | `/gpu-estimate-hybrid-ru/screening-engine.js` is the existing screening engine reference. | Screening implementation detail; do not move or edit the engine. |
+
+**Russian screening version:** no separate Russian Free Power Screening page exists. `/gpu-estimate-hybrid-ru/` is the distinct hybrid power calculator. The screening UI contains bilingual strings, but no RU screening route is mounted. No other references were found in campaigns, `llms*.txt`, `_headers`, `_redirects`, Cloudflare configuration or functions at the Phase 0 scan.
+
+### T1 — move the screening page: DONE
+
+The page copy and its README are now under `/power-screening/`; its canonical is self-referencing, it stays `index,follow`, the mistaken hreflang pair was removed, and `#summary-text` gets 16 px below 640 px. The screening engine and UI files remain at their existing paths. Updated the screening analytics path, SEO test, development status, and sitemap's screening entry. No redirect was added: the former URL is reserved for the Hybrid EN calculator. Verification: `node --test gpu-estimate-hybrid-ru/tests/free-screening.test.mjs tests/free-power-screening-seo.test.mjs` passed (12/12); `node gpu-estimate-hybrid-ru/tests/hybrid-ui-regression.mjs` passed; `python3 scripts/qa_release.py` passed (0 warnings / 0 errors). No inline script is in the moved page; the shared external screening UI script passed `node --check`. The textarea CSS is structurally verified by the SEO regression; browser geometry is part of T4. T1 commit: `Hybrid EN T1: move free screening to power-screening`.
+
+### T2 — английская версия Hybrid Power Calculator: DONE
+
+Создан `gpu-estimate-hybrid-en/index.html` на структуре и UI-контроллере RU-страницы; для расчёта подключается существующий `/gpu-estimate-hybrid-ru/engine.js`. `engine.js`, `screening-engine.js`, RU-страница, данные каталога и аналитика/consent не менялись. EN-страница имеет `lang="en"`, английские title/description/Open Graph, canonical на EN-адрес, `noindex,follow`, reciprocal `en`/`ru`/`x-default`, те же 0.1% SOC-правило, ARIA-валидацию, горизонтальную таблицу, мобильные подсказки/дисклеймер, 5-ю KPI-карточку в отдельной строке и поле 16 px.
+
+Текст и вычисляемые сообщения переведены; суммы показываются через `en-US`, пользовательская валюта — USD/EUR/AED/RUB/Other. SOC cost line использует “Not comparable” и “SOC-adj.”, со знаком `-` или `+`. Для catalog data display-only адаптер не показывает русские названия/единицы из общего каталога; сами данные каталога не изменялись. Контент в English `<html lang>` получил англоязычный privacy chip через существующую shared consent-логику.
+
+Проверено в Chromium локально на ширине 390 px: скрипт общего engine загружен; все 17 видимых input/select имеют вычисленный размер 16 px; видимый текст не содержит кириллицы; golden run вывел все пять строк и совпал с ожидаемыми значениями (Grid 6,132.0 MWh/USD 490,560; Gas 6,132.0 MWh/1,533,000 Nm³/USD 153,300; Gas+BESS 6,394.9 MWh/1,598,716 Nm³/USD 159,872, SOC-adj. USD 159,870 (-USD 2); PV=0 rows match). Полная браузерная матрица и пороговый сценарий выполняются в T4.
+
+Регрессия RU hybrid прошла; встроенный JS EN страницы прошёл `node --check`; Phase 0 screening tests остаются 12/12. T2 commit: `Hybrid EN T2: build English hybrid calculator`.
+
+### T3 — sitemap и language alternates: DONE
+
+Sitemap содержит отдельный `/power-screening/` entry без hreflang, а также обе hybrid-страницы с `lastmod` 2026-11-25 и reciprocal `en`/`ru`/`x-default`. Page-level alternates на RU/EN совпадают с sitemap; обе hybrid-страницы сохраняют `noindex,follow`. `_headers` и `robots.txt` не менялись. Регрессия screening + SEO проверила новую screening entry и согласованность sitemap и страницы для обеих hybrid-версий (13/13 тестов прошли). T3 commit: `Hybrid EN T3: reconcile sitemap language alternates`.
+
+### T4 — bilingual calculation and browser checks: DONE (real iOS — UNVERIFIED)
+
+Добавлены `gpu-estimate-hybrid-ru/tests/hybrid-en-regression.mjs` и `hybrid-en-browser-regression.mjs`. Статический/VM test прогоняет один 8,760-часовой вход через сценарии из RU и EN страниц и сравнивает полные выходные объекты всех пяти рядов, а также все поля SOC-adjusted результата. Он проверяет золотые значения для Grid only, Gas only, Gas+BESS, PV=0 рядов, 20 MWh/SOC 90%, английский noindex и отсутствие кириллицы в исходнике EN. RU страница и её engine/catalog файлы совпадают с `origin/main`.
+
+Playwright/Chromium установлен через `npx playwright install chromium` и реально запускался. На EN-странице проверены 390, 500, 1024 и 1440 px; состояния: пустая форма, golden, 20 MWh / SOC 90%, validation (`units=-3`, `loadFactor=150`). Все видимые мобильные controls — 16 px или больше. Для каждого состояния проверены элементы внутри карточек относительно viewport и края карточки; содержимое внутри горизонтального table-scroll исключено, сам scroll wrapper проверен; ни один элемент не вышел за границы. Пятая KPI-карточка на 390/500 px измеренно занимает полную строку. В начальном, golden, пороговом и ошибочном состояниях видимый текст и доступные атрибуты без кириллицы.
+
+Golden values EN и RU совпали: Grid 6,132.0 MWh / USD 490,560; Gas 6,132.0 MWh / 1,533,000 Nm³ / USD 153,300; Gas+BESS 6,394.9 MWh, charge 2,190.0, discharge 1,927.1 MWh, fuel 1,598,716 Nm³, end SOC 569.0 kWh / 56.9%, cost USD 159,872, adjusted USD 159,870 (-USD 2). 20 MWh / SOC 90% выводит “Not comparable” и “SOC-adj.: USD 159,872 (+USD 388)”.
+
+Не проверено: фактический запуск на iPhone/iOS Safari. Ветку не отправлять и не деплоить по условиям задачи. T4 commit: `Hybrid EN T4: add bilingual and browser regressions`.
