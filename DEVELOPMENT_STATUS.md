@@ -17,12 +17,12 @@ The main CTA is “Request Independent Power Analysis”. Energy cost is labeled
 
 ## SEO and preview indexing
 
-- EN and RU pages use self-referencing canonicals on the primary domain, indexable robots metadata, reciprocal `en`/`ru` hreflang, and `x-default` pointing to EN.
-- The production sitemap contains both public routes and matching language alternates. No preview URLs are in the sitemap.
+- `/power-screening/` is the standalone indexable English screening page, with a self-referencing canonical and no language alternate.
+- `/gpu-estimate-hybrid-en/` and `/gpu-estimate-hybrid-ru/` are the separate noindex hybrid calculators; their canonicals, reciprocal `en`/`ru` alternates, `x-default`, and sitemap entries match. No preview URLs are in the sitemap.
 - `functions/_middleware.js` adds `X-Robots-Tag: noindex, nofollow` on Cloudflare Pages `*.pages.dev` deployments and leaves the primary custom domain unchanged. Middleware behavior is regression-tested; production deployment reports `uses_functions: true`.
 - Existing trailing-slash URL convention is used.
 
-## Verification — 2026-11-21
+## Verification — 2026-11-21 and route reconciliation — 2026-11-25
 
 - Cloudflare production deployment `3cb3cbdc` for merge commit `21a6f7a08d6dade2bd7f51e043c678a57d3eb6aa` completed successfully.
 - Browser opened the public EN route, RU route, and production `/sitemap.xml`; no 404 observed. EN/RU language links, primary CTA and K4 advisory link were present. Sitemap lists both production routes.

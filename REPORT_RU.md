@@ -394,3 +394,13 @@ The page copy and its README are now under `/power-screening/`; its canonical is
 ### T3 — sitemap и language alternates: DONE
 
 Sitemap содержит отдельный `/power-screening/` entry без hreflang, а также обе hybrid-страницы с `lastmod` 2026-11-25 и reciprocal `en`/`ru`/`x-default`. Page-level alternates на RU/EN совпадают с sitemap; обе hybrid-страницы сохраняют `noindex,follow`. `_headers` и `robots.txt` не менялись. Регрессия screening + SEO проверила новую screening entry и согласованность sitemap и страницы для обеих hybrid-версий (13/13 тестов прошли). T3 commit: `Hybrid EN T3: reconcile sitemap language alternates`.
+
+### T4 — bilingual calculation and browser checks: DONE (real iOS — UNVERIFIED)
+
+Добавлены `gpu-estimate-hybrid-ru/tests/hybrid-en-regression.mjs` и `hybrid-en-browser-regression.mjs`. Статический/VM test прогоняет один 8,760-часовой вход через сценарии из RU и EN страниц и сравнивает полные выходные объекты всех пяти рядов, а также все поля SOC-adjusted результата. Он проверяет золотые значения для Grid only, Gas only, Gas+BESS, PV=0 рядов, 20 MWh/SOC 90%, английский noindex и отсутствие кириллицы в исходнике EN. RU страница и её engine/catalog файлы совпадают с `origin/main`.
+
+Playwright/Chromium установлен через `npx playwright install chromium` и реально запускался. На EN-странице проверены 390, 500, 1024 и 1440 px; состояния: пустая форма, golden, 20 MWh / SOC 90%, validation (`units=-3`, `loadFactor=150`). Все видимые мобильные controls — 16 px или больше. Для каждого состояния проверены элементы внутри карточек относительно viewport и края карточки; содержимое внутри горизонтального table-scroll исключено, сам scroll wrapper проверен; ни один элемент не вышел за границы. Пятая KPI-карточка на 390/500 px измеренно занимает полную строку. В начальном, golden, пороговом и ошибочном состояниях видимый текст и доступные атрибуты без кириллицы.
+
+Golden values EN и RU совпали: Grid 6,132.0 MWh / USD 490,560; Gas 6,132.0 MWh / 1,533,000 Nm³ / USD 153,300; Gas+BESS 6,394.9 MWh, charge 2,190.0, discharge 1,927.1 MWh, fuel 1,598,716 Nm³, end SOC 569.0 kWh / 56.9%, cost USD 159,872, adjusted USD 159,870 (-USD 2). 20 MWh / SOC 90% выводит “Not comparable” и “SOC-adj.: USD 159,872 (+USD 388)”.
+
+Не проверено: фактический запуск на iPhone/iOS Safari. Ветку не отправлять и не деплоить по условиям задачи. T4 commit: `Hybrid EN T4: add bilingual and browser regressions`.
