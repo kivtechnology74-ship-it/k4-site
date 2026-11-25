@@ -381,6 +381,27 @@ Playwright 1.65.1 и Chromium установлены и запущены. `scrip
 
 The page copy and its README are now under `/power-screening/`; its canonical is self-referencing, it stays `index,follow`, the mistaken hreflang pair was removed, and `#summary-text` gets 16 px below 640 px. The screening engine and UI files remain at their existing paths. Updated the screening analytics path, SEO test, development status, and sitemap's screening entry. No redirect was added: the former URL is reserved for the Hybrid EN calculator. Verification: `node --test gpu-estimate-hybrid-ru/tests/free-screening.test.mjs tests/free-power-screening-seo.test.mjs` passed (12/12); `node gpu-estimate-hybrid-ru/tests/hybrid-ui-regression.mjs` passed; `python3 scripts/qa_release.py` passed (0 warnings / 0 errors). No inline script is in the moved page; the shared external screening UI script passed `node --check`. The textarea CSS is structurally verified by the SEO regression; browser geometry is part of T4. T1 commit: `Hybrid EN T1: move free screening to power-screening`.
 
+## UI polish · 2026-11-25 · ветка `ui-polish-2026-11-25`
+
+### Фаза 0 — исходная инвентаризация
+
+| Проверка | Текущий результат на `origin/main` | Доказательство / место |
+|---|---|---|
+| EN Hybrid: подсказка `fuelPrice` | `Required. Enter 0 explicitly if fuel is free.` | `gpu-estimate-hybrid-en/index.html:19` |
+| EN Hybrid: подсказка `gridPrice` | `Required. Enter 0 explicitly if fuel is free.` | `gpu-estimate-hybrid-en/index.html:20` |
+| RU Hybrid: эквиваленты | Для обоих полей: `Обязателен. 0 допустим только если введён явно.` | `gpu-estimate-hybrid-ru/index.html:18–19` |
+| Screening: ссылки на RU Hybrid или текст «Русская версия» | Найдена одна: `href="/gpu-estimate-hybrid-ru/"`, текст `Русская версия` | `power-screening/index.html:3` |
+| EN Hybrid: крайний overlay у таблицы | Есть, `.table-scroll-shell:after` с градиентом и тенью | `gpu-estimate-hybrid-en/index.html:14` |
+| RU Hybrid: крайний overlay у таблицы | Есть, `.table-scroll-shell:after` с градиентом и тенью | `gpu-estimate-hybrid-ru/index.html:13` |
+| Screening: table-scroll/overlay | Табличного контейнера и overlay нет | `power-screening/index.html`; других таблиц результатов на странице нет |
+| Regular RU: table-scroll/overlay | Табличного контейнера и overlay нет | `gpu-estimate/index.html`; найденные декоративные градиенты относятся к фону отчёта, не к таблице |
+| Regular EN: table-scroll/overlay | Табличного контейнера и overlay нет | `gpu-estimate/en-beta/index.html`; найденные декоративные градиенты относятся к фону отчёта, не к таблице |
+| Screening: `#summary-text`, computed size | 16 px при ширине 390 px; 13.333 px при настольной ширине 1710 px. Остальные видимые формы при 390 px — 16 px. | Измерено в браузере на опубликованной странице. Локальный исходник задаёт 16 px в `@media(max-width:639px)`; измерение локальной ветки ограничено ниже. |
+
+### T1 — EN-подсказки тарифа: DONE
+
+Под обоими `fuelPrice` и `gridPrice` установлена одинаковая нейтральная фраза: `Required. 0 is allowed only if entered explicitly.` Метки, идентификаторы, валидация и расчёт не менялись. Исходные RU-подсказки подтверждают значение текста.
+
 ### T2 — английская версия Hybrid Power Calculator: DONE
 
 Создан `gpu-estimate-hybrid-en/index.html` на структуре и UI-контроллере RU-страницы; для расчёта подключается существующий `/gpu-estimate-hybrid-ru/engine.js`. `engine.js`, `screening-engine.js`, RU-страница, данные каталога и аналитика/consent не менялись. EN-страница имеет `lang="en"`, английские title/description/Open Graph, canonical на EN-адрес, `noindex,follow`, reciprocal `en`/`ru`/`x-default`, те же 0.1% SOC-правило, ARIA-валидацию, горизонтальную таблицу, мобильные подсказки/дисклеймер, 5-ю KPI-карточку в отдельной строке и поле 16 px.
