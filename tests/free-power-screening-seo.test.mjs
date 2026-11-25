@@ -45,3 +45,27 @@ test("preview middleware adds noindex only to Pages preview hosts", async () => 
   assert.equal(production, original);
   assert.equal(production.headers.get("x-robots-tag"), null);
 });
+
+test("Hybrid RU and EN routes keep reciprocal noindex language alternates", async () => {
+  const enUrl = "https://k4-technology.com/gpu-estimate-hybrid-en/";
+  const ruUrl = "https://k4-technology.com/gpu-estimate-hybrid-ru/";
+  const en = await read("gpu-estimate-hybrid-en/index.html");
+  const ru = await read("gpu-estimate-hybrid-ru/index.html");
+  for (const [html, lang, self, alternate] of [[en,"en",enUrl,ruUrl],[ru,"ru",ruUrl,enUrl]]) {
+    assert.match(html, new RegExp(`<html lang="${lang}">`));
+    assert.equal(link(html,"canonical",""),self);
+    assert.match(html,/name="robots" content="noindex,follow"/);
+    assert.equal(link(html,"alternate",lang),self);
+    assert.equal(link(html,"alternate",lang === "en" ? "ru" : "en"),alternate);
+    assert.equal(link(html,"alternate","x-default"),enUrl);
+  }
+  const sitemap=await read("sitemap.xml");
+  for(const [url,lang,alternate] of [[enUrl,"en",ruUrl],[ruUrl,"ru",enUrl]]){
+    const entry=sitemap.split(`<url><loc>${url}</loc>`)[1]?.split("</url>")[0];
+    assert.ok(entry,`${lang} hybrid route exists in sitemap`);
+    assert.match(entry,/<lastmod>2026-11-25<\/lastmod>/);
+    assert.match(entry,new RegExp(`hreflang="${lang}" href="${url.replaceAll("/","\\/")}"`));
+    assert.match(entry,new RegExp(`hreflang="${lang === "en" ? "ru" : "en"}" href="${alternate.replaceAll("/","\\/")}"`));
+    assert.match(entry,new RegExp(`hreflang="x-default" href="${enUrl.replaceAll("/","\\/")}"`));
+  }
+});

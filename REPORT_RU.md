@@ -390,3 +390,7 @@ The page copy and its README are now under `/power-screening/`; its canonical is
 Проверено в Chromium локально на ширине 390 px: скрипт общего engine загружен; все 17 видимых input/select имеют вычисленный размер 16 px; видимый текст не содержит кириллицы; golden run вывел все пять строк и совпал с ожидаемыми значениями (Grid 6,132.0 MWh/USD 490,560; Gas 6,132.0 MWh/1,533,000 Nm³/USD 153,300; Gas+BESS 6,394.9 MWh/1,598,716 Nm³/USD 159,872, SOC-adj. USD 159,870 (-USD 2); PV=0 rows match). Полная браузерная матрица и пороговый сценарий выполняются в T4.
 
 Регрессия RU hybrid прошла; встроенный JS EN страницы прошёл `node --check`; Phase 0 screening tests остаются 12/12. T2 commit: `Hybrid EN T2: build English hybrid calculator`.
+
+### T3 — sitemap и language alternates: DONE
+
+Sitemap содержит отдельный `/power-screening/` entry без hreflang, а также обе hybrid-страницы с `lastmod` 2026-11-25 и reciprocal `en`/`ru`/`x-default`. Page-level alternates на RU/EN совпадают с sitemap; обе hybrid-страницы сохраняют `noindex,follow`. `_headers` и `robots.txt` не менялись. Регрессия screening + SEO проверила новую screening entry и согласованность sitemap и страницы для обеих hybrid-версий (13/13 тестов прошли). T3 commit: `Hybrid EN T3: reconcile sitemap language alternates`.
