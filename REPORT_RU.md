@@ -402,6 +402,10 @@ The page copy and its README are now under `/power-screening/`; its canonical is
 
 Под обоими `fuelPrice` и `gridPrice` установлена одинаковая нейтральная фраза: `Required. 0 is allowed only if entered explicitly.` Метки, идентификаторы, валидация и расчёт не менялись. Исходные RU-подсказки подтверждают значение текста.
 
+### T2 — ссылка на RU Hybrid в Screening: DONE
+
+Удалён абзац с `Русская версия` и ссылка на `/gpu-estimate-hybrid-ru/`; других ссылок на эту страницу в `power-screening/index.html` не найдено. Замена не добавлялась. После удаления кириллицы на странице не осталось; две ссылки на файлы `screening-engine.js` и `screening-ui.js` оставлены, поскольку это подключение реализации Screening, а не пользовательская ссылка. `screening-engine.js`, форма и расчёт не менялись.
+
 ### T2 — английская версия Hybrid Power Calculator: DONE
 
 Создан `gpu-estimate-hybrid-en/index.html` на структуре и UI-контроллере RU-страницы; для расчёта подключается существующий `/gpu-estimate-hybrid-ru/engine.js`. `engine.js`, `screening-engine.js`, RU-страница, данные каталога и аналитика/consent не менялись. EN-страница имеет `lang="en"`, английские title/description/Open Graph, canonical на EN-адрес, `noindex,follow`, reciprocal `en`/`ru`/`x-default`, те же 0.1% SOC-правило, ARIA-валидацию, горизонтальную таблицу, мобильные подсказки/дисклеймер, 5-ю KPI-карточку в отдельной строке и поле 16 px.
