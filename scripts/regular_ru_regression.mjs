@@ -123,7 +123,16 @@ const unitTotal = ['gas','zip','ops','oil'].reduce((sum,key)=>sum+Math.round(enS
 close(unitTotal, 1.784, 'same-input unit cost (RUB/kWh)');
 
 const ruOwn = ru.ownDemoOutput;
+assert.equal(Math.round(ruOwn.zipFirst), 75650388, 'RU demo ZIP cost (RUB)');
+assert.equal(Math.round(ruOwn.opsFirst), 29209911, 'RU demo operations cost (RUB)');
+assert.equal(Math.round(ruOwn.oilFirst), 14112654, 'RU demo oil cost (RUB)');
+assert.equal(Math.round(ruOwn.expensesFirst), 146355828, 'RU demo total costs (RUB)');
+assert.equal(Math.round(ruOwn.ebitdaFirst), 108000141, 'RU demo EBITDA (RUB)');
+close(ruOwn.marginFirst * 100, 42.5, 'RU demo margin (%)', 0.05);
+assert.equal(ruOwn.capex, 452000000, 'RU demo CAPEX (RUB)');
+close(ruOwn.payback, 4.2, 'RU demo simple payback (years)', 0.05);
 const ruOwnDisplayedUnitTotal = ['gas','zip','ops','oil'].reduce((sum,key)=>sum+Math.round(ruOwn.unitCosts[key]*1000),0)/1000;
+close(ruOwnDisplayedUnitTotal, 1.784, 'RU demo displayed unit cost (RUB/kWh)');
 console.log(JSON.stringify({
   ruSelectableProfiles: ru.selectable.length,
   ruOptionLabels: { count: ru.labels.length, maximumLength: Math.max(...ru.labels.map(label=>label.length)) },
