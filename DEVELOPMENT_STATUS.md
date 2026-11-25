@@ -6,12 +6,12 @@
 - Production deployment: `3cb3cbdc` — successful; aliases `https://k4-technology.com` and `https://www.k4-technology.com`
 - Public screening (EN): https://k4-technology.com/power-screening/
 - Hybrid calculator (RU): https://k4-technology.com/gpu-estimate-hybrid-ru/
-- Hybrid calculator (EN): https://k4-technology.com/gpu-estimate-hybrid-en/ (conversion in progress)
+- Hybrid calculator (EN): https://k4-technology.com/gpu-estimate-hybrid-en/
 - Product KPI: qualified commercial inquiries for K4 Independent Power Analysis.
 
 ## Frozen functionality
 
-The standalone English Free Power Screening tool is served from `/power-screening/`. Its existing calculation engine and UI remain at `gpu-estimate-hybrid-ru/screening-engine.js` and `gpu-estimate-hybrid-ru/screening-ui.js`; they are not moved. The hybrid calculators are separate pages at `/gpu-estimate-hybrid-ru/` and `/gpu-estimate-hybrid-en/`.
+The standalone English Free Power Screening tool is served from `/power-screening/`. Its calculation engine and UI remain at `gpu-estimate-hybrid-ru/screening-engine.js` and `gpu-estimate-hybrid-ru/screening-ui.js`; they are not moved. The Russian and English hybrid calculators are separate pages at `/gpu-estimate-hybrid-ru/` and `/gpu-estimate-hybrid-en/` and share `gpu-estimate-hybrid-ru/engine.js`.
 
 The main CTA is “Request Independent Power Analysis”. Energy cost is labeled “Energy Charge Only”. The screening is preliminary, not engineering advice, a feasibility study, or an investment recommendation.
 
@@ -51,7 +51,7 @@ If route, SEO, or indexing behavior fails, revert merge commit `21a6f7a08d6dade2
 
 - `DEVELOPMENT_STATUS.md` — release and verification status, blockers, scope and rollback.
 - `functions/_middleware.js` — preview-only noindex response header.
-- `gpu-estimate-hybrid-en/index.html` — hybrid EN page (conversion in progress).
+- `gpu-estimate-hybrid-en/index.html` — English hybrid calculator.
 - `power-screening/index.html` — English Free Power Screening page.
 - `power-screening/README.md` — Free Screening documentation.
 - `gpu-estimate-hybrid-ru/index.html` — RU page and production SEO metadata.
