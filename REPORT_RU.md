@@ -470,3 +470,15 @@ Golden values EN и RU совпали: Grid 6,132.0 MWh / USD 490,560; Gas 6,132
 ### T2 — robots и canonical: DONE
 
 На обеих страницах добавлены отсутствовавшие `<meta name="robots" content="index,follow">` и self-referencing absolute canonical. `lang` уже соответствовал языку каждой страницы и не менялся. Diff HTML ограничен строкой `<head>`; body и скрипты не менялись.
+
+### T3 — взаимные hreflang: DONE
+
+В `<head>` обеих страниц добавлены идентичные три alternate-тега: `ru` → `/gpu-estimate/`, `en` → `/gpu-estimate/en-beta/`, `x-default` → `/gpu-estimate/en-beta/`. Все URL абсолютные, с завершающим слэшем. Видимый переключатель языка и body не добавлялись/не менялись.
+
+### Регрессия и непроверенные пункты
+
+- `python3 scripts/qa_release.py`: DONE, 0 ошибок и 0 предупреждений. XML разбирается; 85 `loc` уникальны, все 83 прежние записи остались в исходном порядке; оба новых URL имеют локальные `index.html`.
+- `node scripts/ui_audit_regression.mjs`: DONE, 9 золотых проверок EN прошли. `node scripts/regular_ru_regression.mjs`: DONE, RU/EN одинаковые входы совпали по метрикам; итог 146 355 828 RUB, EBITDA 108 000 141 RUB, маржа 42,46%, окупаемость 4,185 года, цена 1,784 RUB/kWh.
+- Golden demo также измерен в браузере Chrome на опубликованных RU и EN страницах: обе показывают мощность 10 630 kW, выработку 82 050 313 kWh, топливо 27 382 875 RUB, общие затраты 146 355 828 RUB, EBITDA 108 000 141 RUB, маржу 42,5%, CAPEX 452 000 000 RUB, окупаемость 4,2 года и 1,784 RUB/kWh. Код body и расчётов в этой ветке не менялся.
+- **UNVERIFIED:** полная локальная Playwright-матрица. `node scripts/regular_ru_browser_regression.mjs` сообщает, что пакет Playwright не установлен; браузерный golden выше относится к опубликованной исходной версии, а не локальному preview SEO-изменений. Внешнее сканирование поисковыми системами и фактическая индексация не проверялись.
+- `git diff --check` прошёл. Изменены только `sitemap.xml`, `<head>` двух калькуляторов и этот отчёт; видимый текст и расчётная логика не затронуты.
