@@ -466,3 +466,7 @@ Golden values EN и RU совпали: Grid 6,132.0 MWh / USD 490,560; Gas 6,132
 ### T1 — sitemap: DONE
 
 Добавлены обе регулярные страницы с `lastmod` `2026-11-25`. Для обеих sitemap-записей использован формат гибридной пары: `loc`, `lastmod` и три xhtml alternate (`ru`, `en`, `x-default`). Новые URL вставлены после существующей пары hybrid; остальные записи не переставлялись и не менялись. XML parse, уникальность URL и наличие локальных страниц проверены.
+
+### T2 — robots и canonical: DONE
+
+На обеих страницах добавлены отсутствовавшие `<meta name="robots" content="index,follow">` и self-referencing absolute canonical. `lang` уже соответствовал языку каждой страницы и не менялся. Diff HTML ограничен строкой `<head>`; body и скрипты не менялись.
