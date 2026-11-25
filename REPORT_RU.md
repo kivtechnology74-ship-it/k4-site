@@ -450,3 +450,19 @@ Playwright/Chromium установлен через `npx playwright install chro
 Golden values EN и RU совпали: Grid 6,132.0 MWh / USD 490,560; Gas 6,132.0 MWh / 1,533,000 Nm³ / USD 153,300; Gas+BESS 6,394.9 MWh, charge 2,190.0, discharge 1,927.1 MWh, fuel 1,598,716 Nm³, end SOC 569.0 kWh / 56.9%, cost USD 159,872, adjusted USD 159,870 (-USD 2). 20 MWh / SOC 90% выводит “Not comparable” и “SOC-adj.: USD 159,872 (+USD 388)”.
 
 Не проверено: фактический запуск на iPhone/iOS Safari. Ветку не отправлять и не деплоить по условиям задачи. T4 commit: `Hybrid EN T4: add bilingual and browser regressions`.
+
+## Regular calculators: sitemap and indexing · 2026-11-25 · `sitemap-regular-2026-11-25`
+
+### Фаза 0 — исходное состояние
+
+| Объект | Найденное состояние | Доказательство |
+|---|---|---|
+| Генерация sitemap | `sitemap.xml` ведётся вручную; скрипта/сборки, перезаписывающего файл, не найдено. QA-проверка только читает и разбирает его. | Поиск `sitemap.xml`/`sitemap` по репозиторию; `scripts/qa_release.py:230–246` читает и валидирует XML. |
+| `/power-screening/` | `<loc>` и `<lastmod>2026-11-25</lastmod>`; без alternate tags. | `sitemap.xml:79`. |
+| Hybrid EN | `<loc>`, `<lastmod>2026-11-25</lastmod>`, затем xhtml alternate для `en`, `ru`, `x-default`. | `sitemap.xml:80`. |
+| Regular RU (`/gpu-estimate/`) | robots отсутствует; canonical отсутствует; hreflang отсутствует; `lang="ru"`; title: `K4 GPU Estimate — экспресс-оценка ГПУ`; description: `Бесплатный калькулятор для предварительной оценки выработки, расходов и простой окупаемости газопоршневой установки.`; OG-тегов нет. | `<head>` в `gpu-estimate/index.html:2`. |
+| Regular EN (`/gpu-estimate/en-beta/`) | robots отсутствует; canonical отсутствует; hreflang отсутствует; `lang="en"`; title: `K4 GPU Estimate — Gas Engine Power Plant Estimate`; description: `Free calculator for preliminary estimates of generation, operating costs and simple payback for gas engine power plants.`; OG-тегов нет. | `<head>` в `gpu-estimate/en-beta/index.html:2`. |
+
+### T1 — sitemap: DONE
+
+Добавлены обе регулярные страницы с `lastmod` `2026-11-25`. Для обеих sitemap-записей использован формат гибридной пары: `loc`, `lastmod` и три xhtml alternate (`ru`, `en`, `x-default`). Новые URL вставлены после существующей пары hybrid; остальные записи не переставлялись и не менялись. XML parse, уникальность URL и наличие локальных страниц проверены.
