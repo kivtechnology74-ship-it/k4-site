@@ -354,3 +354,29 @@ Playwright 1.65.1 и Chromium установлены и запущены. `scrip
 - Не проверено: на реальном iPhone/iOS Safari. PDF-страницы проверялись в Chromium; извлечение текста из PDF отдельно не выполнялось.
 
 Итоговый прогон прошёл: `node scripts/ui_audit_regression.mjs`, `node scripts/regular_ru_regression.mjs`, `node scripts/regular_ru_browser_regression.mjs`, `node --check` для inline JS и тестовых скриптов, `git diff --check`.
+
+## Hybrid EN + Free Power Screening route reconciliation · 2026-11-25
+
+### Phase 0 — reference inventory (before code changes)
+
+| Location (baseline line) | Reference / expectation | Classification |
+|---|---|---|
+| `gpu-estimate-hybrid-en/index.html:1,15,17,22` | Page content, canonical, language alternates and lead form described Free Power Screening, but occupied the URL declared as Hybrid EN. Script tags loaded the screening engine/UI. | Screening page to move; old route becomes Hybrid EN. |
+| `gpu-estimate-hybrid-ru/index.html:9,11` | RU hybrid page's EN and x-default alternates point to `/gpu-estimate-hybrid-en/`. | Hybrid; retain and make reciprocal. |
+| `DEVELOPMENT_STATUS.md:7` | “Public EN” called the old path the English screening page. | Screening; update to `/power-screening/`. |
+| `DEVELOPMENT_STATUS.md:8,19-20` | Called old EN and RU paths a language pair for the indexable screening product. | Screening statement is wrong for RU; distinguish screening and hybrid. |
+| `DEVELOPMENT_STATUS.md:53-58` | Lists the old EN page, screening README, engine and UI as the screening implementation. | Screening docs/page move; engine and UI remain in place. |
+| `gpu-estimate-hybrid-ru/README.md:1-3` | Described the RU and EN hybrid paths as Free Power Screening and said hybrid dispatch was absent. | Screening documentation misplaced; move it alongside `/power-screening/`. |
+| `gpu-estimate-hybrid-ru/tests/free-screening.test.mjs:9` | Imports `screening-engine.js` from its existing path. | Screening engine test; keep engine and test location. |
+| `gpu-estimate-hybrid-ru/tests/free-screening.test.mjs:57` | Expected screening analytics to report the old EN route. | Screening; update `page_path` to `/power-screening/`. |
+| `tests/free-power-screening-seo.test.mjs:6,18-37` | Treated the old EN page as indexable screening and the RU hybrid as its indexable language alternate. | Screening SEO test; retarget to `/power-screening/`, replace false hybrid/indexing assertions in T4. |
+| `tests/free-power-screening-seo.test.mjs:44` | Preview middleware test requested the old route for screening. | Screening; update the request path. |
+| `sitemap.xml:79` | Old EN path was listed as a language pair with the RU hybrid route. The file actually served screening. | Existing mapping is semantically wrong; T1 assigns a standalone screening URL, T3 restores the EN hybrid entry. |
+| `sitemap.xml:80` | RU hybrid entry alternates to the old EN path. | Hybrid; retain and reconcile with the actual EN hybrid page in T3. |
+| `gpu-estimate-hybrid-en/index.html:22` / screening tests | `/gpu-estimate-hybrid-ru/screening-engine.js` is the existing screening engine reference. | Screening implementation detail; do not move or edit the engine. |
+
+**Russian screening version:** no separate Russian Free Power Screening page exists. `/gpu-estimate-hybrid-ru/` is the distinct hybrid power calculator. The screening UI contains bilingual strings, but no RU screening route is mounted. No other references were found in campaigns, `llms*.txt`, `_headers`, `_redirects`, Cloudflare configuration or functions at the Phase 0 scan.
+
+### T1 — move the screening page: DONE
+
+The page copy and its README are now under `/power-screening/`; its canonical is self-referencing, it stays `index,follow`, the mistaken hreflang pair was removed, and `#summary-text` gets 16 px below 640 px. The screening engine and UI files remain at their existing paths. Updated the screening analytics path, SEO test, development status, and sitemap's screening entry. No redirect was added: the former URL is reserved for the Hybrid EN calculator. Verification: `node --test gpu-estimate-hybrid-ru/tests/free-screening.test.mjs tests/free-power-screening-seo.test.mjs` passed (12/12); `node gpu-estimate-hybrid-ru/tests/hybrid-ui-regression.mjs` passed; `python3 scripts/qa_release.py` passed (0 warnings / 0 errors). No inline script is in the moved page; the shared external screening UI script passed `node --check`. The textarea CSS is structurally verified by the SEO regression; browser geometry is part of T4. T1 commit: `Hybrid EN T1: move free screening to power-screening`.

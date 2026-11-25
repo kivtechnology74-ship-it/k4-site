@@ -54,5 +54,5 @@ test('only server-confirmed K4 form storage qualifies as project inquiry submitt
  ])assert.equal(shouldTrackInquirySubmitted(detail),false);
 });
 test('screening analytics payload contains no project, location, tariff or contact values',()=>{
- assert.deepEqual(safeAnalyticsPayload('screening_completed','/gpu-estimate-hybrid-en/','en'),{event:'screening_completed',page_path:'/gpu-estimate-hybrid-en/',language:'en'});
+ assert.deepEqual(safeAnalyticsPayload('screening_completed','/power-screening/','en'),{event:'screening_completed',page_path:'/power-screening/',language:'en'});
 });

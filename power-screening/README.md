@@ -1,6 +1,6 @@
 # K4 Free Power Screening
 
-English (`/gpu-estimate-hybrid-en/`) and Russian (`/gpu-estimate-hybrid-ru/`) pages use one shared calculation core and UI controller. No CSV, new gas estimate, Solar, BESS, or hybrid dispatch module is included.
+The English Free Power Screening page is published at `/power-screening/`. Its shared screening calculation core and UI controller remain under `gpu-estimate-hybrid-ru/` for compatibility. This is a separate product from the RU/EN hybrid calculators. No CSV, new gas estimate, Solar, BESS, or hybrid dispatch module is included.
 
 ## Data and equations
 

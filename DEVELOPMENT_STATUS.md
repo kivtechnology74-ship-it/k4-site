@@ -4,13 +4,14 @@
 - Pull Request: [#55](https://github.com/kivtechnology74-ship-it/k4-site/pull/55) — merged 2026-11-21
 - Merge commit: `21a6f7a08d6dade2bd7f51e043c678a57d3eb6aa`
 - Production deployment: `3cb3cbdc` — successful; aliases `https://k4-technology.com` and `https://www.k4-technology.com`
-- Public EN: https://k4-technology.com/gpu-estimate-hybrid-en/
-- Public RU: https://k4-technology.com/gpu-estimate-hybrid-ru/
+- Public screening (EN): https://k4-technology.com/power-screening/
+- Hybrid calculator (RU): https://k4-technology.com/gpu-estimate-hybrid-ru/
+- Hybrid calculator (EN): https://k4-technology.com/gpu-estimate-hybrid-en/ (conversion in progress)
 - Product KPI: qualified commercial inquiries for K4 Independent Power Analysis.
 
 ## Frozen functionality
 
-No screening functionality or calculation logic changed in the production-readiness preparation. English and Russian pages share the existing calculation engine. The user-entered nominal peak (including PUE for IT Load) is checked against grid capacity; annual energy, average load, and equivalent full-load hours are calculated separately. Unknown inputs are not silently defaulted. The gas scenario remains unavailable without an applicable confirmed OEM curve and a project gas price with units and LHV/HHV basis.
+The standalone English Free Power Screening tool is served from `/power-screening/`. Its existing calculation engine and UI remain at `gpu-estimate-hybrid-ru/screening-engine.js` and `gpu-estimate-hybrid-ru/screening-ui.js`; they are not moved. The hybrid calculators are separate pages at `/gpu-estimate-hybrid-ru/` and `/gpu-estimate-hybrid-en/`.
 
 The main CTA is “Request Independent Power Analysis”. Energy cost is labeled “Energy Charge Only”. The screening is preliminary, not engineering advice, a feasibility study, or an investment recommendation.
 
@@ -50,8 +51,9 @@ If route, SEO, or indexing behavior fails, revert merge commit `21a6f7a08d6dade2
 
 - `DEVELOPMENT_STATUS.md` — release and verification status, blockers, scope and rollback.
 - `functions/_middleware.js` — preview-only noindex response header.
-- `gpu-estimate-hybrid-en/index.html` — EN page and production SEO metadata.
-- `gpu-estimate-hybrid-ru/README.md` — Free Screening documentation.
+- `gpu-estimate-hybrid-en/index.html` — hybrid EN page (conversion in progress).
+- `power-screening/index.html` — English Free Power Screening page.
+- `power-screening/README.md` — Free Screening documentation.
 - `gpu-estimate-hybrid-ru/index.html` — RU page and production SEO metadata.
 - `gpu-estimate-hybrid-ru/screening-engine.js` — shared screening calculation engine.
 - `gpu-estimate-hybrid-ru/screening-ui.js` — screening UI and inquiry flow.
