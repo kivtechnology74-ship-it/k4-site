@@ -406,6 +406,12 @@ The page copy and its README are now under `/power-screening/`; its canonical is
 
 Удалён абзац с `Русская версия` и ссылка на `/gpu-estimate-hybrid-ru/`; других ссылок на эту страницу в `power-screening/index.html` не найдено. Замена не добавлялась. После удаления кириллицы на странице не осталось; две ссылки на файлы `screening-engine.js` и `screening-ui.js` оставлены, поскольку это подключение реализации Screening, а не пользовательская ссылка. `screening-engine.js`, форма и расчёт не менялись.
 
+### T3 — убрать крайний overlay таблиц Hybrid: PARTIAL
+
+Удалён только `.table-scroll-shell:after` с полупрозрачным градиентом и тенью из обеих Hybrid-страниц. `.table-scroll` с `overflow-x:auto`, горизонтальный scrollbar, текст-подсказка, ширина таблиц и sticky-правило первого столбца не менялись. По CSS-исходнику прокрутка и sticky-колонка сохранены.
+
+**Браузерные замеры:** на текущей опубликованной EN-странице до правки при 390 px ширина viewport 390 px, wrapper 342 px, таблица 1500 px, первый столбец 124 px и `position: sticky`; стрелка вправо увеличила `scrollLeft` с 0 до 256 px, первый столбец остался у левого края wrapper. При 500 px wrapper 452 px, таблица 1500 px и `position: sticky`. В обеих ширинах live-страница показывает псевдоэлемент overlay. Это baseline production, не локальная версия после изменения. Браузер не смог открыть локальную ветку (доступны только HTTP/HTTPS, локальная раздача заблокирована средой), поэтому исчезновение overlay и поведение прокрутки после правки **UNVERIFIED**.
+
 ### T2 — английская версия Hybrid Power Calculator: DONE
 
 Создан `gpu-estimate-hybrid-en/index.html` на структуре и UI-контроллере RU-страницы; для расчёта подключается существующий `/gpu-estimate-hybrid-ru/engine.js`. `engine.js`, `screening-engine.js`, RU-страница, данные каталога и аналитика/consent не менялись. EN-страница имеет `lang="en"`, английские title/description/Open Graph, canonical на EN-адрес, `noindex,follow`, reciprocal `en`/`ru`/`x-default`, те же 0.1% SOC-правило, ARIA-валидацию, горизонтальную таблицу, мобильные подсказки/дисклеймер, 5-ю KPI-карточку в отдельной строке и поле 16 px.
