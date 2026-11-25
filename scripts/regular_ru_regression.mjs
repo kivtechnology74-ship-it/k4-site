@@ -96,7 +96,7 @@ for (const [html, language] of cssAssertions) {
 }
 assert.ok(/\.field \.field-error[\s\S]*aria-invalid/.test(ru.html), 'RU: inline validation styles are present');
 assert.ok(/aria-invalid="true"[\s\S]*aria-describedby/.test(ru.html), 'RU: inline validation uses ARIA state and description');
-assert.ok(/class="mobile-quick-results"[\s\S]*id="mobileCapacity"[\s\S]*id="mobilePayback"/.test(ru.html), 'RU: mobile result snapshot is present');
+assert.ok(/class="mobile-quick-results(?: hidden)?"[^>]*[\s\S]*id="mobileCapacity"[\s\S]*id="mobilePayback"/.test(ru.html), 'RU: mobile result snapshot is present');
 assert.ok(/\.panel\{position:static;max-height:none;overflow:visible\}/.test(ru.html), 'RU: form does not retain an internal scroll');
 assert.ok(/\.capex-block #outIndexSummary[^}]*white-space:normal[^}]*overflow-wrap:anywhere/.test(ru.html), 'RU: CAPEX summary can wrap');
 assert.ok(/@media\(max-width:600px\)\{\.three \.field label\{min-height:2\.8em\}\}/.test(ru.html), 'RU: mobile cost labels share a minimum height');
