@@ -69,3 +69,9 @@ Interview-based K4 analysis prepared in 2026 of historical installations supplie
 - [Industrial Plastics Captive Power: Reconstructing the Investment Case](https://k4-technology.com/insights/plastics-manufacturer-captive-power-investment/)
 - [Plastics Pipes CHP: Testing the Value of Recovered Heat](https://k4-technology.com/insights/plastics-pipes-chp-investment-screen/)
 - [25 MW Mining Power: When the Investment Screen Says Stop](https://k4-technology.com/insights/25mw-mining-power-investment-rejection/)
+
+## K4 Intelligence (private internal workflow)
+
+- K4 Intelligence app information and Google Drive data handling: https://k4-technology.com/k4-intelligence/
+- Privacy Notice, including Google Drive and GitHub Actions processing: https://k4-technology.com/privacy/
+- Terms of Use for the private K4 Intelligence workflow: https://k4-technology.com/terms/
