@@ -276,4 +276,4 @@ $('manualFuelUnit').addEventListener('input',()=>{if(activeProfile?.isCustom){co
 ['project','customModel','power','units','load','hours','fuelRate','manualFuelUnit','fuelPrice','electricPrice','heatPower','heatUse','heatPrice','zipCost','opsCost','oilCost','horizon','idxElectric','idxHeat','idxFuel','idxZip','idxOps','idxOil','capexUnits','capexProject','capexWorks','capexStart','capexAux'].forEach(id=>$(id)?.addEventListener('input',update));
 $('capex').addEventListener('input',()=>{clearDemoCapexBreakdown();update()});
 $('horizon').addEventListener('input',update);update();
-</script></body></html>
+</script><script defer src="/calculator-events.js"></script></body></html>
